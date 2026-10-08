@@ -806,6 +806,12 @@
   .chip.edit.open { background: #fff; color: #0b0c10; border-style: solid; }
   .platpanel { margin: 0 4vw 1.4vh; padding: 1em 1.2em; background: var(--surface); border: 2px solid var(--surface-2); border-radius: 16px; animation: rise .3s cubic-bezier(.2,.8,.2,1); }
   .platpanel[hidden], .filters.off + .platpanel { display: none; }
+  /* Mensajes: los de éxito en verde (los de error siguen en rojo) */
+  .error.ok-msg { color: #5ee08a; }
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat { padding: 14px; border-radius: 14px; }
+  }
   .platpanel .ph { font-weight: 700; margin-bottom: .7em; font-size: clamp(14px, .95vw, 18px); }
   .platpanel .ph small { color: var(--muted); font-weight: 400; }
   .platpanel .wrap { display: flex; flex-wrap: wrap; gap: .5em; }
@@ -1233,7 +1239,7 @@ async function api(path, params = {}, useCache = true, ttl = 0) {
 let running = 0;
 const waiting = [];
 async function limited(fn) {
-  while (running >= 8) await new Promise(r => waiting.push(r));
+  while (running >= 12) await new Promise(r => waiting.push(r));
   running++;
   try { return await fn(); } finally { running--; const next = waiting.shift(); if (next) next(); }
 }
@@ -1571,7 +1577,11 @@ function initHero() {
     if (slides[i + 1]) prepare(slides[i + 1]);
   };
   setCur(0);
+  // Cambio con el teclado: mientras dura el deslizamiento, el desplazamiento no lo pisa
+  let lockUntil = 0;
+  hero._setCur = i => { lockUntil = Date.now() + 900; setCur(i); };
   track.addEventListener('scroll', () => {
+    if (Date.now() < lockUntil) return;
     const i = Math.round(track.scrollLeft / track.clientWidth);
     if (i !== cur && slides[i]) setCur(i);
   }, { passive: true });
@@ -1608,7 +1618,8 @@ async function loadTrending() {
       sort_by: 'popularity.desc'
     }).then(d => d.results.map(r => ({ ...r, _type: type })));
 
-    const svcRows = Object.keys(ids).map(async s => {
+    // Una fila "Popular ahora en…" solo por cada plataforma que pagás
+    const svcRows = PREMIUM.filter(s => ids[s]).map(async s => {
       const [mv, tv] = await Promise.all([discover('movie', ids[s]), discover('tv', ids[s])]);
       return { s, list: notSeen(interleave(tv, mv)).slice(0, 24) };
     });
@@ -2074,7 +2085,8 @@ $('keyBtn').addEventListener('click', () => { $('filters').classList.add('off');
 $('homeBtn').addEventListener('click', () => { $('q').value = ''; $('filters').classList.remove('off'); loadTrending(); content.scrollTo({ top: 0, behavior: 'smooth' }); });
 // Sección activa marcada en la barra (abajo en el celular)
 function setNav(id) { document.querySelectorAll('.tbtns .nav').forEach(b => b.classList.toggle('cur', b.id === id)); }
-document.querySelector('.tbtns').addEventListener('click', e => { const b = e.target.closest('.nav'); if (b) { setNav(b.id); buzz(); } });
+// (al cambiar de sección se cancela la búsqueda pendiente, para que no pise la sección nueva)
+document.querySelector('.tbtns').addEventListener('click', e => { const b = e.target.closest('.nav'); if (b) { clearTimeout(searchTimer); hideSuggest(); setNav(b.id); buzz(); } }, true);
 
 /* 🎤 Buscar con la voz (Chrome, Edge y el navegador de Android) */
 const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -2215,9 +2227,10 @@ function applyFilters() {
 // Se vuelven a aplicar solos cada vez que llegan resultados nuevos
 let filterFrame = 0;
 new MutationObserver(() => {
+  content.querySelectorAll('.error').forEach(m => m.classList.toggle('ok-msg', /^\s*✅/.test(m.textContent)));
   cancelAnimationFrame(filterFrame);
   filterFrame = requestAnimationFrame(applyFilters);
-}).observe(content, { childList: true, subtree: true });
+}).observe(content, { childList: true, subtree: true, characterData: true });
 
 // "Para chicos": familia, infantil o animación, sin terror, crimen, suspenso ni guerra (el anime japonés queda afuera)
 function isKids(c) {
@@ -2445,7 +2458,7 @@ async function renderProfiles(formFor) {
   const me = currentProfile();
   content.innerHTML = `<div class="picker">
       <h2>👤 ¿Quién está mirando?</h2>
-      <div class="profiles">${profiles.map(p => `<button class="prof focusable${p.id === profileId ? ' on' : ''}" data-pid="${p.id}"><div class="av">${p.emoji}</div><div class="pn">${esc(p.name)}</div></button>`).join('')}
+      <div class="profiles">${profiles.map(p => `<button class="prof focusable${p.id === profileId ? ' on' : ''}" data-pid="${esc(p.id)}"><div class="av">${esc(p.emoji)}</div><div class="pn">${esc(p.name)}</div></button>`).join('')}
         <button class="prof focusable" data-new><div class="av">➕</div><div class="pn">Nuevo perfil</div></button></div>
       <div class="pgroup"><button class="btn focusable" id="pedit">✏ Editar "${esc(me.name)}"</button>
         <button class="btn focusable" id="shareList">📤 Compartir mi lista por WhatsApp</button>
@@ -3406,12 +3419,28 @@ async function refreshActions(it, btn) {
 /* ================= Navegación espacial (teclado / mando) ================= */
 function visibleFocusables() {
   const root = overlay.classList.contains('on') ? overlay : $(view);
-  return [...root.querySelectorAll('.focusable')].filter(el => el.offsetParent !== null);
+  // (en el banner solo cuentan los botones del destacado que se está viendo)
+  return [...root.querySelectorAll('.focusable')].filter(el => el.offsetParent !== null && !el.closest('.hslide:not(.cur)'));
 }
 function moveFocus(dir) {
   const els = visibleFocusables();
   const cur = document.activeElement;
   if (!els.includes(cur)) { els[0] && els[0].focus(); return; }
+  // ← → en el banner: pasa al destacado anterior / siguiente cuando no hay más botones para ese lado
+  const slide = cur.closest('.hslide');
+  if (slide && (dir === 'left' || dir === 'right')) {
+    const btns = [...slide.querySelectorAll('.focusable')], i = btns.indexOf(cur);
+    const next = btns[i + (dir === 'right' ? 1 : -1)];
+    if (next) { next.focus({ preventScroll: true }); return; }
+    const slides = [...slide.parentNode.children], j = slides.indexOf(slide) + (dir === 'right' ? 1 : -1);
+    const target = slides[(j + slides.length) % slides.length];
+    const hero = slide.closest('.hero');
+    if (hero && hero._setCur) hero._setCur(slides.indexOf(target));
+    slide.parentNode.scrollTo({ left: target.offsetLeft });
+    const tb = [...target.querySelectorAll('.focusable')];
+    if (tb.length) tb[dir === 'right' ? 0 : tb.length - 1].focus({ preventScroll: true });
+    return;
+  }
   const r = cur.getBoundingClientRect();
   const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
   let best = null, bestScore = Infinity;
