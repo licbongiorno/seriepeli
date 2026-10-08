@@ -1,5 +1,5 @@
 // Centro Multimedia: guarda la página en el equipo para que abra sin internet.
-const VERSION = 'centro-v2';
+const VERSION = 'centro-v3';
 const APP = ['./', 'index.html', 'manifest.webmanifest', 'icono-192.png', 'icono-512.png', 'centro.ico', 'qrcode.js'];
 const IMAGES = 'centro-img';
 
