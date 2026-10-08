@@ -203,6 +203,8 @@
   }
   .content::-webkit-scrollbar { display: none; }
   .row { margin-top: 2.4vh; }
+  /* Las filas fuera de la pantalla no se dibujan hasta que te acercás (carga mucho más liviana) */
+  .content > .row, #content > div > .row { content-visibility: auto; contain-intrinsic-size: auto 360px; }
   .row h2 {
     font-size: clamp(18px, 1.35vw, 28px);
     font-weight: 650;
@@ -598,7 +600,7 @@
   @keyframes pop { from { opacity: 0; transform: translateY(26px) scale(.96); } }
   @keyframes fade { from { opacity: 0; } }
   @keyframes shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
-  @keyframes slowZoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+  @keyframes slowDrift { from { transform: translateY(-18px); } to { transform: none; } }
 
   .view.on { animation: viewIn .4s cubic-bezier(.2,.8,.2,1); }
   .glow {
@@ -629,10 +631,12 @@
   .strip .card:nth-child(6), .results .card:nth-child(6) { animation-delay: .2s; }
   .strip .card:nth-child(7), .results .card:nth-child(7) { animation-delay: .24s; }
   .strip .card:nth-child(n+8), .results .card:nth-child(n+8) { animation-delay: .28s; }
-  .poster:has(img:not(.ok)), .sk {
+  .sk {
     background: linear-gradient(100deg, var(--surface-2) 30%, #2b3050 50%, var(--surface-2) 70%);
     background-size: 250% 100%; animation: shimmer 1.4s linear infinite;
   }
+  /* Póster esperando su imagen: fondo fijo (un brillo animado en cientos de pósters traba los celulares) */
+  .poster.sh { background: linear-gradient(160deg, #262b45, var(--surface-2) 60%); }
   .poster img { opacity: 0; transition: opacity .45s ease, transform .45s ease; transform: scale(1.04); }
   .poster img.ok { opacity: 1; transform: none; }
   .card.seen .poster img.ok { opacity: .4; }
@@ -661,7 +665,7 @@
     opacity: .38; border-radius: inherit; overflow: hidden;
     -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.6) 45%, transparent 100%);
             mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.6) 45%, transparent 100%);
-    animation: fade .8s ease, slowZoom 12s ease-out;
+    animation: fade .8s ease, slowDrift 12s ease-out;
   }
   .detail .poster { box-shadow: 0 20px 50px rgba(0,0,0,.65); }
 
@@ -808,6 +812,21 @@
   .platpanel[hidden], .filters.off + .platpanel { display: none; }
   /* Mensajes: los de éxito en verde (los de error siguen en rojo) */
   .error.ok-msg { color: #5ee08a; }
+  .detail { overflow-x: hidden; }
+  /* Celular acostado: póster al costado y los botones arriba de la sinopsis */
+  @media (orientation: landscape) and (max-height: 520px) {
+    .overlay { padding: 0; align-items: stretch; }
+    .detail { border-radius: 0; max-height: none; height: 100dvh; padding: 12px calc(16px + env(safe-area-inset-right)) 16px calc(16px + env(safe-area-inset-left)); }
+    .detail .top { flex-direction: row; gap: 18px; }
+    .detail .poster { width: 21vw; max-width: 170px; align-self: flex-start; }
+    .detail h3 { font-size: 22px; }
+    .detail .info { gap: 8px; }
+    .detail .info .actions { order: 1; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .detail .info .actions .btn { font-size: 14px; padding: .5em .9em; }
+    .detail .info .scores, .detail .info .facts, .detail .info .overview, .detail .info .where { order: 2; }
+    .overview { max-height: none; font-size: 14px; }
+    .dback { height: 100vh; }
+  }
   @media (max-width: 640px) {
     .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
     .stat { padding: 14px; border-radius: 14px; }
@@ -965,7 +984,7 @@ const SERVICES = {
                 match: n => /^(hbo )?max\b/i.test(n) || /hbo max/i.test(n), open: q => 'https://play.hbomax.com/search?q=' + q },
   disney:     { name: 'Disney+', color: '#13a7c4', home: 'https://www.disneyplus.com/home', networks: [2739],
                 // Disney+ ya no acepta búsquedas por dirección: se usa el enlace exacto del título (ver actionButtons)
-                match: n => /disney/i.test(n), direct: true, open: q => 'https://www.disneyplus.com/home' },
+                match: n => /disney/i.test(n), open: q => 'https://www.disneyplus.com/home' },
   prime:      { name: 'Prime Video', color: '#00a8e1', home: 'https://www.primevideo.com/', networks: [1024],
                 match: n => /amazon prime video|^prime video/i.test(n), open: q => 'https://www.primevideo.com/search/ref=atv_nb_sr?phrase=' + q },
   apple:      { name: 'Apple TV+', color: '#6e6e73', home: 'https://tv.apple.com/ar', networks: [2552],
@@ -977,7 +996,7 @@ const SERVICES = {
   mubi:       { name: 'MUBI', color: '#3b3b98', home: 'https://mubi.com/es', networks: [],
                 match: n => /^mubi/i.test(n), open: q => 'https://mubi.com/es/search/films?query=' + q },
   vix:        { name: 'ViX', color: '#ff5a00', home: 'https://vix.com/', networks: [],
-                match: n => /^vix/i.test(n), direct: true, open: q => 'https://vix.com/' },
+                match: n => /^vix/i.test(n), open: q => 'https://vix.com/' },
   youtube:    { name: 'YouTube', color: '#ff0000', home: 'https://www.youtube.com/', networks: [],
                 match: n => /youtube/i.test(n), open: q => 'https://www.youtube.com/results?search_query=' + q }
 };
@@ -1062,8 +1081,9 @@ function go(url, label, hint) {
 }
 window.addEventListener('pageshow', () => loading.classList.remove('show'));
 // Las imágenes aparecen suave cuando terminan de cargar (si fallan, queda el fondo liso)
-document.addEventListener('load', e => { if (e.target.tagName === 'IMG') e.target.classList.add('ok'); }, true);
-document.addEventListener('error', e => { if (e.target.tagName === 'IMG') { e.target.classList.add('ok'); e.target.style.visibility = 'hidden'; } }, true);
+// (y el póster deja de brillar: la marca "sh" se saca directo, sin selectores costosos)
+document.addEventListener('load', e => { if (e.target.tagName === 'IMG') { e.target.classList.add('ok'); e.target.parentNode.classList.remove('sh'); } }, true);
+document.addEventListener('error', e => { if (e.target.tagName === 'IMG') { e.target.classList.add('ok'); e.target.style.visibility = 'hidden'; e.target.parentNode.classList.remove('sh'); } }, true);
 
 /* Avisos flotantes y vibración corta (en el celular) */
 let toastTimer;
@@ -1488,7 +1508,7 @@ function cardHTML(it, knownSvc, caption) {
   const v = it.vote_count || 0, w = v ? Math.round(((v * (it.vote_average || 0)) + 150 * 6.5) / (v + 150) * 100) : 0;
   const data = `data-g="${(it.genre_ids || []).join(' ')}" data-l="${it.original_language || ''}" data-t="${type}" data-r="${Math.round((it.vote_average || 0) * 10)}" data-w="${w}" data-y="${parseInt(year, 10) || 0}"${knownSvc ? ` data-svcs="${knownSvc}"` : ''}`;
   return `<button class="card focusable${seen ? ' seen' : ''}" data-key="${key}" ${data}>
-      <div class="poster">${img}<div class="badges">${badges}</div>${tag}</div>
+      <div class="poster${it.poster_path ? ' sh' : ''}">${img}<div class="badges">${badges}</div>${tag}</div>
       <div class="t">${esc(title)}</div>
       <div class="y">${type === 'tv' ? 'Serie' : 'Película'}${year ? ' · ' + year : ''}</div>${caption ? `<div class="caption">${esc(caption)}</div>` : ''}
     </button>`;
@@ -2088,6 +2108,9 @@ function setNav(id) { document.querySelectorAll('.tbtns .nav').forEach(b => b.cl
 // (al cambiar de sección se cancela la búsqueda pendiente, para que no pise la sección nueva)
 document.querySelector('.tbtns').addEventListener('click', e => { const b = e.target.closest('.nav'); if (b) { clearTimeout(searchTimer); hideSuggest(); setNav(b.id); buzz(); } }, true);
 
+// En pantallas chicas el texto de ayuda del buscador se acorta (si no, queda cortado)
+if (matchMedia('(max-width: 420px)').matches) $('q').placeholder = 'Buscar…';
+
 /* 🎤 Buscar con la voz (Chrome, Edge y el navegador de Android) */
 const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (SpeechRec) {
@@ -2110,8 +2133,9 @@ if (SpeechRec) {
     rec.onend = rec.onerror = () => { mic.classList.remove('rec'); rec = null; };
     mic.classList.add('rec');
     $('q').value = '';
+    const ph = $('q').placeholder;
     $('q').placeholder = 'Te escucho…';
-    setTimeout(() => { $('q').placeholder = 'Busca una película, serie o actor…'; }, 6000);
+    setTimeout(() => { $('q').placeholder = ph; }, 6000);
     buzz(15);
     rec.start();
   });
@@ -2208,9 +2232,11 @@ function applyFilters() {
       && (filters.type === 'all' || c.dataset.t === filters.type)
       && (!min || r >= min)
       && (filters.age === 'all' || (filters.age === 'kids') === isKids(c));
-    c.style.display = ok ? '' : 'none';
+    const disp = ok ? '' : 'none';
+    if (c.style.display !== disp) c.style.display = disp;
     const w = parseInt(c.dataset.w, 10) || 0;
-    c.style.order = filters.sort === 'rating' ? -w : filters.sort === 'new' ? -y : filters.sort === 'old' ? (y || 9999) : 0;
+    const ord = String(filters.sort === 'rating' ? -w : filters.sort === 'new' ? -y : filters.sort === 'old' ? (y || 9999) : 0);
+    if ((c.style.order || '0') !== ord) c.style.order = ord;
   });
   // Con algún filtro puesto, el banner destacado se esconde (puede no cumplirlo)
   const hero = $('hero');
@@ -2219,7 +2245,8 @@ function applyFilters() {
   content.querySelectorAll('.row').forEach(row => {
     const cards = row.querySelectorAll('.card');
     if (!cards.length) { row.style.display = ''; return; }
-    row.style.display = [...cards].some(c => c.style.display !== 'none') ? '' : 'none';
+    const rd = [...cards].some(c => c.style.display !== 'none') ? '' : 'none';
+    if (row.style.display !== rd) row.style.display = rd;
     const strip = row.querySelector('.strip');
     if (strip && filters.sort !== 'rel') strip.scrollLeft = 0;
   });
@@ -2300,7 +2327,7 @@ async function renderRankings() {
       '😱 Mejores películas de terror', '😂 Mejores comedias', '⚡ Mejores miniseries', '🎥 Mejores documentales'
     ];
     const rankRow = (title, list) => list.length ? rowHTML(title,
-      list.map((r, i) => cardHTML(r).replace('<div class="poster">', `<div class="poster"><span class="rank">${i + 1}</span>`)).join('')) : '';
+      list.map((r, i) => cardHTML(r).replace(/<div class="poster( sh)?">/, m => `${m}<span class="rank">${i + 1}</span>`)).join('')) : '';
     content.innerHTML = titles.map((t, i) => rankRow(t, lists[i])).join('') +
       `<div class="credit">Rankings según las puntuaciones de TMDB, solo con lo que está en ${svcList()} en Argentina. No incluye lo que ya marcaste como visto.</div>`;
     fillBadges(content);
@@ -3181,7 +3208,7 @@ async function loadSaga(col, currentKey) {
       .map(x => ({ ...x, _type: 'movie' }));
     if (parts.length < 2) { box.innerHTML = ''; return; }
     box.innerHTML = `<h4>🎬 ${esc(c.name)}: en orden (${parts.length})</h4><div class="strip">${parts.map((x, i) =>
-      cardHTML(x).replace('<div class="poster">', `<div class="poster"><span class="rank">${i + 1}</span>`)
+      cardHTML(x).replace(/<div class="poster( sh)?">/, m => `${m}<span class="rank">${i + 1}</span>`)
         .replace('class="card focusable', `class="card focusable${'movie/' + x.id === currentKey ? ' current' : ''}`)).join('')}</div>`;
     fillBadges(box);
   } catch (e) { box.innerHTML = ''; }
