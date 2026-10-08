@@ -1,6 +1,6 @@
 // Centro Multimedia: guarda la página en el equipo para que abra sin internet.
-const VERSION = 'centro-v3';
-const APP = ['./', 'index.html', 'manifest.webmanifest', 'icono-192.png', 'icono-512.png', 'centro.ico', 'qrcode.js'];
+const VERSION = 'centro-v4';
+const APP = ['./', 'index.html', 'manifest.webmanifest', 'icono.svg', 'icono-192.png', 'icono-512.png', 'apple-touch-icon.png', 'centro.ico', 'qrcode.js'];
 const IMAGES = 'centro-img';
 
 self.addEventListener('install', e => {
