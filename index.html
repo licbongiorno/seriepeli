@@ -591,6 +591,16 @@
     .pgroup > span { width: 100%; }
     .loading { font-size: 22px; padding: 0 20px; }
   }
+  .qr { display: none; margin: 1em 0 .4em; }
+  .qr.on { display: block; }
+  .qr svg { width: min(260px, 70vw); height: auto; background: #fff; border-radius: 14px; padding: 12px; display: block; }
+  .qr p { color: var(--muted); font-size: .9em; margin-top: .6em; }
+  body.offline::before {
+    content: "📴 Sin conexión — se muestra lo guardado";
+    position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+    background: #f5b301; color: #111; font-weight: 700; font-size: 14px;
+    padding: .45em 1.1em; border-radius: 999px; z-index: 30; pointer-events: none; white-space: nowrap;
+  }
   /* Sin teclado: se ocultan los atajos de teclado y los efectos de "pasar el mouse" */
   .touch #menu footer { display: none; }
   .touch .btn, .touch .chip, .touch .card, .touch .tile { -webkit-tap-highlight-color: transparent; }
@@ -761,8 +771,15 @@ const $ = id => document.getElementById(id);
 const loading = $('loading');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+// Datos que viajan entre la PC y el celular (perfiles, plataformas, listas de cada perfil)
+const SYNC_KEY = /^cm-(profiles|platforms|[^-]+-(list|seen|follow|progress|searches))$/;
+let syncQuiet = false;
 function store(k, v) {
-  try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {}
+  try {
+    if (v === undefined) return localStorage.getItem(k);
+    if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v);
+    if (!syncQuiet && SYNC_KEY.test(k) && typeof syncChanged === 'function') syncChanged();
+  } catch (e) {}
   return null;
 }
 
@@ -848,17 +865,22 @@ const fromB64 = t => JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(t.
       if (c.k) store('tmdb-key', c.k);
       if (c.o) store('omdb-key', c.o);
       if (Array.isArray(c.p) && c.p.length) { store('cm-platforms', JSON.stringify(c.p)); PREMIUM = loadPlatforms(); }
+      // Se une a la misma sincronización que la PC: la primera vez baja los datos de allá
+      if (c.s && c.s.id) { localStorage.setItem('cm-sync', JSON.stringify(c.s)); localStorage.setItem('cm-sync-at', '0'); localStorage.removeItem('cm-sync-dirty'); }
     } catch (e) {}
     history.replaceState(null, '', location.pathname + location.search); // no deja la clave a la vista
   }
 }
 function phoneLink() {
   const base = /^https?:$/.test(location.protocol) ? location.origin + location.pathname : PUBLIC_URL;
-  return base + '#cfg=' + toB64({ k: apiKey, o: omdbKey || undefined, p: PREMIUM });
+  const s = syncCfg();
+  return base + '#cfg=' + toB64({ k: apiKey === DEFAULT_TMDB_KEY ? undefined : apiKey, o: omdbKey || undefined, p: PREMIUM, s: s ? { p: s.p, id: s.id, key: s.key } : undefined });
 }
 
 /* ================= TMDB ================= */
-let apiKey = store('tmdb-key') || '';
+// Clave de TMDB fija: cualquier dispositivo que abra el centro ya queda listo (se puede cambiar en ⚙)
+const DEFAULT_TMDB_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4ZTVkZTQ1OWU4M2YyM2U2OWUzZmQwZTQzNDI0NjYwMiIsIm5iZiI6MTc5MTQ5MTI1MC44OTUsInN1YiI6IjZhYzdmY2IyNmFkM2I5ZDEzY2ZhZTU0OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.VPQ0jrvlx5TgpDSjVZFQC6YFFNUx6wS074C7rWXRuGI';
+let apiKey = store('tmdb-key') || DEFAULT_TMDB_KEY;
 let omdbKey = store('omdb-key') || '';
 
 /* ===== Memoria de respuestas (velocidad) =====
@@ -871,15 +893,17 @@ function ttlFor(path) {
   if (path.startsWith('trending/') || path.startsWith('discover/')) return 3 * HOUR;
   return 24 * HOUR; // fichas, personas, palabras clave, plataformas
 }
-function cacheGet(key) {
-  if (memCache.has(key)) return memCache.get(key);
+// stale = true: devuelve el dato aunque esté vencido (sirve cuando no hay internet)
+function cacheGet(key, stale = false) {
   try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-    const e = JSON.parse(raw);
-    if (Date.now() - e.t > e.ttl) { localStorage.removeItem(key); return null; }
-    memCache.set(key, e);
-    return e;
+    let e = memCache.get(key);
+    if (!e) {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      e = JSON.parse(raw);
+      memCache.set(key, e);
+    }
+    return stale || Date.now() - e.t <= e.ttl ? e : null;
   } catch (err) { return null; }
 }
 function cacheSet(key, data, ttl) {
@@ -915,7 +939,9 @@ async function api(path, params = {}, useCache = true, ttl = 0) {
   const headers = { accept: 'application/json' };
   if (apiKey.startsWith('eyJ')) headers.Authorization = 'Bearer ' + apiKey;
   else url.searchParams.set('api_key', apiKey);
-  const r = await fetch(url, { headers });
+  let r;
+  try { r = await fetch(url, { headers }); }
+  catch (e) { const old = cacheGet(key, true); if (old) return old.d; throw e; } // sin internet: lo último guardado
   if (r.status === 401) throw new Error('clave');
   if (!r.ok) throw new Error('HTTP ' + r.status);
   const data = await r.json();
@@ -937,7 +963,7 @@ async function providers(type, id) {
   const k = type + '/' + id;
   if (!provCache.has(k)) {
     // Se guarda solo el resumen (pequeño) por 24 h, no la respuesta completa con todos los países
-    const saved = cacheGet('p:' + k);
+    const saved = cacheGet('p:' + k) || (navigator.onLine ? null : cacheGet('p:' + k, true));
     if (saved) { provCache.set(k, Promise.resolve(saved.d)); return provCache.get(k); }
     provCache.set(k, limited(() => api(`${type}/${id}/watch/providers`, {}, false)).then(d => {
       const r = (d.results || {})[REGION] || {};
@@ -2057,7 +2083,17 @@ function settingsExtrasHTML() {
       <p style="color:var(--muted);font-size:.9em">El enlace lleva tu clave de TMDB: compartilo solo con tu familia.</p>
       <button class="btn focusable" id="phoneShare">📱 Enviar por WhatsApp</button>
       <button class="btn focusable" id="phoneCopy" style="margin-left:.6em">📋 Copiar enlace</button>
+      <button class="btn focusable" id="phoneQR" style="margin-left:.6em">🔳 Mostrar código QR</button>
+      <div class="qr" id="qrBox"></div>
       <div class="error" id="phoneMsg"></div>
+      <h2 style="margin-top:1.4em">🔄 Sincronizar PC y celular</h2>
+      <p>${syncCfg()
+        ? '✅ Sincronización activada: los perfiles, listas, vistas, “voy por” y plataformas se comparten solos entre los equipos que tengan este centro.' + (syncCfg().last ? ` <span style="color:var(--muted)">(última vez: ${esc(new Date(syncCfg().last).toLocaleString(LANG, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }))})</span>` : '')
+        : 'Activala acá y después mandá el enlace al celular (WhatsApp o QR): lo que marques en uno aparece en el otro.'}</p>
+      ${syncCfg()
+        ? '<button class="btn focusable" id="syncNow">🔄 Sincronizar ahora</button><button class="btn focusable" id="syncOff" style="margin-left:.6em">Desactivar en este equipo</button>'
+        : '<button class="btn primary focusable" id="syncOn">🔄 Activar sincronización</button>'}
+      <div class="error" id="syncMsg"></div>
       <h2 style="margin-top:1.4em">💾 Copia de seguridad</h2>
       <p>Guarda en un archivo los perfiles, listas, vistas, calificaciones y series seguidas. Si algún día se borra el centro, la importás y recuperás todo.</p>
       <button class="btn focusable" id="exportBtn">💾 Exportar copia</button>
@@ -2080,16 +2116,45 @@ function bindSettingsExtras() {
   });
   $('phoneShare').addEventListener('click', () => openWhatsApp('📺 Centro Multimedia para el celular:\n' + phoneLink()));
   $('phoneCopy').addEventListener('click', async () => { $('phoneMsg').textContent = (await copyText(phoneLink())) ? '✅ Enlace copiado.' : 'No se pudo copiar.'; });
+  $('phoneQR').addEventListener('click', showQR);
+  if ($('syncOn')) $('syncOn').addEventListener('click', async () => {
+    $('syncMsg').textContent = 'Activando…';
+    try { await syncEnable(); renderSetup(); $('syncMsg').textContent = '✅ Listo. Ahora mandá el enlace al celular (WhatsApp o QR).'; }
+    catch (e) { $('syncMsg').textContent = '❌ No se pudo activar (' + e.message + '). Probá más tarde; mientras tanto podés usar la copia de seguridad.'; }
+  });
+  if ($('syncNow')) $('syncNow').addEventListener('click', async () => {
+    $('syncMsg').textContent = 'Sincronizando…';
+    $('syncMsg').textContent = (await syncRun(true)) ? '✅ Sincronizado.' : '❌ No hay conexión con la sincronización. Se reintenta sola.';
+  });
+  if ($('syncOff')) $('syncOff').addEventListener('click', () => { localStorage.removeItem('cm-sync'); renderSetup(); });
   $('exportBtn').addEventListener('click', exportBackup);
   $('importBtn').addEventListener('click', () => $('importFile').click());
   $('importFile').addEventListener('change', importBackup);
 }
-function exportBackup() {
+function backupData() {
   const data = { app: 'centro-multimedia', version: 1, date: new Date().toISOString(), platforms: PREMIUM, profiles, data: {} };
   for (const p of profiles) {
     data.data[p.id] = {};
     for (const k of ['list', 'seen', 'follow', 'progress', 'searches']) data.data[p.id][k] = loadJSON(`cm-${p.id}-${k}`, k === 'progress' ? {} : []);
   }
+  return data;
+}
+// Carga una copia (archivo o sincronización). keepProfile: se queda en el perfil actual si sigue existiendo
+function applyBackup(data, keepProfile) {
+  if (!data || data.app !== 'centro-multimedia' || !Array.isArray(data.profiles) || !data.profiles.length) throw new Error('no es una copia del centro');
+  const quiet = syncQuiet;
+  syncQuiet = true;
+  try {
+    for (const p of profiles) if (!data.profiles.some(x => x.id === p.id)) for (const k of ['list', 'seen', 'follow', 'progress', 'searches']) store(`cm-${p.id}-${k}`, null);
+    profiles = data.profiles;
+    store('cm-profiles', JSON.stringify(profiles));
+    for (const p of profiles) for (const [k, v] of Object.entries((data.data || {})[p.id] || {})) store(`cm-${p.id}-${k}`, JSON.stringify(v));
+    if (Array.isArray(data.platforms) && data.platforms.length) { PREMIUM = data.platforms.filter(s => SERVICES[s]); store('cm-platforms', JSON.stringify(PREMIUM)); rebuildPlatformUI(); }
+  } finally { syncQuiet = quiet; }
+  switchProfile(keepProfile && profiles.some(p => p.id === profileId) ? profileId : profiles[0].id);
+}
+function exportBackup() {
+  const data = backupData();
   const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -2105,12 +2170,8 @@ async function importBackup(e) {
   if (!file) return;
   try {
     const data = JSON.parse(await file.text());
-    if (data.app !== 'centro-multimedia' || !Array.isArray(data.profiles)) throw new Error('no es una copia del centro');
-    profiles = data.profiles;
-    store('cm-profiles', JSON.stringify(profiles));
-    for (const p of profiles) for (const [k, v] of Object.entries((data.data || {})[p.id] || {})) store(`cm-${p.id}-${k}`, JSON.stringify(v));
-    if (Array.isArray(data.platforms) && data.platforms.length) { PREMIUM = data.platforms.filter(s => SERVICES[s]); store('cm-platforms', JSON.stringify(PREMIUM)); rebuildPlatformUI(); }
-    switchProfile(profiles[0].id);
+    applyBackup(data, false);
+    syncChanged();
     $('backupMsg').textContent = `✅ Copia del ${new Date(data.date).toLocaleDateString(LANG)} importada: ${profiles.length} perfil(es).`;
   } catch (err) {
     $('backupMsg').textContent = '❌ No se pudo importar: ' + err.message;
@@ -2128,6 +2189,129 @@ function rebuildPlatformUI() {
   if (!PREMIUM.includes(picker.svc)) picker.svc = 'all';
   buildMenuTiles();
 }
+
+/* ================= 🔄 Sincronización PC ↔ celular =================
+   Los datos se guardan en un "cajón" JSON en internet (jsonblob.com, sin cuentas). Solo lo encuentra
+   quien tiene el enlace del celular o el código QR. La clave de TMDB no se guarda ahí.
+   Gana el último cambio: al abrir el centro (o volver a él) se baja lo más nuevo; al cambiar algo, se sube. */
+const SYNC_PROVIDERS = {
+  jsonblob: {
+    async create(data) {
+      const r = await fetch('https://jsonblob.com/api/jsonBlob', { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify(data) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const id = r.headers.get('x-jsonblob-id') || (r.headers.get('location') || '').split('/').pop();
+      if (!id) throw new Error('sin identificador');
+      return { p: 'jsonblob', id };
+    },
+    url: c => 'https://jsonblob.com/api/jsonBlob/' + encodeURIComponent(c.id),
+    headers: () => ({ 'content-type': 'application/json', accept: 'application/json' })
+  },
+  extendsclass: {
+    async create(data) {
+      const key = crypto.getRandomValues(new Uint32Array(4)).join('');
+      const r = await fetch('https://json.extendsclass.com/bin', { method: 'POST', headers: { 'content-type': 'application/json', 'Security-key': key, Private: 'true' }, body: JSON.stringify(data) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const j = await r.json();
+      if (!j.id) throw new Error('sin identificador');
+      return { p: 'extendsclass', id: j.id, key };
+    },
+    url: c => 'https://json.extendsclass.com/bin/' + encodeURIComponent(c.id),
+    headers: c => ({ 'content-type': 'application/json', 'Security-key': c.key || '' })
+  }
+};
+function syncCfg() { try { const c = JSON.parse(localStorage.getItem('cm-sync')); return c && c.id && SYNC_PROVIDERS[c.p] ? c : null; } catch (e) { return null; } }
+function syncSaveCfg(c) { try { localStorage.setItem('cm-sync', JSON.stringify(c)); } catch (e) {} }
+async function syncEnable() {
+  const now = Date.now();
+  localStorage.setItem('cm-sync-at', String(now));
+  const data = { ...backupData(), at: now };
+  let lastErr;
+  for (const name of Object.keys(SYNC_PROVIDERS)) {
+    try {
+      const c = await SYNC_PROVIDERS[name].create(data);
+      c.last = Date.now();
+      syncSaveCfg(c);
+      localStorage.removeItem('cm-sync-dirty');
+      syncReady = true;
+      return c;
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error('sin servicio');
+}
+// syncReady: hasta la primera consulta al abrir, los cambios no se suben (así un equipo nuevo no pisa los datos del otro)
+var syncTimer = null, syncBusy = false, syncReady = false;
+// Se llama cada vez que cambia algo sincronizable: se sube a los pocos segundos
+function syncChanged() {
+  if (!syncReady || !syncCfg()) return;
+  try { localStorage.setItem('cm-sync-at', String(Date.now())); localStorage.setItem('cm-sync-dirty', '1'); } catch (e) {}
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => syncRun(), 2500);
+}
+// Sube lo pendiente o baja lo más nuevo. Devuelve true si pudo hablar con la sincronización.
+async function syncRun(force) {
+  const c = syncCfg();
+  if (!c || syncBusy || (!navigator.onLine && !force)) return false;
+  syncBusy = true;
+  try {
+    const prov = SYNC_PROVIDERS[c.p];
+    const localAt = Number(localStorage.getItem('cm-sync-at')) || 0;
+    const remote = await fetch(prov.url(c), { headers: prov.headers(c), cache: 'no-store' }).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+    const remoteAt = Number(remote && remote.at) || 0;
+    if (remoteAt > localAt) {
+      // Hay algo más nuevo en el otro equipo: se trae
+      applyBackup(remote, true);
+      localStorage.setItem('cm-sync-at', String(remoteAt));
+      localStorage.removeItem('cm-sync-dirty');
+      afterSyncPull();
+    } else if (localStorage.getItem('cm-sync-dirty') === '1' || remoteAt < localAt) {
+      const r = await fetch(prov.url(c), { method: 'PUT', headers: prov.headers(c), body: JSON.stringify({ ...backupData(), at: localAt || Date.now() }) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      localStorage.removeItem('cm-sync-dirty');
+    }
+    syncSaveCfg({ ...c, last: Date.now() });
+    syncReady = true;
+    return true;
+  } catch (e) {
+    // Sin internet: si este equipo ya se sincronizó alguna vez, los cambios quedan pendientes para subir después
+    if (Number(localStorage.getItem('cm-sync-at')) > 0) syncReady = true;
+    return false;
+  }
+  finally { syncBusy = false; }
+}
+// Redibuja lo que está en pantalla con los datos recién bajados
+function afterSyncPull() {
+  forYouStale = true;
+  updateProfileButton();
+  if (view === 'explore') renderMyRows();
+}
+window.addEventListener('online', () => syncRun());
+document.addEventListener('visibilitychange', () => { if (!document.hidden) syncRun(); });
+setInterval(() => { if (!document.hidden) syncRun(); }, 5 * 60e3);
+
+/* ================= 🔳 Código QR para abrirlo en el celular ================= */
+function loadScript(src) {
+  return new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => fail(new Error('no cargó')); document.head.appendChild(s); });
+}
+async function showQR() {
+  const box = $('qrBox');
+  if (box.classList.contains('on')) { box.classList.remove('on'); box.innerHTML = ''; return; }
+  try {
+    if (typeof qrcode !== 'function') await loadScript('qrcode.js');
+    const qr = qrcode(0, 'L');
+    qr.addData(phoneLink());
+    qr.make();
+    box.innerHTML = qr.createSvgTag({ cellSize: 6, margin: 4, scalable: true }) + '<p>Apuntá la cámara del celular a este código y tocá el enlace que aparece.</p>';
+    box.classList.add('on');
+  } catch (e) { $('phoneMsg').textContent = 'No se pudo armar el código QR. Usá “Enviar por WhatsApp”.'; }
+}
+
+/* ================= 📴 Sin conexión ================= */
+function updateOnline() { document.body.classList.toggle('offline', !navigator.onLine); }
+window.addEventListener('online', updateOnline);
+window.addEventListener('offline', updateOnline);
+updateOnline();
+// Guarda el centro en el equipo para que abra aunque no haya internet (solo publicado en internet, no como archivo)
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 
 /* ================= 🔎 Autocompletar e historial ================= */
 const sugBox = $('suggest');
@@ -2813,6 +2997,7 @@ document.addEventListener('mousemove', () => {
 buildMenuTiles();
 updateProfileButton();
 select(index);
+syncRun();
 </script>
 </body>
 </html>
