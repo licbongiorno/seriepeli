@@ -2,7 +2,15 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0c10">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Centro">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="centro.ico">
+<link rel="apple-touch-icon" href="icono-192.png">
 <title>Centro Multimedia</title>
 <link rel="preconnect" href="https://api.themoviedb.org">
 <link rel="preconnect" href="https://image.tmdb.org">
@@ -56,7 +64,7 @@
   }
   .grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(var(--cols, 6), 1fr);
     gap: 1.8vw;
     width: 100%;
     max-width: 1760px;
@@ -158,8 +166,10 @@
   .btn.svc-disney { background: var(--disney); color: #fff; }
   .btn.svc-youtube { background: var(--youtube); color: #fff; }
 
+  .tbtns { display: contents; }
   .search {
     flex: 1;
+    min-width: 12em;
     display: flex;
     align-items: center;
     gap: .8em;
@@ -173,6 +183,7 @@
   .search svg { width: 1.6em; height: 1.6em; color: var(--muted); flex: none; }
   .search input {
     flex: 1;
+    min-width: 0;
     background: none;
     border: none;
     color: var(--text);
@@ -518,12 +529,71 @@
   .grid.many .name { font-size: clamp(14px, 1.1vw, 24px); }
 
   @media (max-width: 900px) {
-    .grid { grid-template-columns: repeat(3, 1fr); }
+    .grid, .grid.many { grid-template-columns: repeat(3, 1fr); }
     .detail .top { flex-direction: column; }
     .pick { flex-direction: column; }
-    .tile { aspect-ratio: 1; }
+    .pick img { width: 100%; }
+    .pick .pi { padding: 0 4vw 3vh; }
+    .tile, .grid.many .tile { aspect-ratio: 1; }
     .detail { flex-direction: column; overflow-y: auto; }
   }
+
+  /* ---------- Celular ---------- */
+  @media (max-width: 640px) {
+    .view { height: 100dvh; }
+    header { padding: calc(16px + env(safe-area-inset-top)) 18px 0; align-items: center; }
+    .greeting { font-size: 24px; }
+    .date { font-size: 14px; }
+    .clock { font-size: 34px; }
+    #menu main { align-items: flex-start; padding: 22px 16px; overflow-y: auto; }
+    .grid, .grid.many { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .tile, .grid.many .tile { aspect-ratio: 4 / 3; border-radius: 18px; gap: .6em; filter: none; }
+    .tile.active { transform: none; }
+    .tile svg { width: 26%; }
+    .name, .grid.many .name { font-size: 17px; }
+    .netflix .name { font-size: 22px; }
+    .key { display: none; }
+
+    /* Barra de arriba: buscador a todo el ancho y botones en una fila que se desliza */
+    .topbar { flex-wrap: wrap; gap: 8px; padding: calc(10px + env(safe-area-inset-top)) 12px 8px; position: relative; }
+    .search { order: -1; flex: 1 1 100%; border-radius: 14px; }
+    .search input { font-size: 17px; padding: .6em 0; }
+    .topbar .btn { font-size: 14px; padding: .5em .8em; border-radius: 12px; border-width: 2px; flex: none; }
+    .tbtns { display: flex; gap: 8px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+    .tbtns::-webkit-scrollbar { display: none; }
+    .filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 0 12px 8px; gap: 1.2em; font-size: 13px; }
+    .filters::-webkit-scrollbar { display: none; }
+    .fgroup { flex: none; }
+
+    .row h2 { padding: 0 14px; font-size: 18px; }
+    .strip { gap: 10px; padding: 10px 14px 14px; scroll-padding: 0 14px; }
+    .card { width: 30vw; max-width: 150px; }
+    .results { grid-template-columns: repeat(3, 1fr); gap: 14px 10px; padding: 10px 14px 14px; }
+    .card:focus, .card:hover { transform: none; }
+    .msg { padding: 3vh 16px; font-size: 15px; }
+    .setup { margin: 12px; padding: 20px 16px; border-radius: 18px; font-size: 15px; }
+    .setup .btn { margin: .3em .3em .3em 0 !important; }
+
+    /* Ficha a pantalla completa */
+    .overlay { padding: 0; align-items: stretch; }
+    .detail { border-radius: 0; max-height: none; height: 100dvh; padding: calc(16px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); gap: 14px; }
+    .detail .top { gap: 14px; }
+    .detail .poster { width: 38vw; max-width: 200px; align-self: center; }
+    .detail h3 { font-size: 24px; }
+    .detail .info { gap: 10px; }
+    .overview { max-height: none; font-size: 15px; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .actions .btn { font-size: 15px; padding: .7em .6em; white-space: normal; border-width: 2px; }
+    .actions .btn[data-go] { grid-column: 1 / -1; font-size: 17px; padding: .8em; }
+    .actions .btn[data-like] { grid-column: auto; }
+    .person { width: 84px; }
+    .suggest { max-height: 60vh; }
+    .pgroup > span { width: 100%; }
+    .loading { font-size: 22px; padding: 0 20px; }
+  }
+  /* Sin teclado: se ocultan los atajos de teclado y los efectos de "pasar el mouse" */
+  .touch #menu footer { display: none; }
+  .touch .btn, .touch .chip, .touch .card, .touch .tile { -webkit-tap-highlight-color: transparent; }
   @media (prefers-reduced-motion: reduce) {
     .tile, .tile::after, .card, .poster::after, .loading { transition: none; }
   }
@@ -593,6 +663,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
       <input class="focusable" id="q" type="search" placeholder="Busca una película o serie…" autocomplete="off" spellcheck="false">
     </label>
+    <div class="tbtns">
     <button class="btn focusable" id="pickBtn">🎲 ¿Qué veo hoy?</button>
     <button class="btn focusable" id="catBtn">📂 Categorías</button>
     <button class="btn focusable" id="rankBtn">🏆 Rankings</button>
@@ -600,6 +671,7 @@
     <button class="btn focusable" id="profBtn">🙂 Perfil</button>
     <button class="btn focusable" id="homeBtn" title="Volver a tendencias">🏠</button>
     <button class="btn focusable" id="keyBtn" title="Configuración">⚙</button>
+    </div>
     <div class="suggest" id="suggest"></div>
   </div>
   <div class="filters" id="filters">
@@ -679,6 +751,9 @@ function svcList(conj = 'y') {
   return n.length > 1 ? n.slice(0, -1).join(', ') + ' ' + conj + ' ' + n[n.length - 1] : n[0] || '';
 }
 const REGION = 'AR';
+// Celular o tablet: pantalla táctil sin mouse
+const IS_TOUCH = matchMedia('(hover: none) and (pointer: coarse)').matches;
+document.documentElement.classList.toggle('touch', IS_TOUCH);
 const LANG = 'es-AR';
 const IMG = 'https://image.tmdb.org/t/p/';
 
@@ -696,13 +771,33 @@ function go(url, label, hint) {
   loading.style.flexDirection = 'column';
   loading.style.textAlign = 'center';
   loading.classList.add('show');
+  if (IS_TOUCH) {
+    // En el celular se abre aparte: así el sistema lanza la app (Netflix, Disney+…) y el centro queda abierto para volver
+    const w = window.open(url, '_blank');
+    setTimeout(() => loading.classList.remove('show'), 1500);
+    if (w) { try { w.opener = null; } catch (e) {} return; }
+  }
   location.href = url;
 }
 window.addEventListener('pageshow', () => loading.classList.remove('show'));
+// Al volver de la app o de otra pestaña, se quita el cartel "Abriendo…"
+document.addEventListener('visibilitychange', () => { if (!document.hidden) loading.classList.remove('show'); });
 
 /* ================= Vistas ================= */
 let view = 'menu';
+// El botón / gesto "Atrás" del celular cierra la ficha o vuelve al menú, en vez de salir del centro
+let fromPop = false;
+const navTag = () => history.state && history.state.cm;
+window.addEventListener('popstate', () => {
+  fromPop = true;
+  try {
+    if (overlay.classList.contains('on')) closeDetail();
+    else if (view === 'explore') show('menu');
+  } finally { fromPop = false; }
+});
 function show(v) {
+  if (v === 'menu' && view === 'explore' && !fromPop && navTag() === 'explore') { history.back(); return; }
+  if (v === 'explore' && view !== 'explore') history.pushState({ cm: 'explore' }, '');
   view = v;
   document.querySelectorAll('.view').forEach(s => s.classList.toggle('on', s.id === v));
   if (v === 'menu') select(index);
@@ -739,6 +834,27 @@ function menuKey(e) {
       else return false;
   }
   return true;
+}
+
+/* ===== Configuración que llega en el enlace "📱 Pasar al celular" (#cfg=...) ===== */
+const PUBLIC_URL = 'https://licbongiorno.github.io/seriepeli/';
+const toB64 = o => btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const fromB64 = t => JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))));
+{
+  const m = location.hash.match(/[#&]cfg=([\w-]+)/);
+  if (m) {
+    try {
+      const c = fromB64(m[1]);
+      if (c.k) store('tmdb-key', c.k);
+      if (c.o) store('omdb-key', c.o);
+      if (Array.isArray(c.p) && c.p.length) { store('cm-platforms', JSON.stringify(c.p)); PREMIUM = loadPlatforms(); }
+    } catch (e) {}
+    history.replaceState(null, '', location.pathname + location.search); // no deja la clave a la vista
+  }
+}
+function phoneLink() {
+  const base = /^https?:$/.test(location.protocol) ? location.origin + location.pathname : PUBLIC_URL;
+  return base + '#cfg=' + toB64({ k: apiKey, o: omdbKey || undefined, p: PREMIUM });
 }
 
 /* ================= TMDB ================= */
@@ -963,7 +1079,7 @@ let searchSeq = 0; // solo la última carga (tendencias o búsqueda) puede escri
 function enterExplore() {
   if (!apiKey) { renderSetup(); return; }
   if (!exploreLoaded) loadTrending();
-  setTimeout(() => $('q').focus(), 30);
+  if (!IS_TOUCH) setTimeout(() => $('q').focus(), 30);
 }
 
 function renderSetup(error) {
@@ -1031,7 +1147,7 @@ function renderSetup(error) {
       }
     }
     loadTrending();
-    $('q').focus();
+    if (!IS_TOUCH) $('q').focus();
   };
   if ($('clearCache')) $('clearCache').addEventListener('click', () => {
     memCache.clear(); provCache.clear();
@@ -1936,6 +2052,12 @@ function settingsExtrasHTML() {
       <div class="wrap seasons" id="platChips" style="margin:1em 0 .4em">${PLATFORM_CHOICES.map(s =>
         `<button class="chip focusable${PREMIUM.includes(s) ? ' on' : ''}" data-plat="${s}">${SERVICES[s].name}</button>`).join('')}</div>
       <div class="error" id="platMsg"></div>
+      <h2 style="margin-top:1.4em">📱 Usarlo en el celular</h2>
+      <p>Mandate este enlace por WhatsApp y abrilo en el celular: queda configurado con tu clave y tus plataformas, sin escribir nada. En el celular, cada botón <strong>▶ Ver en…</strong> abre la app (Netflix, Disney+, HBO Max…) directo en el título. Para tenerlo como una app: menú del navegador → <strong>Agregar a pantalla de inicio</strong>.</p>
+      <p style="color:var(--muted);font-size:.9em">El enlace lleva tu clave de TMDB: compartilo solo con tu familia.</p>
+      <button class="btn focusable" id="phoneShare">📱 Enviar por WhatsApp</button>
+      <button class="btn focusable" id="phoneCopy" style="margin-left:.6em">📋 Copiar enlace</button>
+      <div class="error" id="phoneMsg"></div>
       <h2 style="margin-top:1.4em">💾 Copia de seguridad</h2>
       <p>Guarda en un archivo los perfiles, listas, vistas, calificaciones y series seguidas. Si algún día se borra el centro, la importás y recuperás todo.</p>
       <button class="btn focusable" id="exportBtn">💾 Exportar copia</button>
@@ -1956,6 +2078,8 @@ function bindSettingsExtras() {
     rebuildPlatformUI();
     $('platMsg').textContent = '✅ Guardado: ' + svcList();
   });
+  $('phoneShare').addEventListener('click', () => openWhatsApp('📺 Centro Multimedia para el celular:\n' + phoneLink()));
+  $('phoneCopy').addEventListener('click', async () => { $('phoneMsg').textContent = (await copyText(phoneLink())) ? '✅ Enlace copiado.' : 'No se pudo copiar.'; });
   $('exportBtn').addEventListener('click', exportBackup);
   $('importBtn').addEventListener('click', () => $('importFile').click());
   $('importFile').addEventListener('change', importBackup);
@@ -2087,7 +2211,7 @@ function buildMenuTiles() {
     t.onmouseenter = () => select(n);
     t.onclick = () => openTile(n);
   });
-  grid.style.gridTemplateColumns = `repeat(${Math.min(tiles.length, 9)}, 1fr)`;
+  grid.style.setProperty('--cols', Math.min(tiles.length, 9));
   grid.classList.toggle('many', tiles.length > 6);
   document.querySelector('#menu footer span:nth-child(3)').innerHTML = `<kbd>1–${Math.min(tiles.length, 9)}</kbd>directo`;
   if (index >= tiles.length) index = 0;
@@ -2234,7 +2358,7 @@ function actionButtons(it, p, trailerKey) {
   const b = svcs
     .map(s => links[s]
       ? `<button class="btn focusable" style="background:${SERVICES[s].color};color:#fff" data-go="${esc(links[s])}" data-label="${SERVICES[s].name}" title="Va directo al título">▶ Ver en ${SERVICES[s].name}</button>`
-      : SERVICES[s].direct
+      : SERVICES[s].direct || IS_TOUCH
       ? `<button class="btn focusable" style="background:${SERVICES[s].color};color:#fff" data-go="${esc(watchPage)}" data-label="${SERVICES[s].name}" data-hint="Tocá el logo de ${SERVICES[s].name} para ir directo al título">▶ Ver en ${SERVICES[s].name}</button>`
       : `<button class="btn focusable" style="background:${SERVICES[s].color};color:#fff" data-go="${esc(SERVICES[s].open(q))}" data-label="${SERVICES[s].name}">▶ Ver en ${SERVICES[s].name}</button>`);
   b.push(`<button class="btn focusable" data-go="${esc(watchPage)}" data-label="los enlaces directos" data-hint="Tocá el logo de la plataforma para ir directo al título" title="Enlace exacto al título en cada plataforma">🔗 Enlaces directos</button>`);
@@ -2252,9 +2376,29 @@ function actionButtons(it, p, trailerKey) {
   return b.join('');
 }
 
-/* ===== Enlaces exactos (ayudante local + JustWatch) =====
-   El ayudante (ayudante.ps1) se abre junto con el centro y escucha solo en esta PC. */
+/* ===== Enlaces exactos (JustWatch) =====
+   En la PC los trae el ayudante (ayudante.ps1), que escucha solo en esta PC.
+   En el celular (o si el ayudante está apagado) se le pregunta a JustWatch directamente. */
 const HELPER = 'http://localhost:47615';
+const JW_QUERY = 'query T($country: Country!, $language: Language!, $first: Int!, $filter: TitleFilter) { popularTitles(country: $country, first: $first, filter: $filter) { edges { node { objectType content(country: $country, language: $language) { title externalIds { tmdbId } } offers(country: $country, platform: WEB) { monetizationType standardWebURL package { clearName technicalName } } } } } }';
+function fetchTimeout(url, opts = {}, ms = 9000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...opts, signal: ctrl.signal }).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .finally(() => clearTimeout(timer));
+}
+async function justWatchOffers(it, title) {
+  const body = { query: JW_QUERY, variables: { country: REGION, language: 'es', first: 10, filter: { searchQuery: title } } };
+  const r = await fetchTimeout('https://apis.justwatch.com/graphql', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body)
+  });
+  const objType = it.media_type === 'tv' ? 'SHOW' : 'MOVIE';
+  const node = ((r.data && r.data.popularTitles && r.data.popularTitles.edges) || []).map(e => e.node)
+    .find(n => n.objectType === objType && String(n.content && n.content.externalIds && n.content.externalIds.tmdbId) === String(it.id));
+  if (!node) return [];
+  return (node.offers || []).filter(o => ['FLATRATE', 'FREE', 'ADS'].includes(o.monetizationType))
+    .map(o => ({ name: o.package.clearName, url: o.standardWebURL }));
+}
 async function directLinks(it, d) {
   const key = 'c:links:' + keyOf(it);
   const hit = cacheGet(key);
@@ -2262,20 +2406,28 @@ async function directLinks(it, d) {
   const title = it.title || it.name || (d && (d.title || d.name));
   const otitle = d ? (d.original_title || d.original_name) : '';
   if (!title) return null;
-  try {
-    const url = `${HELPER}/link?tmdb=${it.id}&type=${it.media_type}&title=${encodeURIComponent(title)}&otitle=${encodeURIComponent(otitle || '')}`;
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 9000);
-    const r = await fetch(url, { signal: ctrl.signal }).then(x => x.json());
-    clearTimeout(timer);
-    const links = {};
-    for (const o of r.offers || []) {
-      const s = Object.keys(SERVICES).find(k => SERVICES[k].match(o.name));
-      if (s && !links[s] && o.url) links[s] = o.url;
-    }
-    cacheSet(key, links, Object.keys(links).length ? 24 * HOUR : HOUR); // si no encontró nada, reintenta en 1 h
-    return links;
-  } catch (e) { return null; } // ayudante apagado: se usan la búsqueda o la página "Dónde ver"
+  let offers = null;
+  // 1) Ayudante de la PC (no se usa en el celular: ahí no existe)
+  if (!IS_TOUCH) {
+    try {
+      const url = `${HELPER}/link?tmdb=${it.id}&type=${it.media_type}&title=${encodeURIComponent(title)}&otitle=${encodeURIComponent(otitle || '')}`;
+      offers = (await fetchTimeout(url)).offers || [];
+    } catch (e) { offers = null; }
+  }
+  // 2) JustWatch directo desde el navegador
+  if (offers === null) {
+    try {
+      offers = await justWatchOffers(it, title);
+      if (!offers.length && otitle && otitle !== title) offers = await justWatchOffers(it, otitle);
+    } catch (e) { return null; } // sin respuesta: se usan la búsqueda o la página "Dónde ver"
+  }
+  const links = {};
+  for (const o of offers) {
+    const s = Object.keys(SERVICES).find(k => SERVICES[k].match(o.name));
+    if (s && !links[s] && o.url) links[s] = o.url;
+  }
+  cacheSet(key, links, Object.keys(links).length ? 24 * HOUR : HOUR); // si no encontró nada, reintenta en 1 h
+  return links;
 }
 
 function shareText(it, p) {
@@ -2355,7 +2507,7 @@ async function loadSaga(col, currentKey) {
 async function openDetail(key) {
   const it = items.get(key);
   if (!it) return;
-  if (!overlay.classList.contains('on')) { returnFocus = document.activeElement; if ($('q').value.trim() && view === 'explore') rememberSearch($('q').value); }
+  if (!overlay.classList.contains('on')) { history.pushState({ cm: 'detail' }, ''); returnFocus = document.activeElement; if ($('q').value.trim() && view === 'explore') rememberSearch($('q').value); }
   detailKey = key;
   const type = it.media_type;
   const title = it.title || it.name;
@@ -2407,7 +2559,7 @@ async function openDetail(key) {
   detailCtx = { it, p, d, trailerKey };
   if (d && d.runtime) it.runtime = d.runtime;
   $('actions').innerHTML = actionButtons(it, p, trailerKey);
-  $('actions').querySelector('.btn').focus({ preventScroll: true });
+  if (!IS_TOUCH) $('actions').querySelector('.btn').focus({ preventScroll: true });
   // Cuando llegan los enlaces exactos, se redibujan los botones manteniendo el foco
   directLinks(it, d).then(links => {
     if (!links || detailKey !== key || !detailCtx || detailCtx.it !== it) return;
@@ -2509,6 +2661,7 @@ async function showScores(d, key) {
 }
 
 function closeDetail() {
+  if (!fromPop && navTag() === 'detail') { history.back(); return; }
   overlay.classList.remove('on');
   detailKey = null;
   if (returnFocus && document.body.contains(returnFocus)) returnFocus.focus({ preventScroll: true });
