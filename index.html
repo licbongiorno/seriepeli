@@ -2534,18 +2534,13 @@ let detailCtx = null;
 function actionButtons(it, p, trailerKey) {
   const k = keyOf(it);
   const q = encodeURIComponent(it.title || it.name);
-  // Página de TMDB "Dónde ver": tiene el enlace exacto al título en cada plataforma (vía JustWatch)
-  const watchPage = `https://www.themoviedb.org/${it.media_type}/${it.id}/watch?locale=${REGION}`;
-  // Enlaces exactos al título que trae el ayudante local (JustWatch), si está funcionando
+  // Enlaces exactos al título (JustWatch / Wikidata), cuando ya llegaron
   const links = (detailCtx && detailCtx.it === it && detailCtx.links) || {};
   const svcs = [...new Set([...p.mine, ...Object.keys(links)])].filter(s => PREMIUM.includes(s));
+  // Cada botón abre la plataforma (la app en el celular) directo en el título. Si todavía se está
+  // buscando el enlace exacto, el botón lo espera (data-svc); solo si no existe usa la plataforma sin título.
   const b = svcs
-    .map(s => links[s]
-      ? `<button class="btn focusable" style="background:${SERVICES[s].color};color:#fff" data-go="${esc(links[s])}" data-label="${SERVICES[s].name}" title="Va directo al título">▶ Ver en ${SERVICES[s].name}</button>`
-      : SERVICES[s].direct || IS_TOUCH
-      ? `<button class="btn focusable" style="background:${SERVICES[s].color};color:#fff" data-go="${esc(watchPage)}" data-label="${SERVICES[s].name}" data-hint="Tocá el logo de ${SERVICES[s].name} para ir directo al título">▶ Ver en ${SERVICES[s].name}</button>`
-      : `<button class="btn focusable" style="background:${SERVICES[s].color};color:#fff" data-go="${esc(SERVICES[s].open(q))}" data-label="${SERVICES[s].name}">▶ Ver en ${SERVICES[s].name}</button>`);
-  b.push(`<button class="btn focusable" data-go="${esc(watchPage)}" data-label="los enlaces directos" data-hint="Tocá el logo de la plataforma para ir directo al título" title="Enlace exacto al título en cada plataforma">🔗 Enlaces directos</button>`);
+    .map(s => `<button class="btn focusable" style="background:${SERVICES[s].color};color:#fff" data-svc="${s}" data-go="${esc(links[s] || SERVICES[s].open(q))}" data-label="${SERVICES[s].name}"${links[s] ? ' title="Va directo al título"' : ''}>▶ Ver en ${SERVICES[s].name}</button>`);
   const trailer = trailerKey ? 'https://www.youtube.com/watch?v=' + trailerKey : SERVICES.youtube.open(q + '+trailer+español');
   b.push(`<button class="btn svc-youtube focusable" data-go="${esc(trailer)}" data-label="el tráiler">▶ Tráiler</button>`);
   b.push(`<button class="btn focusable${inList(k) ? ' on' : ''}" data-list>${inList(k) ? '✓ En mi lista' : '＋ Mi lista'}</button>`);
@@ -2583,6 +2578,25 @@ async function justWatchOffers(it, title) {
   return (node.offers || []).filter(o => ['FLATRATE', 'FREE', 'ADS'].includes(o.monetizationType))
     .map(o => ({ name: o.package.clearName, url: o.standardWebURL }));
 }
+/* Wikidata guarda el código de cada título en Netflix, Disney+, HBO Max, Prime Video, Apple TV…
+   y el formato de su dirección. Funciona desde cualquier navegador (también el del celular). */
+const WD_HOSTS = { netflix: /netflix\.com/, disney: /disneyplus\.com/, max: /(hbo)?max\.com/, prime: /primevideo\.com|amazon\./,
+  apple: /tv\.apple\.com/, paramount: /paramountplus\.com/, crunchyroll: /crunchyroll\.com/, mubi: /mubi\.com/ };
+async function wikidataLinks(it) {
+  const prop = it.media_type === 'tv' ? 'P4983' : 'P4947'; // código de TMDB (serie / película)
+  const q = `SELECT ?val ?fmt WHERE { ?item wdt:${prop} "${Number(it.id)}" . ?item ?claim ?val .
+    ?p wikibase:directClaim ?claim ; wikibase:propertyType wikibase:ExternalId ; wdt:P1630 ?fmt .
+    FILTER(REGEX(STR(?fmt), "netflix|disneyplus|max\\\\.com|primevideo|amazon\\\\.|tv\\\\.apple|paramountplus|crunchyroll|mubi")) }`;
+  const r = await fetchTimeout('https://query.wikidata.org/sparql?format=json&query=' + encodeURIComponent(q), { headers: { accept: 'application/sparql-results+json' } });
+  const links = {};
+  for (const row of (r.results && r.results.bindings) || []) {
+    const fmt = row.fmt.value, val = row.val.value;
+    const s = Object.keys(WD_HOSTS).find(k => WD_HOSTS[k].test(fmt));
+    if (s && !links[s] && fmt.includes('$1')) links[s] = fmt.replace('$1', encodeURIComponent(val));
+  }
+  return links;
+}
+// Enlace exacto al título en cada plataforma: { netflix: 'https://www.netflix.com/title/…', … }
 async function directLinks(it, d) {
   const key = 'c:links:' + keyOf(it);
   const hit = cacheGet(key);
@@ -2590,26 +2604,30 @@ async function directLinks(it, d) {
   const title = it.title || it.name || (d && (d.title || d.name));
   const otitle = d ? (d.original_title || d.original_name) : '';
   if (!title) return null;
-  let offers = null;
-  // 1) Ayudante de la PC (no se usa en el celular: ahí no existe)
-  if (!IS_TOUCH) {
-    try {
-      const url = `${HELPER}/link?tmdb=${it.id}&type=${it.media_type}&title=${encodeURIComponent(title)}&otitle=${encodeURIComponent(otitle || '')}`;
-      offers = (await fetchTimeout(url)).offers || [];
-    } catch (e) { offers = null; }
-  }
-  // 2) JustWatch directo desde el navegador
-  if (offers === null) {
-    try {
-      offers = await justWatchOffers(it, title);
-      if (!offers.length && otitle && otitle !== title) offers = await justWatchOffers(it, otitle);
-    } catch (e) { return null; } // sin respuesta: se usan la búsqueda o la página "Dónde ver"
-  }
-  const links = {};
-  for (const o of offers) {
-    const s = Object.keys(SERVICES).find(k => SERVICES[k].match(o.name));
-    if (s && !links[s] && o.url) links[s] = o.url;
-  }
+  const toLinks = offers => {
+    const links = {};
+    for (const o of offers || []) {
+      const s = Object.keys(SERVICES).find(k => SERVICES[k].match(o.name));
+      if (s && !links[s] && o.url) links[s] = o.url;
+    }
+    return links;
+  };
+  // JustWatch: primero el ayudante de la PC (en el celular no existe); si no, directo desde el navegador
+  const jw = (async () => {
+    if (!IS_TOUCH) {
+      try {
+        const url = `${HELPER}/link?tmdb=${it.id}&type=${it.media_type}&title=${encodeURIComponent(title)}&otitle=${encodeURIComponent(otitle || '')}`;
+        return toLinks((await fetchTimeout(url)).offers);
+      } catch (e) {}
+    }
+    let offers = await justWatchOffers(it, title);
+    if (!offers.length && otitle && otitle !== title) offers = await justWatchOffers(it, otitle);
+    return toLinks(offers);
+  })();
+  // Se consultan las dos fuentes a la vez; JustWatch manda si las dos tienen enlace
+  const [a, b] = await Promise.allSettled([jw, wikidataLinks(it)]);
+  if (a.status === 'rejected' && b.status === 'rejected') return null; // sin conexión: se reintenta la próxima vez
+  const links = { ...(b.value || {}), ...(a.value || {}) };
   cacheSet(key, links, Object.keys(links).length ? 24 * HOUR : HOUR); // si no encontró nada, reintenta en 1 h
   return links;
 }
@@ -2745,7 +2763,8 @@ async function openDetail(key) {
   $('actions').innerHTML = actionButtons(it, p, trailerKey);
   if (!IS_TOUCH) $('actions').querySelector('.btn').focus({ preventScroll: true });
   // Cuando llegan los enlaces exactos, se redibujan los botones manteniendo el foco
-  directLinks(it, d).then(links => {
+  detailCtx.linksPromise = directLinks(it, d).catch(() => null);
+  detailCtx.linksPromise.then(links => {
     if (!links || detailKey !== key || !detailCtx || detailCtx.it !== it) return;
     detailCtx.links = links;
     const kids = [...$('actions').children];
@@ -2844,6 +2863,15 @@ async function showScores(d, key) {
   box.innerHTML = html + tmdb;
 }
 
+// "▶ Ver en…" tocado antes de que llegue el enlace exacto: lo espera (hasta 4 s, así el navegador
+// todavía lo cuenta como tu toque y deja abrir la app) y abre directo el título
+async function openWhenReady(svc, btn) {
+  loading.innerHTML = `Buscando el título en ${esc(SERVICES[svc].name)}…`;
+  loading.classList.add('show');
+  const links = await Promise.race([detailCtx.linksPromise, new Promise(r => setTimeout(() => r(null), 4000))]);
+  go((links && links[svc]) || btn.dataset.go, SERVICES[svc].name);
+}
+
 function closeDetail() {
   if (!fromPop && navTag() === 'detail') { history.back(); return; }
   overlay.classList.remove('on');
@@ -2857,7 +2885,8 @@ overlay.addEventListener('click', e => {
   const it = detailKey && items.get(detailKey);
   const season = e.target.closest('[data-season]');
   const ep = e.target.closest('.ep');
-  if (b && b.dataset.go) go(b.dataset.go, b.dataset.label, b.dataset.hint);
+  if (b && b.dataset.svc && detailCtx && !detailCtx.links && detailCtx.linksPromise) openWhenReady(b.dataset.svc, b);
+  else if (b && b.dataset.go) go(b.dataset.go, b.dataset.label, b.dataset.hint);
   else if (b && b.hasAttribute('data-list') && it) { toggleList(it); refreshActions(it, b); }
   else if (b && b.hasAttribute('data-seen') && it) { toggleSeen(it); refreshActions(it, b); }
   else if (b && b.dataset.like && it) { setLike(it, +b.dataset.like); refreshActions(it, b); }
