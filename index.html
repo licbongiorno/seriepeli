@@ -534,7 +534,7 @@
     .detail .top { flex-direction: column; }
     .pick { flex-direction: column; }
     .pick img { width: 100%; }
-    .pick .pi { padding: 0 4vw 3vh; }
+    .pick .pi { padding: 2.2vh 4vw 3vh; }
     .tile, .grid.many .tile { aspect-ratio: 1; }
     .detail { flex-direction: column; overflow-y: auto; }
   }
@@ -800,6 +800,18 @@
     .dclose { margin: 0 0 -2.8em 0; }
   }
 
+  /* Panel "Mis plataformas" */
+  .sdot { display: inline-block; width: .6em; height: .6em; border-radius: 50%; margin-right: .45em; vertical-align: .05em; }
+  .chip.edit { border-style: dashed; color: var(--text); }
+  .chip.edit.open { background: #fff; color: #0b0c10; border-style: solid; }
+  .platpanel { margin: 0 4vw 1.4vh; padding: 1em 1.2em; background: var(--surface); border: 2px solid var(--surface-2); border-radius: 16px; animation: rise .3s cubic-bezier(.2,.8,.2,1); }
+  .platpanel[hidden], .filters.off + .platpanel { display: none; }
+  .platpanel .ph { font-weight: 700; margin-bottom: .7em; font-size: clamp(14px, .95vw, 18px); }
+  .platpanel .ph small { color: var(--muted); font-weight: 400; }
+  .platpanel .wrap { display: flex; flex-wrap: wrap; gap: .5em; }
+  .platpanel .chip { padding: .45em 1em; }
+  @media (max-width: 640px) { .platpanel { margin: 0 12px 10px; padding: .8em; } .platpanel .ph small { display: block; } }
+
   .qr { display: none; margin: 1em 0 .4em; }
   .qr.on { display: block; }
   .qr svg { width: min(260px, 70vw); height: auto; background: #fff; border-radius: 14px; padding: 12px; display: block; }
@@ -925,6 +937,10 @@
       <button class="chip focusable" data-v="adult">Para grandes</button>
     </div>
   </div>
+  <div class="platpanel" id="platPanel" hidden>
+    <div class="ph">Buscar solo en estas plataformas <small>— tocá para prender o apagar; queda guardado</small></div>
+    <div class="wrap"></div>
+  </div>
   <div class="content" id="content"></div>
 </section>
 
@@ -959,6 +975,12 @@ const SERVICES = {
   youtube:    { name: 'YouTube', color: '#ff0000', home: 'https://www.youtube.com/', networks: [],
                 match: n => /youtube/i.test(n), open: q => 'https://www.youtube.com/results?search_query=' + q }
 };
+// Plataforma de un nombre de TMDB/JustWatch. Los "canales" dentro de otra tienda
+// ("Max Amazon Channel", "Paramount Plus Apple TV Channel"…) NO cuentan: se ven con otra suscripción.
+function svcOf(name) {
+  if (/channel|canal/i.test(name || '')) return null;
+  return Object.keys(SERVICES).find(k => SERVICES[k].match(name)) || null;
+}
 // Plataformas que pagas (se eligen en ⚙). Por defecto, las tres originales.
 const PLATFORM_CHOICES = ['netflix', 'max', 'disney', 'prime', 'apple', 'paramount', 'crunchyroll', 'mubi', 'vix'];
 function loadPlatforms() {
@@ -1221,18 +1243,18 @@ async function providers(type, id) {
   const k = type + '/' + id;
   if (!provCache.has(k)) {
     // Se guarda solo el resumen (pequeño) por 24 h, no la respuesta completa con todos los países
-    const saved = cacheGet('p:' + k) || (navigator.onLine ? null : cacheGet('p:' + k, true));
+    const saved = cacheGet('p:v2:' + k) || (navigator.onLine ? null : cacheGet('p:v2:' + k, true));
     if (saved) { provCache.set(k, Promise.resolve(saved.d)); return provCache.get(k); }
     provCache.set(k, limited(() => api(`${type}/${id}/watch/providers`, {}, false)).then(d => {
       const r = (d.results || {})[REGION] || {};
       const mine = new Set(), others = new Set(), rent = new Set();
       for (const p of (r.flatrate || []).concat(r.ads || [], r.free || [])) {
-        const s = Object.keys(SERVICES).find(key => SERVICES[key].match(p.provider_name));
+        const s = svcOf(p.provider_name);
         if (s) mine.add(s); else others.add(p.provider_name);
       }
       for (const p of (r.rent || []).concat(r.buy || [])) rent.add(p.provider_name);
       const out = { mine: [...mine], others: [...others], rent: [...rent] };
-      cacheSet('p:' + k, out, 24 * HOUR);
+      cacheSet('p:v2:' + k, out, 24 * HOUR);
       return out;
     }).catch(() => ({ mine: [], others: [], rent: [] })));
   }
@@ -1257,7 +1279,7 @@ async function serviceIds() {
   ]);
   svcIds = {};
   for (const p of (m.results || []).concat(t.results || [])) {
-    const s = Object.keys(SERVICES).find(k => SERVICES[k].match(p.provider_name));
+    const s = svcOf(p.provider_name);
     if (s && s !== 'youtube') (svcIds[s] = svcIds[s] || new Set()).add(p.provider_id);
   }
   return svcIds;
@@ -2109,9 +2131,54 @@ $('profBtn').addEventListener('click', () => renderProfiles());
 
 /* ================= Filtros ================= */
 const filters = { svc: 'all', type: 'all', min: '0', sort: 'rel', age: 'all' };
+/* ===== "✎ Mis plataformas": en qué plataformas busca el centro (se guarda) ===== */
+function renderSvcGroup() {
+  const g = document.querySelector('.fgroup[data-f="svc"]');
+  g.innerHTML = '<span>Plataforma</span><button class="chip focusable on" data-v="all">Todas</button>' +
+    PREMIUM.map(s => `<button class="chip focusable" data-v="${s}"><i class="sdot" style="background:${SERVICES[s].color}"></i>${SERVICES[s].name}</button>`).join('') +
+    `<button class="chip focusable edit${$('platPanel') && !$('platPanel').hidden ? ' open' : ''}" data-edit>✎ Mis plataformas</button>`;
+  const panel = $('platPanel');
+  if (panel) panel.querySelector('.wrap').innerHTML = PLATFORM_CHOICES.map(s =>
+    `<button class="chip focusable${PREMIUM.includes(s) ? ' on' : ''}" data-plat="${s}"><i class="sdot" style="background:${SERVICES[s].color}"></i>${SERVICES[s].name}${PREMIUM.includes(s) ? ' ✓' : ''}</button>`).join('');
+}
+// Prende o apaga una plataforma. Devuelve un mensaje si no se pudo.
+function togglePlatform(s) {
+  const next = PREMIUM.includes(s) ? PREMIUM.filter(x => x !== s) : PLATFORM_CHOICES.filter(x => x === s || PREMIUM.includes(x));
+  if (!next.length) return 'Tiene que quedar al menos una plataforma.';
+  PREMIUM = next;
+  store('cm-platforms', JSON.stringify(PREMIUM));
+  provCache.clear();
+  rebuildPlatformUI();
+  return '';
+}
+$('platPanel').addEventListener('click', e => {
+  const c = e.target.closest('[data-plat]');
+  if (!c) return;
+  const err = togglePlatform(c.dataset.plat);
+  if (err) { toast(err); return; }
+  const on = PREMIUM.includes(c.dataset.plat);
+  toast(on ? `✓ Ahora también busca en ${SERVICES[c.dataset.plat].name}` : `Ya no busca en ${SERVICES[c.dataset.plat].name}`);
+  const again = $('platPanel').querySelector(`[data-plat="${c.dataset.plat}"]`);
+  if (again) again.focus({ preventScroll: true });
+  // Se rehace lo que está en pantalla con las plataformas nuevas (con una pausa por si tocás varias seguidas)
+  // (si mientras tanto te fuiste a otra sección, no se toca)
+  clearTimeout(platTimer);
+  const seqAt = searchSeq;
+  platTimer = setTimeout(() => { if (searchSeq !== seqAt || view !== 'explore') return; if ($('q').value.trim()) runSearch(); else loadTrending(); }, 700);
+});
+let platTimer;
+renderSvcGroup();
+
 $('filters').addEventListener('click', e => {
   const chip = e.target.closest('.chip');
   if (!chip) return;
+  if (chip.hasAttribute('data-edit')) {
+    const panel = $('platPanel');
+    panel.hidden = !panel.hidden;
+    chip.classList.toggle('open', !panel.hidden);
+    if (!panel.hidden) panel.querySelector('.chip').focus({ preventScroll: true });
+    return;
+  }
   const group = chip.closest('.fgroup');
   group.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === chip));
   filters[group.dataset.f] = chip.dataset.v;
@@ -2583,9 +2650,7 @@ async function importBackup(e) {
 function rebuildPlatformUI() {
   svcIds = null;
   exploreLoaded = false;
-  const g = document.querySelector('.fgroup[data-f="svc"]');
-  g.innerHTML = '<span>Plataforma</span><button class="chip focusable on" data-v="all">Todas</button>' +
-    PREMIUM.map(s => `<button class="chip focusable" data-v="${s}">${SERVICES[s].name}</button>`).join('');
+  renderSvcGroup();
   filters.svc = 'all';
   if (!PREMIUM.includes(picker.svc)) picker.svc = 'all';
   buildMenuTiles();
@@ -2831,7 +2896,7 @@ function renderPicker() {
       ${chipGroup('dur', '¿Cuánto tiempo?', [['short', 'Poco (película de hasta 1 h 35 o miniserie)'], ['mid', 'Normal (hasta 2 h)'], ['any', 'Sin límite']])}
       ${chipGroup('mood', '¿Con qué ánimo?', Object.entries(MOODS).map(([k, m]) => [k, m.label]))}
       ${chipGroup('svc', '¿Dónde?', [['all', 'Todas'], ...PREMIUM.map(s => [s, SERVICES[s].name])])}
-      <div class="pgroup"><span></span><button class="btn primary focusable" id="suggest">✨ Sugerime algo</button></div>
+      <div class="pgroup"><span></span><button class="btn primary focusable" id="suggestBtn">✨ Sugerime algo</button></div>
     </div>
     <div id="pickRes"></div>`;
   content.querySelectorAll('.pgroup[data-p]').forEach(g => g.addEventListener('click', e => {
@@ -2840,7 +2905,7 @@ function renderPicker() {
     g.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === chip));
     picker[g.dataset.p] = chip.dataset.v;
   }));
-  $('suggest').addEventListener('click', suggest);
+  $('suggestBtn').addEventListener('click', suggest);
   setTimeout(() => { const c = content.querySelector('.chip.on'); if (c) c.focus(); }, 30);
 }
 
@@ -2889,7 +2954,7 @@ async function suggest() {
           <div class="pt">${esc(top.title || top.name)}</div>
           <div class="meta">${[top._type === 'tv' ? 'Serie' : 'Película', year, top.vote_average ? '★ ' + top.vote_average.toFixed(1) : ''].filter(Boolean).join(' · ')}</div>
           <div class="po">${esc(top.overview || '')}</div>
-          <div class="meta">Enter para ver la ficha y dónde verla</div>
+          <div class="meta">${IS_TOUCH ? 'Tocá' : 'Enter'} para ver la ficha y dónde verla</div>
         </div>
       </button>
       <div class="pgroup" style="padding:2vh 4vw 0"><button class="btn focusable" id="again">🎲 Otra sugerencia</button></div>
@@ -3001,7 +3066,7 @@ async function wikidataLinks(it) {
 }
 // Enlace exacto al título en cada plataforma: { netflix: 'https://www.netflix.com/title/…', … }
 async function directLinks(it, d) {
-  const key = 'c:links:' + keyOf(it);
+  const key = 'c:links2:' + keyOf(it);
   const hit = cacheGet(key);
   if (hit) return hit.d;
   const title = it.title || it.name || (d && (d.title || d.name));
@@ -3010,7 +3075,7 @@ async function directLinks(it, d) {
   const toLinks = offers => {
     const links = {};
     for (const o of offers || []) {
-      const s = Object.keys(SERVICES).find(k => SERVICES[k].match(o.name));
+      const s = svcOf(o.name);
       if (s && !links[s] && o.url) links[s] = o.url;
     }
     return links;
