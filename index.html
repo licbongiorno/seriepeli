@@ -1168,6 +1168,32 @@
 
   @media (prefers-reduced-motion: reduce) { .row.rv { opacity: 1; transform: none; } }
 
+  /* ===== 💡 Curiosidades ===== */
+  #dtrivia:empty { display: none; }
+  #dtrivia { margin-top: 1vh; }
+  .trivia { list-style: none; display: flex; flex-direction: column; gap: .7em; margin: .4em 0 1em; padding: 0; }
+  .trivia li { background: var(--surface-2); border-radius: 14px; padding: .8em 1em; line-height: 1.5; font-size: clamp(14px, .95vw, 18px); color: #d6d9e4; animation: rise .45s cubic-bezier(.2,.8,.2,1) backwards; }
+  .trivia li:nth-child(2) { animation-delay: .05s; } .trivia li:nth-child(3) { animation-delay: .1s; } .trivia li:nth-child(n+4) { animation-delay: .15s; }
+  .trivia li.star { background: linear-gradient(110deg, rgba(245,179,1,.16), var(--surface-2) 60%); border-left: 3px solid #f5b301; }
+  .tstar { color: #f5b301; font-weight: 800; }
+  .wiki { display: inline-flex; align-items: center; gap: .4em; color: #8fb4ff; font-weight: 600; text-decoration: none; padding: .3em 0; }
+  .wiki:hover, .wiki:focus { text-decoration: underline; }
+  .trintro { color: var(--muted); padding: 2vh 4vw 0; max-width: 80ch; line-height: 1.5; }
+  .trgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 1.2vw; padding: 2vh 4vw 0; }
+  .trcard {
+    display: flex; gap: 1em; align-items: flex-start; text-align: left; cursor: pointer; padding: 1em; border-radius: 18px;
+    background: var(--surface); border: 2px solid transparent; color: inherit;
+    transition: transform .2s cubic-bezier(.2,.8,.2,1), border-color .2s; animation: rise .5s cubic-bezier(.2,.8,.2,1) backwards;
+  }
+  .trcard:hover, .trcard:focus { transform: translateY(-3px); border-color: #f5b301; }
+  .trcard img, .trph { width: 84px; aspect-ratio: 2 / 3; border-radius: 10px; object-fit: cover; flex: none; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .trtx { display: flex; flex-direction: column; gap: .35em; min-width: 0; }
+  .trtx b { font-size: clamp(16px, 1.05vw, 20px); }
+  .trtx small { color: var(--muted); }
+  .trf { color: #d6d9e4; line-height: 1.5; font-size: clamp(14px, .9vw, 17px); }
+  .trsk { height: 150px; border-radius: 18px; }
+  @media (max-width: 640px) { .trgrid { padding: 12px 12px 0; gap: 10px; } .trintro { padding: 14px 14px 0; } .trcard img, .trph { width: 70px; } }
+
   .qr { display: none; margin: 1em 0 .4em; }
   .qr.on { display: block; }
   .qr svg { width: min(260px, 70vw); height: auto; background: #fff; border-radius: 14px; padding: 12px; display: block; }
@@ -1373,6 +1399,7 @@ const AUTHOR = 'Lic. Nicolás Bongiorno';
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Transición suave entre pantallas (si el navegador la tiene)
 function smooth(fn) {
+  hidePreview(); // la vista previa flotante no debe quedar sobre otra pantalla
   if (REDUCED || !document.startViewTransition || document.hidden) return fn();
   let out;
   document.startViewTransition(() => { out = fn(); });
@@ -3313,6 +3340,175 @@ CANON.push(
   ] }
 );
 
+/* ----- Filosofía y psicología: listas ampliadas (reemplazan a las anteriores) ----- */
+{
+  const at = id => CANON.findIndex(c => c.id === id);
+  CANON.splice(at('filo'), 1,
+    { id: 'filo', title: '🤔 Cine filosófico: la existencia y el sentido de la vida', items: [
+      ['movie', 'Ikiru', 1952, '¿Qué hace que una vida valga la pena?'],
+      ['movie', 'The Seventh Seal', 1957, 'Una partida de ajedrez con la Muerte'],
+      ['movie', 'Wild Strawberries', 1957, 'La vejez y los recuerdos'],
+      ['movie', 'Through a Glass Darkly', 1961, 'Bergman: fe, Dios y locura'],
+      ['movie', '8½', 1963, 'Fellini y la crisis del creador'],
+      ['movie', 'Andrei Rublev', 1966, 'Arte, fe y violencia'],
+      ['movie', 'Mirror', 1975, 'Tarkovski y la memoria'],
+      ['movie', 'Stalker', 1979, 'El deseo más profundo'],
+      ['movie', 'My Dinner with Andre', 1981, 'Una cena, una charla sobre cómo vivir'],
+      ['movie', 'Wings of Desire', 1987, 'Ángeles que quieren ser humanos'],
+      ['tv', 'Dekalog', 1989, 'Kieślowski: los diez mandamientos hoy'],
+      ['movie', 'Crimes and Misdemeanors', 1989, 'Culpa y moral sin castigo'],
+      ['movie', 'Groundhog Day', 1993, 'El eterno retorno, en comedia'],
+      ['movie', 'Three Colors: Blue', 1993, 'Libertad y duelo'],
+      ['movie', 'Waking Life', 2001, 'Un sueño lleno de filosofía'],
+      ['movie', 'The Fountain', 2006, 'Muerte e inmortalidad'],
+      ['movie', 'Synecdoche, New York', 2008, 'La vida como obra de teatro'],
+      ['movie', 'The Tree of Life', 2011, 'El origen de todo y una familia'],
+      ['movie', 'Life of Pi', 2012, 'Fe y el poder de los relatos'],
+      ['tv', 'The Good Place', 2016, 'Comedia sobre ética y filosofía moral'],
+      ['movie', 'Soul', 2020, '¿Para qué estamos acá?'],
+      ['movie', 'Everything Everywhere All at Once', 2022, 'Nihilismo y bondad en el multiverso'],
+      ['movie', 'The Banshees of Inisherin', 2022, 'Amistad, tiempo y sentido'],
+      ['movie', 'The Zone of Interest', 2023, 'La banalidad del mal'],
+      ['movie', 'Perfect Days', 2023, 'La felicidad en lo simple']
+    ] },
+    { id: 'filo2', title: '🧩 Cine filosófico: realidad, mente e identidad', items: [
+      ['movie', 'Solaris', 1972, 'La memoria y el otro'],
+      ['movie', 'Blade Runner', 1982, '¿Qué nos hace humanos?'],
+      ['movie', 'Ghost in the Shell', 1995, '¿Dónde termina la máquina?'],
+      ['movie', 'Gattaca', 1997, 'Genética y destino'],
+      ['movie', 'Dark City', 1998, 'Recuerdos fabricados'],
+      ['movie', 'The Truman Show', 1998, '¿Y si tu vida fuera un show?'],
+      ['movie', 'The Matrix', 1999, 'La caverna de Platón'],
+      ['movie', 'Being John Malkovich', 1999, 'Meterse en la cabeza de otro'],
+      ['movie', 'Eternal Sunshine of the Spotless Mind', 2004, '¿Borrarías un amor?'],
+      ['movie', 'Moon', 2009, 'Identidad y clones'],
+      ['movie', 'Mr. Nobody', 2009, 'Todas las vidas posibles'],
+      ['movie', 'Cloud Atlas', 2012, 'Todo está conectado'],
+      ['movie', 'Coherence', 2013, 'Realidades paralelas en una cena'],
+      ['movie', 'Under the Skin', 2013, 'Lo humano visto desde afuera'],
+      ['movie', 'Her', 2013, 'Amor e inteligencia artificial'],
+      ['movie', 'Ex Machina', 2014, '¿Puede pensar una máquina?'],
+      ['movie', 'Arrival', 2016, 'El lenguaje y el tiempo'],
+      ['tv', 'Westworld', 2016, 'La conciencia artificial'],
+      ['tv', 'Devs', 2020, 'Determinismo y libre albedrío'],
+      ['tv', 'Severance', 2022, 'Trabajo e identidad dividida']
+    ] });
+  CANON.splice(at('psico'), 1,
+    { id: 'psico', title: '🧠 Psicología y cine: la mente y sus heridas', items: [
+      ['movie', 'Spellbound', 1945, 'Hitchcock y el psicoanálisis'],
+      ['movie', 'Persona', 1966, 'Dos identidades que se mezclan'],
+      ['movie', "One Flew Over the Cuckoo's Nest", 1975, 'La vida en un psiquiátrico'],
+      ['movie', 'Ordinary People', 1980, 'El duelo en una familia'],
+      ['movie', 'Rain Man', 1988, 'Autismo y hermandad'],
+      ['movie', "What's Eating Gilbert Grape", 1993, 'Cuidar a la familia'],
+      ['movie', 'Good Will Hunting', 1997, 'Un genio y su terapeuta'],
+      ['movie', 'Girl, Interrupted', 1999, 'Salud mental en los años 60'],
+      ['movie', 'Requiem for a Dream', 2000, 'Las adicciones sin filtro'],
+      ['movie', 'A Beautiful Mind', 2001, 'Genialidad y esquizofrenia'],
+      ['movie', 'The Hours', 2002, 'Depresión y Virginia Woolf'],
+      ['movie', 'Lars and the Real Girl', 2007, 'Soledad y aceptación'],
+      ['movie', 'Melancholia', 2011, 'La depresión como fin del mundo'],
+      ['movie', 'A Dangerous Method', 2011, 'Freud y Jung'],
+      ['movie', 'Silver Linings Playbook', 2012, 'Trastorno bipolar y amor'],
+      ['movie', 'The Perks of Being a Wallflower', 2012, 'Trauma adolescente'],
+      ['movie', 'Still Alice', 2014, 'Alzheimer temprano'],
+      ['movie', 'Inside Out', 2015, 'Cómo funcionan las emociones'],
+      ['movie', 'Room', 2015, 'Trauma y resiliencia'],
+      ['movie', 'Manchester by the Sea', 2016, 'Un duelo que no se cierra'],
+      ['movie', 'Beautiful Boy', 2018, 'Un padre y la adicción de su hijo'],
+      ['movie', 'The Father', 2020, 'La demencia desde adentro'],
+      ['movie', 'Aftersun', 2022, 'Recuerdos y depresión'],
+      ['movie', 'The Whale', 2022, 'Culpa y autodestrucción'],
+      ['movie', 'Inside Out 2', 2024, 'La ansiedad entra en escena'],
+      ['tv', 'In Treatment', 2008, 'Sesiones de terapia, una por episodio'],
+      ['tv', 'BoJack Horseman', 2014, 'Depresión, con humor'],
+      ['tv', 'Maniac', 2018, 'Una terapia experimental'],
+      ['tv', 'Normal People', 2020, 'Vínculos y ansiedad']
+    ] },
+    { id: 'psico2', title: '🔍 Thrillers psicológicos: obsesión y mente criminal', items: [
+      ['movie', 'Vertigo', 1958, 'Obsesión'],
+      ['movie', 'Repulsion', 1965, 'Aislamiento y paranoia'],
+      ['movie', 'Taxi Driver', 1976, 'Soledad urbana'],
+      ['movie', 'The Silence of the Lambs', 1991, 'Dentro de la mente de un asesino'],
+      ['movie', 'Se7en', 1995, 'Los siete pecados capitales'],
+      ['movie', 'The Sixth Sense', 1999, 'Duelo, miedo y un final famoso'],
+      ['movie', 'Fight Club', 1999, 'Identidad dividida'],
+      ['movie', 'Memento', 2000, 'Vivir sin memoria reciente'],
+      ['movie', 'The Machinist', 2004, 'Culpa e insomnio'],
+      ['movie', 'The Prestige', 2006, 'La obsesión por ganar'],
+      ['movie', 'Zodiac', 2007, 'Obsesionados con un asesino'],
+      ['movie', 'Black Swan', 2010, 'Perfeccionismo y obsesión'],
+      ['movie', 'Shutter Island', 2010, '¿Quién está loco?'],
+      ['movie', 'We Need to Talk About Kevin', 2011, 'Maternidad y culpa'],
+      ['movie', 'Take Shelter', 2011, '¿Ansiedad o premonición?'],
+      ['movie', 'Prisoners', 2013, 'Hasta dónde llega un padre'],
+      ['movie', 'Gone Girl', 2014, 'Manipulación en la pareja'],
+      ['movie', 'Nightcrawler', 2014, 'Ambición sin empatía'],
+      ['movie', 'Split', 2016, 'Personalidades múltiples'],
+      ['movie', 'Hereditary', 2018, 'El duelo familiar hecho terror'],
+      ['movie', 'Joker', 2019, 'Aislamiento y salud mental'],
+      ['tv', 'Mindhunter', 2017, 'Cómo piensan los asesinos seriales'],
+      ['tv', 'Baby Reindeer', 2024, 'Acoso y trauma']
+    ] });
+}
+
+/* ================= 💡 Curiosidades: datos escritos a mano =================
+   [tipo, título original, año, [datos]] */
+const TRIVIA = [
+  ['movie', 'Metropolis', 1927, ['Durante 80 años se creyó perdido un cuarto de la película. En 2008 apareció una copia casi completa en el Museo del Cine de Buenos Aires.']],
+  ['movie', 'Citizen Kane', 1941, ['Orson Welles tenía 25 años cuando la dirigió, la coescribió y la protagonizó.']],
+  ['movie', 'Casablanca', 1942, ['La famosa frase "Tócala otra vez, Sam" nunca se dice así: en la película es "Tócala, Sam".']],
+  ['movie', 'The Wizard of Oz', 1939, ['En el libro los zapatos de Dorothy eran plateados: los hicieron rojo rubí para lucir el Technicolor.']],
+  ['movie', 'Seven Samurai', 1954, ['Inspiró el western "Los siete magníficos" (1960) y muchísimas películas de "reunir al equipo".']],
+  ['movie', 'Yojimbo', 1961, ['Sergio Leone la rehízo como western: "Por un puñado de dólares" (1964), con Clint Eastwood.']],
+  ['movie', 'Psycho', 1960, ['Hitchcock compró todos los ejemplares de la novela que pudo para que no se conociera el final.', 'La "sangre" de la escena de la ducha era jarabe de chocolate (en blanco y negro se veía perfecta).']],
+  ['movie', '2001: A Space Odyssey', 1968, ['La nave Discovery tenía una rueda gigante real que giraba para filmar a los astronautas caminando "en círculo".']],
+  ['movie', 'The Godfather', 1972, ['El gato que acaricia Don Corleone en la primera escena era un gato callejero que andaba por el estudio.']],
+  ['movie', 'The Exorcist', 1973, ['El set del dormitorio se refrigeró para que se viera el aliento de los actores en las escenas de frío.']],
+  ['movie', 'Jaws', 1975, ['El tiburón mecánico (apodado "Bruce") se rompía tanto que Spielberg casi no lo mostró: eso hizo la película mucho más tensa.']],
+  ['movie', 'Rocky', 1976, ['Stallone escribió el guion en pocos días y se negó a venderlo si no lo dejaban protagonizarla.']],
+  ['movie', 'Star Wars', 1977, ['El sonido de los sables de luz mezcla el zumbido de un proyector de cine viejo con la interferencia de un televisor.']],
+  ['movie', 'Halloween', 1978, ['La máscara de Michael Myers era una máscara barata del Capitán Kirk (Star Trek) pintada de blanco.']],
+  ['movie', 'Alien', 1979, ['En la famosa escena de la cena, los actores no sabían exactamente lo que iba a pasar: varias reacciones de espanto son reales.']],
+  ['movie', 'The Empire Strikes Back', 1980, ['Para que no se filtrara la gran revelación de Vader, en el rodaje se dijo otra frase; casi nadie del elenco sabía la verdadera.']],
+  ['movie', 'The Shining', 1980, ['"¡Aquí está Johnny!" fue improvisado por Jack Nicholson.', 'Kubrick era famoso por repetir tomas: la escena del bate de béisbol se filmó más de cien veces.']],
+  ['movie', 'Blade Runner', 1982, ['Existen al menos siete versiones distintas de la película; la "Final Cut" de 2007 es la que Ridley Scott considera definitiva.']],
+  ['movie', 'E.T. the Extra-Terrestrial', 1982, ['Spielberg la filmó casi en orden cronológico para que los chicos vivieran de verdad la despedida del final.']],
+  ['movie', 'Back to the Future', 1985, ['El primer Marty McFly fue Eric Stoltz: lo reemplazaron por Michael J. Fox después de semanas de rodaje.']],
+  ['movie', 'My Neighbor Totoro', 1988, ['Totoro es tan querido que es el logo del Studio Ghibli.']],
+  ['movie', 'Akira', 1988, ['Se dibujó a mano con muchísimos más cuadros por segundo que el anime de la época, por eso su movimiento es tan fluido.']],
+  ['movie', 'The Silence of the Lambs', 1991, ['Anthony Hopkins aparece apenas unos 16 minutos y ganó el Oscar a mejor actor.']],
+  ['movie', 'Jurassic Park', 1993, ['El rugido del T-Rex combina sonidos de un elefante bebé, un tigre y un aligátor.']],
+  ['movie', "Schindler's List", 1993, ['Se filmó en blanco y negro; el único color fuerte es el abrigo rojo de una nena.']],
+  ['movie', 'Pulp Fiction', 1994, ['Nunca se revela qué hay dentro del maletín: solo se ve su brillo dorado.']],
+  ['movie', 'Toy Story', 1995, ['Fue la primera película hecha completamente por computadora.']],
+  ['movie', 'Toy Story 2', 1999, ['Casi se pierde: un comando borró los archivos por error y se salvó gracias a una copia que una empleada tenía en su casa.']],
+  ['movie', 'Titanic', 1997, ['Se dice que hacerla costó más que construir el barco original, ajustado por inflación.']],
+  ['movie', 'The Matrix', 1999, ['El famoso "código verde" está hecho con recetas de sushi escaneadas de un libro de cocina japonés.']],
+  ['movie', 'Fight Club', 1999, ['Antes de que Tyler Durden aparezca, hay fotogramas suyos escondidos en la película, casi imperceptibles.']],
+  ['movie', 'Spirited Away', 2001, ['Fue la película más taquillera de la historia de Japón durante casi 20 años.']],
+  ['movie', 'The Lord of the Rings: The Two Towers', 2002, ['Viggo Mortensen se fracturó dedos del pie al patear un casco: el grito de dolor quedó en la película.']],
+  ['movie', 'Oldboy', 2003, ['La famosa pelea en el pasillo es un único plano, sin cortes.']],
+  ['movie', 'The Dark Knight', 2008, ['Heath Ledger ganó el Oscar póstumo a mejor actor de reparto por su Joker.']],
+  ['movie', 'El secreto de sus ojos', 2009, ['Tiene un plano secuencia que empieza en el aire sobre el estadio de Huracán y termina entre la gente de la tribuna.']],
+  ['movie', 'Inception', 2010, ['El pasillo que gira en la pelea de Arthur era un decorado real que rotaba: casi no hay efectos digitales ahí.']],
+  ['movie', 'Interstellar', 2014, ['El agujero negro se calculó con el físico Kip Thorne (luego Premio Nobel) y sirvió hasta para artículos científicos.']],
+  ['movie', 'Relatos salvajes', 2014, ['La coprodujo Pedro Almodóvar con su productora El Deseo.']],
+  ['movie', 'Whiplash', 2014, ['Se filmó en solo 19 días.']],
+  ['movie', 'Mad Max: Fury Road', 2015, ['La gran mayoría de sus persecuciones se hicieron con vehículos y dobles reales, no con efectos digitales.']],
+  ['movie', 'La La Land', 2016, ['La escena inicial se filmó en una rampa de autopista real de Los Ángeles, cerrada por dos días.']],
+  ['movie', 'Get Out', 2017, ['Jordan Peele fue el primer guionista afroamericano en ganar el Oscar a mejor guion original.']],
+  ['movie', 'Parasite', 2019, ['La casa de los Park no existe: fue construida especialmente como decorado.']],
+  ['movie', 'Nueve reinas', 2000, ['Tuvo una remake en Hollywood: "Criminal" (2004).']],
+  ['tv', 'The Simpsons', 1989, ['Matt Groening los hizo amarillos para que llamaran la atención al cambiar de canal.']],
+  ['tv', 'Twin Peaks', 1990, ['BOB, el villano, era Frank Silva, un escenógrafo que apareció reflejado en un espejo por accidente; a Lynch le gustó y lo sumó.']],
+  ['tv', 'Friends', 1994, ['La fuente de la presentación no está en Nueva York: está en los estudios Warner, en California.']],
+  ['tv', 'The Sopranos', 1999, ['Su final con corte a negro fue tan abrupto que mucha gente creyó que se le había cortado la señal del cable.']],
+  ['tv', 'Breaking Bad', 2008, ['Antes de ser Walter White, Bryan Cranston era el papá de "Malcolm".']],
+  ['tv', 'Game of Thrones', 2011, ['El idioma dothraki fue inventado completo por un lingüista, David J. Peterson.']],
+  ['tv', 'Chernobyl', 2019, ['Se filmó en gran parte en Lituania, en una central nuclear parecida a la de Chernóbil, ya fuera de servicio.']]
+];
+
 // Busca un título curado en TMDB (por nombre y año) y lo guarda 60 días
 async function resolveCanon([type, q, year]) {
   const key = `c:canon:${type}:${q}:${year}`;
@@ -3333,8 +3529,88 @@ const canonCard = (it, note, n) => {
   return html;
 };
 
+/* ===== 💡 Curiosidades ===== */
+// Índice "tipo/id de TMDB" → datos curiosos escritos a mano (se arma buscando cada título una vez)
+const triviaIndex = new Map();
+let triviaReady = null;
+function ensureTriviaIndex() {
+  if (!triviaReady) triviaReady = Promise.all(TRIVIA.map(t => resolveCanon(t).then(it => { if (it) triviaIndex.set(keyOf(it), { it, facts: t[3] }); }).catch(() => {})));
+  return triviaReady;
+}
+const normT = t => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+// Datos escritos a mano para este título (si ya está el índice, o comparando título original y año)
+function handFacts(it, d) {
+  const hit = triviaIndex.get(keyOf(it));
+  if (hit) return hit.facts;
+  const type = it.media_type, orig = normT(d && (d.original_title || d.original_name)), tt = normT(it.title || it.name);
+  const y = parseInt((it.release_date || it.first_air_date || (d && (d.release_date || d.first_air_date)) || '0').slice(0, 4), 10);
+  const t = TRIVIA.find(x => x[0] === type && Math.abs(x[2] - y) <= 1 && (normT(x[1]) === orig || normT(x[1]) === tt));
+  return t ? t[3] : [];
+}
+const money = n => n >= 1e9 ? (n / 1e9).toFixed(1).replace('.0', '') + ' mil millones' : Math.round(n / 1e6) + ' millones';
+// Datos automáticos a partir de la ficha de TMDB
+function autoFacts(it, d) {
+  if (!d) return [];
+  const f = [], type = it.media_type;
+  const kws = ((d.keywords && (d.keywords.keywords || d.keywords.results)) || []).map(k => k.name.toLowerCase());
+  if (kws.some(k => /based on (novel|book)/.test(k))) f.push('📚 Está basada en un libro.');
+  else if (kws.some(k => /based on comic|based on manga|graphic novel/.test(k))) f.push('🗯 Está basada en una historieta.');
+  if (kws.some(k => /based on true story|based on real person|biography/.test(k))) f.push('📰 Está basada en hechos o personas reales.');
+  if (kws.some(k => /^remake$/.test(k))) f.push('🔁 Es una remake de una película anterior.');
+  if (type === 'movie' && d.budget > 1e5 && d.revenue > 1e5) {
+    const r = d.revenue / d.budget;
+    f.push(`💰 Costó US$ ${money(d.budget)} y recaudó US$ ${money(d.revenue)} en cines de todo el mundo` +
+      (r >= 2 ? ` (${r >= 10 ? 'más de ' + Math.floor(r) : 'casi ' + Math.round(r)} veces lo que costó).` : r < 1 ? ' (no recuperó lo invertido en cines).' : '.'));
+  }
+  if (type === 'movie' && d.runtime >= 180) f.push(`⏳ Dura ${fmtRuntime(d.runtime)}: ideal para una tarde larga.`);
+  const ot = d.original_title || d.original_name, tl = it.title || it.name;
+  if (ot && normT(ot) !== normT(tl) && d.original_language && d.original_language !== 'es') {
+    let lang = d.original_language;
+    try { lang = new Intl.DisplayNames(['es'], { type: 'language' }).of(d.original_language); } catch (e) {}
+    f.push(`🌐 Su título original es "${ot}" (en ${lang}).`);
+  }
+  const countries = (d.production_countries || []).map(c => c.name);
+  if (countries.length >= 2) f.push(`🌍 Es una coproducción de ${countries.slice(0, 4).join(', ')}.`);
+  if (d.tagline) f.push(`📝 Su frase promocional: "${d.tagline}"`);
+  if (type === 'tv' && d.first_air_date) {
+    const y0 = d.first_air_date.slice(0, 4), y1 = (d.last_air_date || '').slice(0, 4);
+    const net = (d.networks || [])[0];
+    f.push(`📺 ${d.status === 'Ended' || d.status === 'Canceled' ? `Duró ${d.number_of_seasons} temporada${d.number_of_seasons > 1 ? 's' : ''} (${y0}${y1 && y1 !== y0 ? '–' + y1 : ''})` : `Empezó en ${y0} y sigue en emisión`}${net ? `; se estrenó en ${net.name}` : ''}.`);
+  }
+  return f;
+}
+// Artículo de Wikipedia en español (por el código de TMDB, vía Wikidata)
+async function wikiLink(it) {
+  const key = 'c:wiki:' + keyOf(it);
+  const hit = cacheGet(key, true);
+  if (hit) return hit.d;
+  const prop = it.media_type === 'tv' ? 'P4983' : 'P4947';
+  const q = `SELECT ?a ?l WHERE { ?i wdt:${prop} "${Number(it.id)}" . ?a schema:about ?i ; schema:isPartOf ?w . VALUES (?w ?l) { (<https://es.wikipedia.org/> "es") (<https://en.wikipedia.org/> "en") } }`;
+  const r = await fetchTimeout('https://query.wikidata.org/sparql?format=json&query=' + encodeURIComponent(q), { headers: { accept: 'application/sparql-results+json' } });
+  const rows = (r.results && r.results.bindings) || [];
+  const row = rows.find(x => x.l.value === 'es') || rows[0];
+  const out = row ? { url: row.a.value, lang: row.l.value } : null;
+  cacheSet(key, out, 30 * 24 * HOUR);
+  return out;
+}
+function showCuriosities(it, d, key) {
+  const box = $('dtrivia');
+  if (!box) return;
+  const hand = handFacts(it, d), auto = autoFacts(it, d);
+  const facts = [...hand.map(t => ({ t, star: true })), ...auto.map(t => ({ t }))];
+  const paint = wiki => {
+    if (detailKey !== key || !$('dtrivia')) return;
+    if (!facts.length && !wiki) { box.innerHTML = ''; return; }
+    box.innerHTML = `<h4>💡 Curiosidades</h4><ul class="trivia">${facts.map(x => `<li${x.star ? ' class="star"' : ''}>${x.star ? '<span class="tstar">¿Sabías que…?</span> ' : ''}${esc(x.t)}</li>`).join('')}</ul>` +
+      (wiki ? `<a class="wiki" href="${esc(wiki.url)}" target="_blank" rel="noopener">📖 Leer más en Wikipedia${wiki.lang === 'en' ? ' (en inglés)' : ''}</a>` : '');
+  };
+  paint(null);
+  wikiLink(it).then(paint).catch(() => {});
+}
+
 let cultTab = 'joyas', cultMine = false, sagaSel = 'starwars', sagaOrder = null;
 function renderCult() {
+  hidePreview();
   ++searchSeq;
   const seq = searchSeq;
   exploreLoaded = false;
@@ -3349,6 +3625,7 @@ function renderCult() {
       <div class="wrap">
         <button class="chip focusable${cultTab === 'joyas' ? ' on' : ''}" data-ctab="joyas">🏛 Joyas del cine</button>
         <button class="chip focusable${cultTab === 'sagas' ? ' on' : ''}" data-ctab="sagas">🧭 Guías de sagas</button>
+        <button class="chip focusable${cultTab === 'trivia' ? ' on' : ''}" data-ctab="trivia">💡 Curiosidades</button>
         <button class="chip focusable${cultMine ? ' on' : ''}" data-cmine>${cultMine ? '✓ ' : ''}Solo lo que está en mis plataformas</button>
       </div>
     </div>
@@ -3361,7 +3638,22 @@ function renderCult() {
     if (e.target.closest('[data-cmine]')) { cultMine = !cultMine; renderCult(); }
   });
   const body = $('cultBody');
-  if (cultTab === 'joyas') {
+  if (cultTab === 'trivia') {
+    body.innerHTML = `<p class="trintro">Datos curiosos de películas y series que hicieron historia. Tocá cualquiera para ver su ficha (ahí también hay más curiosidades).</p><div class="trgrid" id="trGrid">${'<div class="sk trsk"></div>'.repeat(6)}</div>`;
+    ensureTriviaIndex().then(() => {
+      if (seq !== searchSeq || !$('trGrid')) return;
+      const list = dayShuffle([...triviaIndex.values()], 'trivia');
+      $('trGrid').innerHTML = list.map(({ it, facts }) => {
+        const k = keyOf(it); items.set(k, it);
+        const y = (it.release_date || '').slice(0, 4);
+        return `<button class="trcard focusable${cultMine ? ' needsvc' : ''}" data-key="${esc(k)}">
+          ${it.poster_path ? `<img loading="lazy" src="${IMG}w185${esc(it.poster_path)}" alt="">` : '<span class="trph">🎬</span>'}
+          <span class="trtx"><b>${esc(it.title)}</b><small>${it.media_type === 'tv' ? 'Serie' : 'Película'}${y ? ' · ' + y : ''}</small>
+          ${facts.map(f => `<span class="trf">💡 ${esc(f)}</span>`).join('')}</span></button>`;
+      }).join('');
+      $('trGrid').addEventListener('click', e => { const c = e.target.closest('.trcard'); if (c) { buzz(); openDetail(c.dataset.key, c); } });
+    });
+  } else if (cultTab === 'joyas') {
     const skRow = '<div class="skrow"><div class="sk h"></div><div class="cards">' + '<div class="sk c"></div>'.repeat(9) + '</div></div>';
     body.innerHTML = CANON.map(c => `<div id="canon-${c.id}">${skRow}</div>`).join('');
     // Cada lista se completa sola, a medida que llegan los datos
@@ -4672,7 +4964,7 @@ async function openDetail(key, srcEl) {
   // Póster en alta calidad apenas carga
   { const im = $('detail').querySelector('.poster img[data-hi]'); if (im) { const hi = new Image(); hi.onload = () => { if (im.isConnected) im.src = im.dataset.hi; }; hi.src = im.dataset.hi; } }
 
-  const extra = type === 'movie' ? 'videos,credits,recommendations,similar,release_dates,external_ids' : 'videos,aggregate_credits,recommendations,similar,content_ratings,external_ids';
+  const extra = type === 'movie' ? 'videos,credits,recommendations,similar,release_dates,external_ids,keywords' : 'videos,aggregate_credits,recommendations,similar,content_ratings,external_ids,keywords';
   const [p, d] = await Promise.all([
     providers(type, it.id),
     api(`${type}/${it.id}`, { append_to_response: extra, include_video_language: 'es,en,null' }).catch(() => null)
@@ -4757,7 +5049,8 @@ async function openDetail(key, srcEl) {
     }).join('')}</div>`;
   }
   more += '<div id="drecs"><h4>Si te gustó esto…</h4><div class="msg" style="padding:1vh 0">Buscando títulos parecidos en tus plataformas…</div></div>';
-  $('dmore').innerHTML = more;
+  $('dmore').innerHTML = '<div id="dtrivia"></div>' + more;
+  showCuriosities(it, d, key);
   if (seasons.length) loadSeason(it.id, (progress[it.id] && progress[it.id].s) || seasons[0].season_number);
   if (type === 'movie' && d.belongs_to_collection) loadSaga(d.belongs_to_collection, key);
 
@@ -5030,6 +5323,9 @@ updateProfileButton();
 select(index);
 renderUpNext();
 syncRun();
+
+// Prepara en segundo plano las curiosidades (para mostrarlas en las fichas)
+setTimeout(() => { if (apiKey && navigator.onLine) (window.requestIdleCallback || setTimeout)(() => ensureTriviaIndex()); }, 9000);
 
 // Bienvenida: un segundo al abrir el centro (una vez por sesión; tocándola se saltea)
 {
