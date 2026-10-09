@@ -837,6 +837,63 @@
   .platpanel .chip { padding: .45em 1em; }
   @media (max-width: 640px) { .platpanel { margin: 0 12px 10px; padding: .8em; } .platpanel .ph small { display: block; } }
 
+  /* ================= Premium: puntaje, "A continuación", tráiler ================= */
+  .rt {
+    position: absolute; top: 8px; right: 8px; z-index: 2;
+    background: rgba(8,9,14,.8); /* sin desenfoque: en cientos de pósters traba los celulares */
+    color: #ffd166; font-size: clamp(10px, .7vw, 13px); font-weight: 800; letter-spacing: .02em;
+    padding: 2px 7px; border-radius: 7px;
+  }
+  .card.seen .rt { display: none; } /* ahí va la marca "✓ Vista" */
+
+  #menu main { flex-direction: column; gap: 3.4vh; }
+  .upnext { width: 100%; max-width: 1760px; }
+  .upnext:empty { display: none; }
+  .upnext h3 { font-size: clamp(15px, 1.05vw, 22px); font-weight: 650; color: var(--muted); margin-bottom: 1.2vh; letter-spacing: .01em; }
+  .unstrip { display: flex; gap: 1.2vw; overflow-x: auto; scrollbar-width: none; padding: 6px 4px 10px; }
+  .unstrip::-webkit-scrollbar { display: none; }
+  .un {
+    position: relative; flex: none; width: clamp(210px, 15vw, 320px); aspect-ratio: 16 / 9;
+    border: none; border-radius: 14px; overflow: hidden; cursor: pointer; padding: 0;
+    background: var(--surface-2); color: #fff; text-align: left;
+    box-shadow: 0 10px 26px rgba(0,0,0,.45); transition: transform .2s cubic-bezier(.2,.8,.2,1);
+    animation: rise .5s cubic-bezier(.2,.8,.2,1) backwards;
+  }
+  .un:nth-child(2) { animation-delay: .05s; } .un:nth-child(3) { animation-delay: .1s; } .un:nth-child(n+4) { animation-delay: .15s; }
+  .un img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .4s; }
+  .un img.ok { opacity: 1; }
+  .un::after { content: ""; position: absolute; inset: 0; border-radius: inherit; border: 3px solid transparent; transition: border-color .2s;
+    background: linear-gradient(0deg, rgba(8,9,14,.92) 0%, rgba(8,9,14,.2) 55%, transparent 80%); }
+  .un:hover, .un:focus { transform: scale(1.05); }
+  .un:hover::after, .un:focus::after { border-color: #fff; }
+  .unt { position: absolute; left: 12px; right: 12px; bottom: 9px; z-index: 1; display: flex; flex-direction: column; gap: 2px; }
+  .unt b { font-size: clamp(13px, .9vw, 17px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .unt small { font-size: clamp(11px, .72vw, 14px); color: #f5b301; font-weight: 700; }
+
+  .tmodal {
+    position: fixed; inset: 0; z-index: 35; display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.88); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 4vh 4vw;
+  }
+  .tmodal.on { display: flex; animation: fade .25s ease; }
+  .tbox { position: relative; width: min(1400px, 100%, calc((100vh - 14vh) * 16 / 9)); animation: pop .4s cubic-bezier(.2,.8,.2,1); }
+  .tframe { aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: #000; box-shadow: 0 30px 90px rgba(0,0,0,.7); }
+  .tframe iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .tcap { margin-top: 1.2vh; color: var(--muted); font-weight: 600; font-size: clamp(13px, .95vw, 18px); }
+  .tclose { position: absolute; top: -18px; right: -18px; z-index: 2; width: 2.8em; height: 2.8em; padding: 0; border-radius: 50%; background: #fff; color: #0b0c10; }
+  .tclose .ic { width: 1.3em; height: 1.3em; }
+
+  @media (max-width: 640px) {
+    #menu main { gap: 18px; }
+    .upnext h3 { font-size: 15px; margin-bottom: 8px; }
+    .unstrip { gap: 10px; padding: 4px 2px 8px; }
+    .un { width: 62vw; max-width: 260px; }
+    .un:hover, .un:focus { transform: none; }
+    .tmodal { padding: 0 0 env(safe-area-inset-bottom); align-items: center; }
+    .tframe { border-radius: 0; }
+    .tclose { top: -58px; right: 12px; }
+    .tcap { padding: 0 14px; }
+  }
+
   .qr { display: none; margin: 1em 0 .4em; }
   .qr.on { display: block; }
   .qr svg { width: min(260px, 70vw); height: auto; background: #fff; border-radius: 14px; padding: 12px; display: block; }
@@ -900,6 +957,7 @@
         <span class="name">Buscar y Tendencias</span>
       </button>
     </div>
+    <section class="upnext" id="upnext" aria-label="A continuación"></section>
   </main>
 
   <footer>
@@ -1108,7 +1166,8 @@ const navTag = () => history.state && history.state.cm;
 window.addEventListener('popstate', () => {
   fromPop = true;
   try {
-    if (overlay.classList.contains('on')) closeDetail();
+    if (trailerOpen()) closeTrailer();
+    else if (overlay.classList.contains('on')) closeDetail();
     else if (view === 'explore') show('menu');
   } finally { fromPop = false; }
 });
@@ -1117,7 +1176,7 @@ function show(v) {
   if (v === 'explore' && view !== 'explore') history.pushState({ cm: 'explore' }, '');
   view = v;
   document.querySelectorAll('.view').forEach(s => s.classList.toggle('on', s.id === v));
-  if (v === 'menu') select(index);
+  if (v === 'menu') { renderUpNext(); select(index); }
   if (v === 'explore') enterExplore();
 }
 
@@ -1144,7 +1203,14 @@ function openTile(i) {
   go(t.dataset.url, t.querySelector('.name').textContent);
 }
 function menuKey(e) {
+  if (document.activeElement && document.activeElement.closest('#upnext')) return upNextKey(e);
   const cols = getComputedStyle($('grid')).gridTemplateColumns.split(' ').length;
+  // ↓ desde la última fila de mosaicos baja a "A continuación"
+  if (e.key === 'ArrowDown' && index + cols >= tiles.length && $('upnext').querySelector('.un')) {
+    tiles.forEach(t => t.classList.remove('active'));
+    $('upnext').querySelector('.un').focus();
+    return true;
+  }
   switch (e.key) {
     case 'ArrowRight': select(index + 1); break;
     case 'ArrowLeft':  select(index - 1); break;
@@ -1155,6 +1221,43 @@ function menuKey(e) {
     default:
       if (/^[1-9]$/.test(e.key) && +e.key <= tiles.length) openTile(+e.key - 1);
       else return false;
+  }
+  return true;
+}
+
+/* ===== "A continuación" en el menú: lo que venís mirando y tu lista ===== */
+function renderUpNext() {
+  const box = $('upnext');
+  if (!box) return;
+  const seenKeys = new Set();
+  const list = [...watchingItems(), ...myList.map(x => ({ item: x, caption: '📌 En tu lista' }))]
+    .filter(x => { const k = keyOf(x.item); if (seenKeys.has(k)) return false; seenKeys.add(k); return true; }).slice(0, 10);
+  if (!list.length) { box.innerHTML = ''; return; }
+  box.innerHTML = `<h3>A continuación</h3><div class="unstrip">${list.map(({ item, caption }) => {
+    const key = keyOf(item);
+    items.set(key, { ...item, media_type: item.media_type });
+    const img = item.backdrop_path ? `${IMG}w500${item.backdrop_path}` : item.poster_path ? `${IMG}w342${item.poster_path}` : '';
+    return `<button class="un" data-key="${esc(key)}">${img ? `<img loading="lazy" src="${img}" alt="">` : ''}<span class="unt"><b>${esc(item.title || item.name)}</b><small>${esc(caption)}</small></span></button>`;
+  }).join('')}</div>`;
+}
+$('upnext').addEventListener('click', e => {
+  const b = e.target.closest('.un');
+  if (!b) return;
+  buzz();
+  show('explore');
+  openDetail(b.dataset.key);
+});
+// Teclado en el menú cuando el foco está en "A continuación"
+function upNextKey(e) {
+  const uns = [...document.querySelectorAll('#upnext .un')], i = uns.indexOf(document.activeElement);
+  if (i < 0) return false;
+  const go = j => { const el = uns[Math.max(0, Math.min(uns.length - 1, j))]; el.focus(); el.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' }); };
+  switch (e.key) {
+    case 'ArrowRight': go(i + 1); break;
+    case 'ArrowLeft': go(i - 1); break;
+    case 'ArrowUp': select(index); break;
+    case 'Enter': case ' ': uns[i].click(); break;
+    default: return false;
   }
   return true;
 }
@@ -1385,7 +1488,19 @@ function toggleFollow(it, d) {
   saveLists();
 }
 // Actualiza las filas "Mi lista" y "Ya vistas" si están en pantalla
+// Series que venís mirando ("voy por"), de la más reciente a la más vieja
+function watchingItems() {
+  return Object.entries(progress).filter(([, v]) => v && v.t).sort((x, y) => (y[1].at || 0) - (x[1].at || 0)).slice(0, 15)
+    .map(([id, v]) => ({ item: { id: +id, media_type: 'tv', name: v.t, poster_path: v.p, backdrop_path: v.b }, caption: `▶ Vas por T${v.s} E${v.e}`, at: v.at }));
+}
 function renderMyRows() {
+  const u = $('upNextRow');
+  if (u) {
+    const w = watchingItems();
+    u.innerHTML = w.length ? rowHTML('▶ Seguir viendo', w.map(x => cardHTML(x.item, null, x.caption)).join('')) : '';
+    fillBadges(u);
+  }
+  renderUpNext();
   const a = $('myListRow'), b = $('seenRow');
   if (a) a.innerHTML = myList.length ? rowHTML(`📌 Mi lista (${myList.length})`, myList.map(r => cardHTML(r)).join('')) : '';
   if (b) b.innerHTML = seenList.length ? rowHTML(`👁 Ya vistas (${seenList.length})`, seenList.slice(0, 60).map(r => cardHTML(r)).join('')) : '';
@@ -1508,7 +1623,7 @@ function cardHTML(it, knownSvc, caption) {
   const v = it.vote_count || 0, w = v ? Math.round(((v * (it.vote_average || 0)) + 150 * 6.5) / (v + 150) * 100) : 0;
   const data = `data-g="${(it.genre_ids || []).join(' ')}" data-l="${it.original_language || ''}" data-t="${type}" data-r="${Math.round((it.vote_average || 0) * 10)}" data-w="${w}" data-y="${parseInt(year, 10) || 0}"${knownSvc ? ` data-svcs="${knownSvc}"` : ''}`;
   return `<button class="card focusable${seen ? ' seen' : ''}" data-key="${key}" ${data}>
-      <div class="poster${it.poster_path ? ' sh' : ''}">${img}<div class="badges">${badges}</div>${tag}</div>
+      <div class="poster${it.poster_path ? ' sh' : ''}">${img}<div class="badges">${badges}</div>${tag}${it.vote_average && (it.vote_count || 0) >= 50 ? `<span class="rt">★ ${it.vote_average.toFixed(1)}</span>` : ''}</div>
       <div class="t">${esc(title)}</div>
       <div class="y">${type === 'tv' ? 'Serie' : 'Película'}${year ? ' · ' + year : ''}</div>${caption ? `<div class="caption">${esc(caption)}</div>` : ''}
     </button>`;
@@ -1683,7 +1798,7 @@ async function loadTrending() {
     ]);
 
     const row = (title, list, svc) => list.length ? rowHTML(title, list.map(r => cardHTML(r, svc)).join(''), svc) : '';
-    let html = heroHTML(trendAll) + '<div id="newEpsRow"></div><div id="forYouRows"></div><div id="myListRow"></div>';
+    let html = heroHTML(trendAll) + '<div id="upNextRow"></div><div id="newEpsRow"></div><div id="forYouRows"></div><div id="myListRow"></div>';
     html += row('🔥 Lo más visto hoy en tus plataformas', trendAll);
     html += row('🆕 Estrenos recientes', fresh);
     const order = PREMIUM;
@@ -3048,7 +3163,9 @@ function actionButtons(it, p, trailerKey) {
   const b = svcs
     .map(s => `<button class="btn focusable" style="background:${SERVICES[s].color};color:#fff" data-svc="${s}" data-go="${esc(links[s] || SERVICES[s].open(q))}" data-label="${SERVICES[s].name}"${links[s] ? ' title="Va directo al título"' : ''}>${ic('play')} Ver en ${SERVICES[s].name}</button>`);
   const trailer = trailerKey ? 'https://www.youtube.com/watch?v=' + trailerKey : SERVICES.youtube.open(q + '+trailer+español');
-  b.push(`<button class="btn svc-youtube focusable" data-go="${esc(trailer)}" data-label="el tráiler">${ic('play')} Tráiler</button>`);
+  // Con tráiler conocido y la página publicada en internet, se ve adentro del centro (YouTube no deja insertarlo desde un archivo local)
+  const inApp = trailerKey && /^https?:$/.test(location.protocol);
+  b.push(`<button class="btn svc-youtube focusable" ${inApp ? `data-trailer="${esc(trailerKey)}"` : `data-go="${esc(trailer)}"`} data-label="el tráiler">${ic('play')} Tráiler</button>`);
   b.push(`<button class="btn focusable${inList(k) ? ' on' : ''}" data-list>${inList(k) ? ic('check') + ' En mi lista' : ic('plus') + ' Mi lista'}</button>`);
   b.push(`<button class="btn focusable${isSeen(k) ? ' on' : ''}" data-seen>${isSeen(k) ? ic('check') + ' Ya la vi' : ic('eye') + ' Ya la vi'}</button>`);
   const like = likeOf(k);
@@ -3385,6 +3502,34 @@ async function openWhenReady(svc, btn) {
   go((links && links[svc]) || btn.dataset.go, SERVICES[svc].name);
 }
 
+/* ===== Tráiler dentro del centro ===== */
+const trailerOpen = () => !!($('tmodal') && $('tmodal').classList.contains('on'));
+function openTrailer(key, it) {
+  let m = $('tmodal');
+  if (!m) {
+    m = document.createElement('div');
+    m.id = 'tmodal'; m.className = 'tmodal';
+    m.innerHTML = `<div class="tbox"><button class="btn tclose focusable" aria-label="Cerrar tráiler">${ic('x')}</button><div class="tframe"></div><div class="tcap"></div></div>`;
+    m.addEventListener('click', e => { if (e.target === m || e.target.closest('.tclose')) closeTrailer(); });
+    document.body.appendChild(m);
+  }
+  m.querySelector('.tframe').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(key)}?autoplay=1&rel=0&modestbranding=1&playsinline=1&hl=es" title="Tráiler" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  m.querySelector('.tcap').textContent = it ? `Tráiler · ${it.title || it.name}` : 'Tráiler';
+  history.pushState({ cm: 'trailer' }, '');
+  m.classList.add('on');
+  buzz();
+  m.querySelector('.tclose').focus({ preventScroll: true });
+}
+function closeTrailer() {
+  if (!fromPop && navTag() === 'trailer') { history.back(); return; }
+  const m = $('tmodal');
+  if (!m) return;
+  m.classList.remove('on');
+  m.querySelector('.tframe').innerHTML = ''; // corta el video
+  const t = $('actions') && $('actions').querySelector('[data-trailer]');
+  if (t) t.focus({ preventScroll: true });
+}
+
 function closeDetail() {
   if (!fromPop && navTag() === 'detail') { history.back(); return; }
   overlay.classList.remove('on');
@@ -3398,7 +3543,8 @@ overlay.addEventListener('click', e => {
   const it = detailKey && items.get(detailKey);
   const season = e.target.closest('[data-season]');
   const ep = e.target.closest('.ep');
-  if (b && b.dataset.svc && detailCtx && !detailCtx.links && detailCtx.linksPromise) openWhenReady(b.dataset.svc, b);
+  if (b && b.dataset.trailer) openTrailer(b.dataset.trailer, it);
+  else if (b && b.dataset.svc && detailCtx && !detailCtx.links && detailCtx.linksPromise) openWhenReady(b.dataset.svc, b);
   else if (b && b.dataset.go) go(b.dataset.go, b.dataset.label, b.dataset.hint);
   else if (b && b.hasAttribute('data-list') && it) { toggleList(it); refreshActions(it, b); toast(inList(keyOf(it)) ? '📌 Agregada a Mi lista' : 'Quitada de Mi lista'); }
   else if (b && b.hasAttribute('data-seen') && it) { toggleSeen(it); refreshActions(it, b); toast(isSeen(keyOf(it)) ? '✓ Marcada como vista' : 'Ya no figura como vista'); }
@@ -3415,7 +3561,7 @@ overlay.addEventListener('click', e => {
   }
   else if (season && it) loadSeason(it.id, +season.dataset.season);
   else if (ep && it) {
-    progress[it.id] = { s: +ep.dataset.s, e: +ep.dataset.ep, at: Date.now() };
+    progress[it.id] = { s: +ep.dataset.s, e: +ep.dataset.ep, at: Date.now(), t: it.title || it.name, p: it.poster_path || null, b: it.backdrop_path || null };
     saveLists();
     loadSeason(it.id, +ep.dataset.s).then(() => {
       const again = document.querySelector(`.ep[data-ep="${ep.dataset.ep}"]`);
@@ -3445,7 +3591,7 @@ async function refreshActions(it, btn) {
 
 /* ================= Navegación espacial (teclado / mando) ================= */
 function visibleFocusables() {
-  const root = overlay.classList.contains('on') ? overlay : $(view);
+  const root = trailerOpen() ? $('tmodal') : overlay.classList.contains('on') ? overlay : $(view);
   // (en el banner solo cuentan los botones del destacado que se está viendo)
   return [...root.querySelectorAll('.focusable')].filter(el => el.offsetParent !== null && !el.closest('.hslide:not(.cur)'));
 }
@@ -3492,7 +3638,8 @@ function moveFocus(dir) {
 }
 
 function back() {
-  if (overlay.classList.contains('on')) closeDetail();
+  if (trailerOpen()) closeTrailer();
+  else if (overlay.classList.contains('on')) closeDetail();
   else if (view === 'explore') show('menu');
 }
 
@@ -3560,6 +3707,7 @@ document.addEventListener('mousemove', () => {
 buildMenuTiles();
 updateProfileButton();
 select(index);
+renderUpNext();
 syncRun();
 
 // Atajos del ícono de la app (mantener apretado el ícono en el celular)
