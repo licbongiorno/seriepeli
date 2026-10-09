@@ -1552,6 +1552,7 @@ function setLike(it, v) {
   saveLists();
 }
 function toggleFollow(it, d) {
+  setTimeout(saveNotifyCfg, 0);
   if (isFollowed(it.id)) follows = follows.filter(x => x.id !== it.id);
   else follows.unshift({ id: it.id, name: it.title || it.name, poster_path: it.poster_path, vote_average: it.vote_average, first_air_date: it.release_date || it.first_air_date, genre_ids: it.genre_ids || (d && d.genres || []).map(g => g.id) });
   saveLists();
@@ -2917,6 +2918,7 @@ function settingsExtrasHTML() {
         : store('cm-notify') === '1' && Notification.permission === 'granted'
         ? '<button class="btn focusable" id="notifyOff">🔕 Desactivar avisos</button><button class="btn focusable" id="notifyTest" style="margin-left:.6em">Probar aviso</button>'
         : '<button class="btn primary focusable" id="notifyOn">🔔 Activar avisos</button>'}
+      <p id="bgStatus" style="color:var(--muted);font-size:.92em"></p>
       <div class="error" id="notifyMsg"></div>
       <h2 style="margin-top:1.4em">💾 Copia de seguridad</h2>
       <p>Guarda en un archivo los perfiles, listas, vistas, calificaciones y series seguidas. Si algún día se borra el centro, la importás y recuperás todo.</p>
@@ -2945,11 +2947,18 @@ function bindSettingsExtras() {
     const perm = await Notification.requestPermission().catch(() => 'denied');
     if (perm !== 'granted') { $('notifyMsg').textContent = '❌ No diste permiso. Se puede habilitar desde la configuración del navegador (sitio → Notificaciones).'; return; }
     store('cm-notify', '1');
+    await saveNotifyCfg();
     renderSetup();
     $('notifyMsg').textContent = '✅ Listo: te vamos a avisar de los episodios nuevos.';
     checkEpisodes(true);
   });
-  if ($('notifyOff')) $('notifyOff').addEventListener('click', () => { store('cm-notify', null); renderSetup(); });
+  if ($('notifyOff')) $('notifyOff').addEventListener('click', async () => { store('cm-notify', null); await saveNotifyCfg(); registerBackgroundCheck(); renderSetup(); });
+  // ¿Puede avisar también con el centro cerrado?
+  if (store('cm-notify') === '1' && $('bgStatus')) registerBackgroundCheck().then(st => {
+    $('bgStatus').innerHTML = st === 'ok' ? '✅ También avisa con el centro cerrado: el teléfono lo revisa solo cada algunas horas (el sistema elige cuándo; más seguido si lo usás seguido).'
+      : st === 'sin-permiso' ? 'ℹ️ Para que avise también con el centro cerrado, instalalo como app (menú del navegador → <strong>Agregar a pantalla de inicio</strong> / <strong>Instalar app</strong>) y abrilo desde ese ícono.'
+      : 'ℹ️ En este navegador avisa cuando abrís el centro o mientras está abierto. Con el centro instalado en un Android, avisa también cerrado.';
+  });
   if ($('notifyTest')) $('notifyTest').addEventListener('click', () => notify('🔔 Así se ven los avisos', 'Cuando salga un episodio nuevo de tus series, te llega uno como este.', 'test'));
   if ($('syncOn')) $('syncOn').addEventListener('click', async () => {
     $('syncMsg').textContent = 'Activando…';
@@ -3130,13 +3139,46 @@ async function notify(title, body, tag) {
     if (reg) await reg.showNotification(title, opts); else new Notification(title, opts);
   } catch (e) {}
 }
+/* Con el centro cerrado: se deja guardada la lista de series para el service worker, que revisa
+   en segundo plano cuando el sistema lo despierta (Android, con el centro instalado como app). */
+const NOTIFY_CACHE = 'centro-notify', NOTIFY_CFG = './__avisos.json';
+async function readNotifyCfg() {
+  try { const r = await (await caches.open(NOTIFY_CACHE)).match(NOTIFY_CFG); return r ? await r.json() : null; } catch (e) { return null; }
+}
+async function saveNotifyCfg() {
+  if (!('caches' in window)) return;
+  try {
+    const old = await readNotifyCfg();
+    if (store('cm-notify') !== '1' && !old) return; // avisos apagados y nunca prendidos: nada que guardar
+    const follows = new Map();
+    for (const p of profiles) for (const f of loadJSON(`cm-${p.id}-follow`)) follows.set(f.id, { id: f.id, name: f.name });
+    const notified = [...new Set([...((old && old.notified) || []), ...loadJSON('cm-notified')])].slice(-200);
+    const cfg = { on: store('cm-notify') === '1', key: apiKey, lang: LANG, follows: [...follows.values()], notified };
+    await (await caches.open(NOTIFY_CACHE)).put(NOTIFY_CFG, new Response(JSON.stringify(cfg), { headers: { 'content-type': 'application/json' } }));
+  } catch (e) {}
+}
+// Pide al sistema que despierte al centro cada unas horas. Devuelve 'ok', 'sin-permiso' o 'no'.
+async function registerBackgroundCheck() {
+  try {
+    if (!('serviceWorker' in navigator)) return 'no';
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (!reg || !('periodicSync' in reg)) return 'no';
+    const st = await navigator.permissions.query({ name: 'periodic-background-sync' });
+    if (st.state !== 'granted') return 'sin-permiso';
+    if (store('cm-notify') === '1') await reg.periodicSync.register('episodios', { minInterval: 4 * HOUR });
+    else await reg.periodicSync.unregister('episodios');
+    return 'ok';
+  } catch (e) { return 'no'; }
+}
 // Busca episodios que salieron en los últimos 3 días en las series que seguís (todos los perfiles)
 async function checkEpisodes(force) {
   if (!('Notification' in window) || Notification.permission !== 'granted' || store('cm-notify') !== '1' || !apiKey) return;
   const last = Number(store('cm-notify-last')) || 0;
   if (!force && Date.now() - last < 3 * HOUR) return;
   store('cm-notify-last', String(Date.now()));
-  const done = loadJSON('cm-notified');
+  // (incluye lo que ya avisó el centro en segundo plano, para no repetir)
+  const bg = await readNotifyCfg();
+  const done = [...new Set([...loadJSON('cm-notified'), ...((bg && bg.notified) || [])])];
   const ids = new Map();
   for (const p of profiles) for (const f of loadJSON(`cm-${p.id}-follow`)) ids.set(f.id, f.name);
   for (const [id, name] of ids) {
@@ -3150,8 +3192,9 @@ async function checkEpisodes(force) {
     notify(`🆕 ${d.name || name}`, `Salió T${e.season_number} E${e.episode_number}${e.name ? ' · ' + e.name : ''}`, tag);
   }
   store('cm-notified', JSON.stringify(done.slice(-200)));
+  saveNotifyCfg();
 }
-setTimeout(() => checkEpisodes(), 6000);
+setTimeout(() => { checkEpisodes(); if (store('cm-notify') === '1') { saveNotifyCfg(); registerBackgroundCheck(); } }, 6000);
 setInterval(() => checkEpisodes(), HOUR);
 
 /* ================= 🔳 Código QR para abrirlo en el celular ================= */

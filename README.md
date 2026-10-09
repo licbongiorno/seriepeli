@@ -26,7 +26,8 @@ Se maneja con teclado, mouse o control de Xbox (flechas para moverse, Enter para
 - **👨‍👩‍👧 Para ver juntos**: una lista de toda la familia, compartida entre perfiles.
 - **🧸 Perfil para chicos**: ese perfil solo muestra títulos para chicos.
 - **🔔 Avisos de episodios nuevos** de las series que seguís (⚙ → Activar avisos). Revisan al abrir el centro
-  y cada unas horas mientras está abierto.
+  y cada unas horas mientras está abierto. En Android, con el centro **instalado como app**, avisan también
+  con el centro cerrado: el teléfono lo despierta solo cada algunas horas (el sistema elige cuándo).
 - **Sincronizar PC y celular**: ⚙ → 🔄 Activar sincronización, y mandá el enlace (WhatsApp o QR) al celular.
   Perfiles, listas, vistas y plataformas se comparten solos (se guardan en jsonblob.com, sin la clave de TMDB).
 - **Sin conexión**: una vez abierto desde internet, abre aunque no haya señal y muestra lo último guardado.
