@@ -968,7 +968,41 @@
     #profBtn .lbl { display: none; }
     .tbtns .btn { font-size: clamp(14px, .95vw, 18px); }
   }
+  /* Menú: si los mosaicos no entran, se puede desplazar */
+  #menu main { overflow-y: auto; scrollbar-width: none; }
+  #menu main::-webkit-scrollbar { display: none; }
+  /* Celular acostado: todo el menú más compacto, mosaicos en una fila */
+  @media (orientation: landscape) and (max-height: 520px) {
+    header { padding: calc(8px + env(safe-area-inset-top)) 24px 0; align-items: center; }
+    .greeting { font-size: 20px; }
+    .date { font-size: 13px; margin-top: 0; }
+    .clock { font-size: 30px; }
+    #menu main { align-items: flex-start; padding: 12px 20px; gap: 12px; }
+    .grid, .grid.many { grid-template-columns: repeat(var(--cols, 7), 1fr); gap: 10px; }
+    .tile, .grid.many .tile { aspect-ratio: 3 / 4; border-radius: 14px; gap: .5em; }
+    .tile svg { width: 34%; }
+    .name, .grid.many .name { font-size: 13px; }
+    .netflix .name { font-size: 15px; }
+    .key { display: none; }
+    .un { width: 34vw; }
+    .sign { padding-bottom: 8px; font-size: 11px; }
+  }
   /* ===== 🎞 Cinemateca ===== */
+  .cinemateca { background: linear-gradient(160deg, #3a2a12 0%, #1a1208 60%, #0b0905 100%); }
+  .cinemateca svg { color: #e8c27a; }
+  .cultpromo {
+    display: flex; align-items: center; gap: 1em; width: calc(100% - 8vw); margin: 2vh 4vw 0; padding: 1em 1.3em;
+    border: 2px solid transparent; border-radius: 18px; cursor: pointer; text-align: left; color: #fff;
+    background: linear-gradient(110deg, #3a2a12, #1d1a2c 60%, var(--surface)); box-shadow: 0 12px 30px rgba(0,0,0,.4);
+    transition: transform .2s cubic-bezier(.2,.8,.2,1), border-color .2s;
+  }
+  .cultpromo:hover, .cultpromo:focus { transform: translateY(-2px); border-color: #e8c27a; }
+  .cultpromo .cpi { font-size: 2.1em; line-height: 1; }
+  .cultpromo span:nth-child(2) { display: flex; flex-direction: column; gap: .2em; flex: 1; min-width: 0; }
+  .cultpromo b { font-size: clamp(17px, 1.2vw, 24px); color: #e8c27a; }
+  .cultpromo small { color: #c9cdda; font-size: clamp(13px, .85vw, 16px); line-height: 1.4; }
+  .cultpromo .cpa .ic { width: 1.6em; height: 1.6em; color: #e8c27a; }
+  @media (max-width: 640px) { .cultpromo { width: calc(100% - 24px); margin: 14px 12px 0; padding: .9em 1em; } }
   .culthead { padding: 2vh 4vw 0; }
   .culthead h2 { font-size: clamp(24px, 2vw, 40px); letter-spacing: -.02em; }
   .culthead p { color: var(--muted); margin: .5em 0 1.2em; max-width: 70ch; line-height: 1.5; font-size: clamp(14px, .95vw, 18px); }
@@ -1022,6 +1056,75 @@
   .about small { color: var(--muted); line-height: 1.45; }
   @media (max-width: 640px) { .sign { padding-bottom: calc(14px + env(safe-area-inset-bottom)); } }
 
+  /* ===== Bienvenida ===== */
+  .splash {
+    position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 30%, #2a1650 0%, #0b0c10 65%); transition: opacity .6s ease, transform .6s ease;
+  }
+  .splash.out { opacity: 0; transform: scale(1.04); pointer-events: none; }
+  .spl { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0 24px; }
+  .spl img { width: clamp(96px, 9vw, 150px); height: auto; border-radius: 28%; box-shadow: 0 30px 80px rgba(123,47,247,.45); animation: splPop .9s cubic-bezier(.2,.8,.2,1) both; }
+  .spl h1 { font-size: clamp(30px, 3vw, 60px); letter-spacing: -.02em; animation: rise .7s .25s cubic-bezier(.2,.8,.2,1) backwards; }
+  .spl p { color: #c9cdda; font-size: clamp(16px, 1.3vw, 26px); animation: rise .7s .4s cubic-bezier(.2,.8,.2,1) backwards; }
+  .spl p b { color: #f5b301; }
+  .spbar { display: block; width: 160px; height: 3px; border-radius: 3px; margin-top: 18px; background: rgba(255,255,255,.12); overflow: hidden; position: relative; }
+  .spbar::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #ff4d6d, #f5b301); transform: translateX(-100%); animation: splBar 1.2s .1s ease-out forwards; }
+  @keyframes splPop { from { opacity: 0; transform: scale(.6) rotate(-8deg); } }
+  @keyframes splBar { to { transform: none; } }
+
+  /* ===== Modo cine ===== */
+  .tmodal.cine { background: #000; backdrop-filter: none; -webkit-backdrop-filter: none; animation: lightsOff .7s ease; overflow: hidden; }
+  @keyframes lightsOff { from { background: rgba(0,0,0,.4); } to { background: #000; } }
+  .tmodal.cine .tbox { width: min(96vw, calc((100vh - 12vh) * 16 / 9)); }
+  .tmodal.cine .tframe { box-shadow: 0 0 140px 10px rgba(var(--acc), .45), 0 0 0 1px rgba(255,255,255,.05); border-radius: 10px; animation: projector 1.4s ease; }
+  @keyframes projector { 0% { filter: brightness(0); } 40% { filter: brightness(.2); } 100% { filter: none; } }
+  .curtain { position: absolute; top: 0; bottom: 0; width: 51%; z-index: 3; pointer-events: none; display: none;
+    background: repeating-linear-gradient(90deg, #5a0b12 0 26px, #7d1119 26px 52px, #4a080e 52px 78px); box-shadow: inset 0 -40px 60px rgba(0,0,0,.6); }
+  .curtain.l { left: 0; } .curtain.r { right: 0; }
+  .tmodal.cine .curtain { display: block; }
+  .tmodal.cine .curtain.l { animation: curtainL 1.3s .25s cubic-bezier(.6,0,.3,1) forwards; }
+  .tmodal.cine .curtain.r { animation: curtainR 1.3s .25s cubic-bezier(.6,0,.3,1) forwards; }
+  @keyframes curtainL { to { transform: translateX(-102%); } }
+  @keyframes curtainR { to { transform: translateX(102%); } }
+  .tbar { display: flex; align-items: center; justify-content: space-between; gap: 1em; margin-top: 1.2vh; }
+  .tbar .tcap { margin: 0; }
+  .tfull { font-size: 14px; padding: .4em .9em; border-width: 2px; }
+
+  /* ===== Tu año en el cine ===== */
+  .yr { padding-bottom: 2vh; }
+  .yrhero { margin: 2vh 4vw 0; padding: 4vh 3vw; border-radius: 24px; background: linear-gradient(135deg, #ff4d6d, #7b2ff7 50%, #16124f); box-shadow: 0 20px 60px rgba(123,47,247,.35); animation: pop .5s cubic-bezier(.2,.8,.2,1); }
+  .yrhero small { font-weight: 700; opacity: .9; font-size: clamp(14px, 1vw, 18px); }
+  .yrhero h2 { font-size: clamp(32px, 3.4vw, 68px); letter-spacing: -.03em; line-height: 1.05; margin: .2em 0; }
+  .yrhero p { color: rgba(255,255,255,.88); max-width: 60ch; line-height: 1.5; }
+  .yrnums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2vw; margin: 2.4vh 4vw 0; }
+  .yrnums div { background: var(--surface); border-radius: 18px; padding: 2.4vh 1.4vw; animation: rise .5s cubic-bezier(.2,.8,.2,1) backwards; }
+  .yrnums div:nth-child(2) { animation-delay: .06s; } .yrnums div:nth-child(3) { animation-delay: .12s; } .yrnums div:nth-child(4) { animation-delay: .18s; }
+  .yrnums b { display: block; font-size: clamp(34px, 3vw, 60px); line-height: 1; background: linear-gradient(90deg, #f5b301, #ff4d6d); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .yrnums span { color: var(--muted); font-weight: 600; }
+  .yrgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2vw; margin: 1.6vh 4vw 0; }
+  .yrgrid section { background: var(--surface); border-radius: 18px; padding: 2.2vh 1.4vw; }
+  .yrgrid h3 { font-size: clamp(16px, 1.1vw, 21px); margin-bottom: 1.2vh; }
+  .yrgrid .bar { display: grid; grid-template-columns: 9em 1fr 2em; align-items: center; gap: .6em; margin: .5em 0; }
+  .yrmuted { color: var(--muted); margin-top: 1em; line-height: 1.5; font-size: .95em; }
+  .yrmonths { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; height: 120px; align-items: end; }
+  .yrmonths div { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; }
+  .yrmonths i { display: block; width: 100%; border-radius: 5px 5px 2px 2px; background: #3a3f5c; }
+  .yrmonths i.top { background: linear-gradient(0deg, #e0761a, #f5b301); }
+  .yrmonths span { font-size: 11px; color: var(--muted); }
+  .yrsaga { padding: .45em 0; border-bottom: 1px solid var(--surface-2); display: flex; justify-content: space-between; gap: .6em; }
+  .yrsaga em { font-style: normal; color: var(--muted); white-space: nowrap; }
+  .yrshare { display: flex; gap: .8em; flex-wrap: wrap; margin: 3vh 4vw 0; }
+  @media (max-width: 900px) { .yrgrid { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) {
+    .yrhero { margin: 12px 12px 0; padding: 22px 18px; border-radius: 18px; }
+    .yrnums { grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 12px 0; }
+    .yrnums div { padding: 16px; }
+    .yrgrid { margin: 10px 12px 0; gap: 10px; }
+    .yrgrid section { padding: 16px; }
+    .yrshare { margin: 18px 12px 0; }
+    .tbar { padding: 0 12px; }
+  }
+
   .qr { display: none; margin: 1em 0 .4em; }
   .qr.on { display: block; }
   .qr svg { width: min(260px, 70vw); height: auto; background: #fff; border-radius: 14px; padding: 12px; display: block; }
@@ -1041,6 +1144,16 @@
 </style>
 </head>
 <body>
+
+<!-- ================= BIENVENIDA ================= -->
+<div class="splash" id="splash" aria-hidden="true">
+  <div class="spl">
+    <img src="icono.svg" alt="">
+    <h1>Centro Multimedia</h1>
+    <p>de <b>Lic. Nicolás Bongiorno</b></p>
+    <i class="spbar"></i>
+  </div>
+</div>
 
 <!-- ================= MENÚ ================= -->
 <section class="view on" id="menu">
@@ -1078,6 +1191,11 @@
         <span class="key">5</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><circle cx="12" cy="12" r="5.5" fill="none" stroke="#fff" stroke-width="1.4"/><path d="M10.5 9.5v5l4-2.5z" fill="#fff"/></svg>
         <span class="name">YouTube Music</span>
+      </button>
+      <button class="tile cinemateca" data-view="explore" data-cult="1">
+        <span class="key">6</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7.5 3v18M16.5 3v18M3 8h4.5M3 12h18M3 16h4.5M16.5 8H21M16.5 16H21"/></svg>
+        <span class="name">Cinemateca</span>
       </button>
       <button class="tile explore" data-view="explore">
         <span class="key">6</span>
@@ -1318,7 +1436,7 @@ let index = 0;
 { const saved = parseInt(store('cm-last'), 10); if (saved >= 0 && saved < tiles.length) index = saved; }
 
 // Color del resplandor de fondo según el mosaico elegido
-const TILE_GLOW = { netflix: '#e50914', max: '#2f55ff', disney: '#13a7c4', youtube: '#ff0000', ytmusic: '#ff1f1f', explore: '#f5b301' };
+const TILE_GLOW = { netflix: '#e50914', max: '#2f55ff', disney: '#13a7c4', youtube: '#ff0000', ytmusic: '#ff1f1f', cinemateca: '#c8963e', explore: '#f5b301' };
 function select(i) {
   index = (i + tiles.length) % tiles.length;
   const t = tiles[index], cls = Object.keys(TILE_GLOW).find(c => t.classList.contains(c));
@@ -1331,7 +1449,7 @@ function openTile(i) {
   const t = tiles[i];
   store('cm-last', String(i));
   buzz();
-  if (t.dataset.view) { show(t.dataset.view); return; }
+  if (t.dataset.view) { show(t.dataset.view); if (t.dataset.cult) { setNav('cultBtn'); renderCult(); } return; }
   go(t.dataset.url, t.querySelector('.name').textContent);
 }
 function menuKey(e) {
@@ -1942,7 +2060,7 @@ async function loadTrending() {
     ]);
 
     const row = (title, list, svc) => list.length ? rowHTML(title, list.map(r => cardHTML(r, svc)).join(''), svc) : '';
-    let html = heroHTML(trendAll) + '<div id="tonightRow"></div><div id="upNextRow"></div><div id="newEpsRow"></div><div id="forYouRows"></div><div id="myListRow"></div><div id="togetherRow"></div>';
+    let html = heroHTML(trendAll) + `<button class="cultpromo focusable" data-cult="1"><span class="cpi">🎞</span><span><b>Cinemateca</b><small>Joyas del cine, cine de culto, Oscars y guías para ver las grandes sagas en orden</small></span><span class="cpa">${ic('right')}</span></button>` + '<div id="tonightRow"></div><div id="upNextRow"></div><div id="newEpsRow"></div><div id="forYouRows"></div><div id="myListRow"></div><div id="togetherRow"></div>';
     html += row('🔥 Lo más visto hoy en tus plataformas', trendAll);
     html += row('🆕 Estrenos recientes', fresh);
     const order = PREMIUM;
@@ -2348,6 +2466,7 @@ async function runSearch() {
 }
 
 content.addEventListener('click', e => {
+  if (e.target.closest('.cultpromo')) { setNav('cultBtn'); renderCult(); content.scrollTo({ top: 0 }); return; }
   const hb = e.target.closest('[data-hplay],[data-hinfo]');
   if (hb) { heroClick(hb); return; }
   const arrow = e.target.closest('[data-scroll]');
@@ -3025,6 +3144,116 @@ SAGAS.push(
   } }
 );
 
+/* ----- Más listas: terror, Latinoamérica, ciencia ficción, musicales y bélico ----- */
+CANON.push(
+  { id: 'terror', title: '👻 Terror clásico', items: [
+    ['movie', 'Nosferatu', 1922, 'El primer vampiro del cine'],
+    ['movie', 'Frankenstein', 1931, 'El monstruo de Universal'],
+    ['movie', 'Psycho', 1960, 'La escena de la ducha'],
+    ['movie', 'The Innocents', 1961, 'Fantasmas elegantes'],
+    ['movie', 'The Haunting', 1963, 'La casa embrujada definitiva'],
+    ['movie', 'Rosemary\'s Baby', 1968, 'Terror psicológico en Nueva York'],
+    ['movie', 'Night of the Living Dead', 1968, 'Nacieron los zombis modernos'],
+    ['movie', 'The Exorcist', 1973, 'La película más temida'],
+    ['movie', 'The Texas Chain Saw Massacre', 1974, 'Crudeza sin filtro'],
+    ['movie', 'Suspiria', 1977, 'Color y pesadilla de Argento'],
+    ['movie', 'Halloween', 1978, 'El slasher por excelencia'],
+    ['movie', 'Alien', 1979, 'Terror en el espacio'],
+    ['movie', 'The Shining', 1980, 'Kubrick y el hotel Overlook'],
+    ['movie', 'The Evil Dead', 1981, 'Bajo presupuesto, culto eterno'],
+    ['movie', 'A Nightmare on Elm Street', 1984, 'Freddy en tus sueños'],
+    ['movie', 'The Silence of the Lambs', 1991, 'Hannibal Lecter'],
+    ['movie', 'Scream', 1996, 'El terror que se ríe de sí mismo'],
+    ['movie', 'The Blair Witch Project', 1999, 'El primer gran "found footage"'],
+    ['movie', 'The Others', 2001, 'Amenábar y un final inolvidable'],
+    ['movie', 'Get Out', 2017, 'Terror social, Oscar al guion']
+  ] },
+  { id: 'latam', title: '🌎 Cine latinoamericano', items: [
+    ['movie', 'Los olvidados', 1950, 'Buñuel en México'],
+    ['movie', 'Memorias del subdesarrollo', 1968, 'Clásico del cine cubano'],
+    ['movie', 'Pixote', 1980, 'Infancia en las calles de Brasil'],
+    ['movie', 'Fresa y chocolate', 1993, 'Amistad y libertad en Cuba'],
+    ['movie', 'Central Station', 1998, 'Un viaje por Brasil'],
+    ['movie', 'Amores perros', 2000, 'El debut de Iñárritu'],
+    ['movie', 'Y tu mamá también', 2001, 'Cuarón y un viaje de iniciación'],
+    ['movie', 'City of God', 2002, 'La favela como nunca se vio'],
+    ['movie', 'Whisky', 2004, 'Humor seco uruguayo'],
+    ['movie', "Pan's Labyrinth", 2006, 'Del Toro: fantasía y guerra'],
+    ['movie', 'The Milk of Sorrow', 2009, 'Oso de Oro para Perú'],
+    ['movie', 'No', 2012, 'La campaña que venció a Pinochet'],
+    ['movie', 'Embrace of the Serpent', 2015, 'La Amazonía colombiana'],
+    ['movie', 'A Fantastic Woman', 2017, 'Oscar para Chile'],
+    ['movie', 'Roma', 2018, 'Cuarón y su infancia'],
+    ['movie', 'Society of the Snow', 2023, 'La tragedia de los Andes'],
+    ['movie', "I'm Still Here", 2024, 'Oscar para Brasil']
+  ] },
+  { id: 'scifi', title: '🚀 Ciencia ficción esencial', items: [
+    ['movie', 'The Day the Earth Stood Still', 1951, 'Un mensaje desde el espacio'],
+    ['movie', 'Invasion of the Body Snatchers', 1956, 'Paranoia de la Guerra Fría'],
+    ['movie', 'Planet of the Apes', 1968, 'Uno de los finales más famosos'],
+    ['movie', '2001: A Space Odyssey', 1968, 'La odisea definitiva'],
+    ['movie', 'Close Encounters of the Third Kind', 1977, 'Spielberg mira al cielo'],
+    ['movie', 'Alien', 1979, 'Nadie puede oír tus gritos'],
+    ['movie', 'Blade Runner', 1982, '¿Qué nos hace humanos?'],
+    ['movie', 'E.T. the Extra-Terrestrial', 1982, 'El extraterrestre más querido'],
+    ['movie', 'The Terminator', 1984, 'Máquinas que vienen del futuro'],
+    ['movie', 'Back to the Future', 1985, 'El viaje en el tiempo más divertido'],
+    ['movie', 'Terminator 2: Judgment Day', 1991, 'Efectos que hicieron historia'],
+    ['movie', 'Jurassic Park', 1993, 'Dinosaurios de verdad'],
+    ['movie', 'The Matrix', 1999, 'Bienvenido al desierto de lo real'],
+    ['movie', 'Children of Men', 2006, 'Un futuro sin bebés'],
+    ['movie', 'WALL·E', 2008, 'Un robot solitario'],
+    ['movie', 'Inception', 2010, 'Sueños dentro de sueños'],
+    ['movie', 'Interstellar', 2014, 'Agujeros negros y amor'],
+    ['movie', 'Mad Max: Fury Road', 2015, 'Acción pura en el desierto'],
+    ['movie', 'Arrival', 2016, 'Aprender un idioma alienígena'],
+    ['movie', 'Dune: Part Two', 2024, 'Ciencia ficción épica moderna']
+  ] },
+  { id: 'musical', title: '🎶 Musicales', items: [
+    ['movie', 'The Wizard of Oz', 1939, 'Más allá del arcoíris'],
+    ['movie', "Singin' in the Rain", 1952, 'El musical más feliz'],
+    ['movie', 'West Side Story', 1961, 'Romeo y Julieta en Nueva York'],
+    ['movie', 'The Sound of Music', 1965, 'La novicia rebelde'],
+    ['movie', 'Cabaret', 1972, 'Berlín antes de la guerra'],
+    ['movie', 'Grease', 1978, 'Rock and roll y amor'],
+    ['movie', 'The Little Mermaid', 1989, 'El renacer de Disney'],
+    ['movie', 'Beauty and the Beast', 1991, 'Primera animada nominada a mejor película'],
+    ['movie', 'The Lion King', 1994, 'El ciclo de la vida'],
+    ['movie', 'Moulin Rouge!', 2001, 'Pop y bohemia en París'],
+    ['movie', 'Chicago', 2002, 'Jazz, crimen y Oscar'],
+    ['movie', 'Mamma Mia!', 2008, 'Todo ABBA'],
+    ['movie', 'Les Misérables', 2012, 'Cantado de principio a fin'],
+    ['movie', 'Whiplash', 2014, 'Jazz y obsesión'],
+    ['movie', 'La La Land', 2016, 'Sueños en Los Ángeles'],
+    ['movie', 'The Greatest Showman', 2017, 'El circo de Barnum'],
+    ['movie', 'Bohemian Rhapsody', 2018, 'La historia de Queen'],
+    ['movie', 'Encanto', 2021, 'Una familia mágica colombiana'],
+    ['movie', 'Wicked', 2024, 'Antes de El mago de Oz']
+  ] },
+  { id: 'belico', title: '🎖 Cine bélico', items: [
+    ['movie', 'All Quiet on the Western Front', 1930, 'La Primera Guerra desde las trincheras'],
+    ['movie', 'Grand Illusion', 1937, 'Renoir y la guerra'],
+    ['movie', 'Paths of Glory', 1957, 'Kubrick contra los generales'],
+    ['movie', 'The Bridge on the River Kwai', 1957, 'Orgullo y locura'],
+    ['movie', 'The Battle of Algiers', 1966, 'Parece un documental'],
+    ['movie', 'The Deer Hunter', 1978, 'Vietnam y sus heridas'],
+    ['movie', 'Apocalypse Now', 1979, 'El horror, el horror'],
+    ['movie', 'Das Boot', 1981, 'Encerrados en un submarino'],
+    ['movie', 'Come and See', 1985, 'La guerra vista por un chico'],
+    ['movie', 'Platoon', 1986, 'Vietnam según Oliver Stone'],
+    ['movie', 'Full Metal Jacket', 1987, 'Del entrenamiento al combate'],
+    ['movie', 'Grave of the Fireflies', 1988, 'La animación más triste'],
+    ['movie', "Schindler's List", 1993, 'El Holocausto según Spielberg'],
+    ['movie', 'Saving Private Ryan', 1998, 'El desembarco en Normandía'],
+    ['movie', 'The Thin Red Line', 1998, 'Guerra y naturaleza'],
+    ['tv', 'Band of Brothers', 2001, 'La miniserie bélica definitiva'],
+    ['movie', 'Iluminados por el fuego', 2005, 'Malvinas, desde la Argentina'],
+    ['movie', 'Dunkirk', 2017, 'La evacuación, en tiempo real'],
+    ['movie', '1917', 2019, 'Un solo plano en la trinchera'],
+    ['movie', 'All Quiet on the Western Front', 2022, 'La versión alemana, ganadora del Oscar']
+  ] }
+);
+
 // Busca un título curado en TMDB (por nombre y año) y lo guarda 60 días
 async function resolveCanon([type, q, year]) {
   const key = `c:canon:${type}:${q}:${year}`;
@@ -3107,6 +3336,115 @@ function renderCult() {
       $('sagaProg').innerHTML = found.length ? `<div class="pbar"><i style="width:${Math.round(seen / found.length * 100)}%"></i></div><span>Viste ${seen} de ${found.length}${seen === found.length ? ' 🎉' : ''}</span>` : '';
     });
   }
+}
+
+/* ================= 🎉 Tu año en el cine ================= */
+const GENRE_NAMES = { 28: 'Acción', 12: 'Aventura', 16: 'Animación', 35: 'Comedia', 80: 'Crimen', 99: 'Documental', 18: 'Drama',
+  10751: 'Familia', 14: 'Fantasía', 36: 'Historia', 27: 'Terror', 10402: 'Música', 9648: 'Misterio', 10749: 'Romance',
+  878: 'Ciencia ficción', 53: 'Suspenso', 10752: 'Bélica', 37: 'Western', 10759: 'Acción y aventura', 10762: 'Infantil',
+  10765: 'Ciencia ficción y fantasía', 10768: 'Bélica y política', 10764: 'Reality', 10766: 'Telenovela' };
+const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+function yearStats(year) {
+  const from = new Date(year, 0, 1).getTime(), to = new Date(year + 1, 0, 1).getTime();
+  const list = seenList.filter(x => x.at >= from && x.at < to);
+  const movies = list.filter(x => x.media_type === 'movie'), series = list.filter(x => x.media_type === 'tv');
+  const minutes = movies.reduce((a, x) => a + (x.runtime || 110), 0);
+  const g = {};
+  list.forEach(x => (x.genre_ids || []).forEach(id => { if (GENRE_NAMES[id]) g[GENRE_NAMES[id]] = (g[GENRE_NAMES[id]] || 0) + 1; }));
+  const genres = Object.entries(g).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const m = Array(12).fill(0); list.forEach(x => m[new Date(x.at).getMonth()]++);
+  const best = m.indexOf(Math.max(...m));
+  const liked = list.filter(x => x.like === 1);
+  // Sagas: solo las que ya se cargaron alguna vez en la Cinemateca
+  const sagas = [];
+  for (const sg of SAGAS) {
+    const steps = Object.values(sg.orders)[0][1];
+    const its = steps.map(x => { const h = cacheGet(`c:canon:${x[0]}:${x[1]}:${x[2]}`, true); return h && h.d; }).filter(Boolean);
+    if (!its.length) continue;
+    const seen = its.filter(it => isSeen(keyOf(it))).length;
+    // Completa solo si se conocen todos sus títulos y los viste todos
+    if (seen) sagas.push({ title: sg.title, icon: sg.icon, seen, total: steps.length, done: its.length === steps.length && seen === steps.length });
+  }
+  sagas.sort((a, b) => b.done - a.done || b.seen / b.total - a.seen / a.total);
+  return { year, list, movies, series, hours: Math.round(minutes / 60), genres, months: m, best, liked, sagas };
+}
+function renderYear() {
+  ++searchSeq;
+  exploreLoaded = false;
+  $('filters').classList.add('off');
+  const year = new Date().getFullYear(), st = yearStats(year), me = currentProfile();
+  if (!st.list.length) {
+    content.innerHTML = `<div class="yr"><div class="yrhero"><small>${esc(me.emoji)} ${esc(me.name)}</small><h2>Tu ${year} en el cine</h2>
+      <p>Todavía no marcaste nada como visto este año. Tocá <b>👁 Ya la vi</b> en la ficha de lo que mires y acá vas a ver tu resumen: horas, géneros, sagas y más.</p></div></div>`;
+    return;
+  }
+  const maxM = Math.max(...st.months, 1), maxG = st.genres.length ? st.genres[0][1] : 1;
+  content.innerHTML = `<div class="yr">
+    <div class="yrhero"><small>${esc(me.emoji)} ${esc(me.name)}</small><h2>Tu ${year} en el cine</h2><p>Todo lo que marcaste como visto este año.</p></div>
+    <div class="yrnums">
+      <div><b>${st.movies.length}</b><span>películas</span></div>
+      <div><b>${st.series.length}</b><span>series</span></div>
+      <div><b>${st.hours}</b><span>horas de películas</span></div>
+      <div><b>${st.liked.length}</b><span>👍 te encantaron</span></div>
+    </div>
+    <div class="yrgrid">
+      <section><h3>Tus géneros</h3>${st.genres.map(([n, c]) => `<div class="bar"><span>${esc(n)}</span><i style="width:${Math.max(6, c / maxG * 100)}%"></i><em>${c}</em></div>`).join('') || '<p class="yrmuted">Sin datos de géneros.</p>'}</section>
+      <section><h3>Mes a mes</h3><div class="yrmonths">${st.months.map((c, i) => `<div title="${MONTHS[i]}: ${c}"><i style="height:${c ? Math.max(8, c / maxM * 100) : 2}%"${i === st.best && c ? ' class="top"' : ''}></i><span>${MONTHS[i][0].toUpperCase()}</span></div>`).join('')}</div>
+        <p class="yrmuted">Tu mes más cinéfilo: <b>${MONTHS[st.best]}</b> (${st.months[st.best]} títulos).</p></section>
+      <section><h3>Sagas</h3>${st.sagas.length ? st.sagas.map(x => `<div class="yrsaga">${x.icon} ${esc(x.title)} <em>${x.done ? '✅ completa' : `${x.seen} de ${x.total}`}</em></div>`).join('') : '<p class="yrmuted">Abrí las guías de sagas en la Cinemateca y marcá lo que viste para verlas acá.</p>'}</section>
+    </div>
+    ${st.liked.length ? rowHTML('👍 Lo que más te gustó', st.liked.slice(0, 20).map(r => cardHTML(r)).join('')) : ''}
+    ${rowHTML('🎬 Todo lo que viste en ' + year, st.list.slice(0, 60).map(r => cardHTML(r)).join(''))}
+    <div class="yrshare"><button class="btn primary focusable" id="yrImg">🖼 Compartir mi resumen</button><button class="btn focusable" id="yrTxt">📋 Copiar en texto</button></div>
+  </div>`;
+  fillBadges(content);
+  $('yrImg').addEventListener('click', () => shareYearImage(st));
+  $('yrTxt').addEventListener('click', async () => toast((await copyText(yearText(st))) ? '📋 Copiado: pegalo donde quieras' : 'No se pudo copiar'));
+}
+function yearText(st) {
+  return [`🎉 Mi ${st.year} en el cine`, `🎬 ${st.movies.length} películas · 📺 ${st.series.length} series · ⏱ ${st.hours} horas`,
+    st.genres.length ? `❤️ Géneros: ${st.genres.slice(0, 3).map(g => g[0]).join(', ')}` : '',
+    st.sagas.filter(x => x.done).length ? `🏆 Sagas completas: ${st.sagas.filter(x => x.done).map(x => x.title).join(', ')}` : '',
+    st.liked.length ? `👍 Favoritas: ${st.liked.slice(0, 3).map(x => x.title).join(', ')}` : '',
+    `— Centro Multimedia de ${AUTHOR}`].filter(Boolean).join('\n');
+}
+// Arma una imagen vertical (para historias) con el resumen y la comparte o la descarga
+async function shareYearImage(st) {
+  const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#ff4d6d'); g.addColorStop(.45, '#7b2ff7'); g.addColorStop(1, '#16124f');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.fillStyle = 'rgba(11,12,16,.35)'; x.fillRect(60, 60, W - 120, H - 120);
+  const font = (w, sz) => `${w} ${sz}px "Segoe UI", system-ui, sans-serif`;
+  x.fillStyle = '#fff'; x.textAlign = 'center';
+  x.font = font(600, 46); x.fillText(`${currentProfile().emoji} ${currentProfile().name}`, W / 2, 210);
+  x.font = font(800, 104); x.fillText(`Mi ${st.year}`, W / 2, 350); x.fillText('en el cine', W / 2, 470);
+  const nums = [[st.movies.length, 'películas'], [st.series.length, 'series'], [st.hours, 'horas'], [st.liked.length, 'favoritas']];
+  nums.forEach(([n, l], i) => {
+    const cx = 270 + (i % 2) * 540, cy = 680 + Math.floor(i / 2) * 260;
+    x.font = font(800, 130); x.fillText(String(n), cx, cy);
+    x.font = font(600, 40); x.fillStyle = 'rgba(255,255,255,.8)'; x.fillText(l, cx, cy + 62); x.fillStyle = '#fff';
+  });
+  x.textAlign = 'left'; x.font = font(700, 50); x.fillText('Mis géneros', 140, 1250);
+  st.genres.slice(0, 4).forEach(([n, cnt], i) => {
+    const y = 1330 + i * 92, w = Math.max(60, cnt / st.genres[0][1] * 560);
+    x.fillStyle = 'rgba(255,255,255,.18)'; x.fillRect(420, y - 38, 560, 46);
+    x.fillStyle = '#f5b301'; x.fillRect(420, y - 38, w, 46);
+    x.fillStyle = '#fff'; x.font = font(600, 40); x.fillText(n, 140, y);
+  });
+  const done = st.sagas.filter(s => s.done).map(s => s.title);
+  x.textAlign = 'center'; x.font = font(600, 38);
+  if (done.length) x.fillText(`🏆 Sagas completas: ${done.slice(0, 2).join(', ')}`, W / 2, 1720);
+  x.fillStyle = 'rgba(255,255,255,.75)'; x.font = font(600, 34);
+  x.fillText(`Centro Multimedia · ${AUTHOR}`, W / 2, 1810);
+  const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .9));
+  const file = new File([blob], `mi-${st.year}-en-el-cine.jpg`, { type: 'image/jpeg' });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: yearText(st) }); return; }
+  } catch (e) { if (e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  toast('🖼 Imagen guardada en Descargas');
 }
 
 /* ================= Rankings ================= */
@@ -3354,7 +3692,8 @@ async function renderProfiles(formFor) {
         <button class="prof focusable" data-new><div class="av">➕</div><div class="pn">Nuevo perfil</div></button></div>
       <div class="pgroup"><button class="btn focusable" id="pedit">✏ Editar "${esc(me.name)}"</button>
         <button class="btn focusable" id="shareList">📤 Compartir mi lista por WhatsApp</button>
-        <button class="btn focusable" id="copyList">📋 Copiar mi lista</button></div>
+        <button class="btn focusable" id="copyList">📋 Copiar mi lista</button>
+        <button class="btn primary focusable" id="yearBtn">🎉 Tu año en el cine</button></div>
       <div id="pformBox">${formFor === undefined ? '' : profileForm(formFor)}</div>
       <h2 style="margin-top:3vh">📊 Estadísticas de ${esc(me.emoji + ' ' + me.name)}</h2>
       <div id="statsBox"><div class="msg" style="padding:1vh 0">Calculando…</div></div>
@@ -3364,6 +3703,7 @@ async function renderProfiles(formFor) {
   content.querySelector('.prof[data-new]').addEventListener('click', () => renderProfiles(null));
   $('pedit').addEventListener('click', () => renderProfiles(currentProfile()));
   $('shareList').addEventListener('click', async () => openWhatsApp(await listText()));
+  $('yearBtn').addEventListener('click', () => renderYear());
   $('copyList').addEventListener('click', async e => { const ok = await copyText(await listText()); e.target.textContent = ok ? '✓ Lista copiada' : 'No se pudo copiar'; });
   if ($('pform')) {
     $('pkids').addEventListener('click', () => $('pkids').classList.toggle('on'));
@@ -4404,12 +4744,21 @@ function openTrailer(key, it) {
   if (!m) {
     m = document.createElement('div');
     m.id = 'tmodal'; m.className = 'tmodal';
-    m.innerHTML = `<div class="tbox"><button class="btn tclose focusable" aria-label="Cerrar tráiler">${ic('x')}</button><div class="tframe"></div><div class="tcap"></div></div>`;
-    m.addEventListener('click', e => { if (e.target === m || e.target.closest('.tclose')) closeTrailer(); });
+    m.innerHTML = `<div class="curtain l"></div><div class="curtain r"></div>
+      <div class="tbox"><button class="btn tclose focusable" aria-label="Cerrar tráiler">${ic('x')}</button><div class="tframe"></div>
+      <div class="tbar"><span class="tcap"></span><button class="btn tfull focusable">⛶ Pantalla completa</button></div></div>`;
+    m.addEventListener('click', e => {
+      if (e.target.closest('.tfull')) { const f = m.querySelector('.tframe'); (f.requestFullscreen || f.webkitRequestFullscreen || (() => {})).call(f); return; }
+      if (e.target === m || e.target.closest('.tclose')) closeTrailer();
+    });
     document.body.appendChild(m);
   }
   m.querySelector('.tframe').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(key)}?autoplay=1&rel=0&modestbranding=1&playsinline=1&hl=es" title="Tráiler" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
   m.querySelector('.tcap').textContent = it ? `Tráiler · ${it.title || it.name}` : 'Tráiler';
+  // Modo cine: se apagan las luces, se abre el telón y el video toma el color del título
+  const acc = $('detail').style.getPropertyValue('--acc');
+  m.style.setProperty('--acc', acc || '120,90,200');
+  m.classList.remove('cine'); void m.offsetWidth; m.classList.add('cine');
   history.pushState({ cm: 'trailer' }, '');
   m.classList.add('on');
   buzz();
@@ -4605,6 +4954,16 @@ updateProfileButton();
 select(index);
 renderUpNext();
 syncRun();
+
+// Bienvenida: un segundo al abrir el centro (una vez por sesión; tocándola se saltea)
+{
+  const sp = $('splash');
+  let shown = false;
+  try { shown = sessionStorage.getItem('cm-splash') === '1'; sessionStorage.setItem('cm-splash', '1'); } catch (e) {}
+  const hide = () => { sp.classList.add('out'); setTimeout(() => sp.remove(), 700); };
+  if (shown) sp.remove();
+  else { sp.addEventListener('click', hide); setTimeout(hide, 1300); }
+}
 
 // Atajos del ícono de la app (mantener apretado el ícono en el celular)
 {

@@ -14,6 +14,13 @@ Se maneja con teclado, mouse o control de Xbox (flechas para moverse, Enter para
 2. En el navegador del celular: menú → **Agregar a pantalla de inicio** para tenerlo como una app.
    Manteniendo apretado el ícono aparecen atajos: Buscar, ¿Qué veo hoy? y Mi lista.
 
+## Dominio propio (opcional)
+Para que la web se vea en una dirección propia (por ejemplo `centro.nicolasbongiorno.com`):
+1. Comprá el dominio (por ejemplo en NIC Argentina para `.com.ar`, o en Namecheap, Cloudflare o Squarespace para `.com`).
+2. En el panel del dominio, creá un registro **CNAME**: nombre `centro`, valor `licbongiorno.github.io`.
+3. En GitHub: **Settings → Pages → Custom domain** → escribí `centro.nicolasbongiorno.com` → Save, y marcá **Enforce HTTPS**.
+4. En `index.html`, cambiá `PUBLIC_URL` por la dirección nueva (lo usan el enlace y el QR para el celular).
+
 ## Funciones
 - **▶ Ver en…** abre la app de la plataforma directo en el título (enlaces exactos de JustWatch y Wikidata).
 - **✎ Mis plataformas** (en la fila de filtros): elegí en qué plataformas busca. Solo cuentan las suscripciones
@@ -21,11 +28,14 @@ Se maneja con teclado, mouse o control de Xbox (flechas para moverse, Enter para
 - Búsqueda por título, actor, director, género, tema o país; también **por voz** (🎤).
 - Banner con los 5 más vistos del día, rankings, estrenos, "¿Qué veo hoy?", perfiles con Mi lista,
   "Ya la vi", 👍/👎, "voy por" de cada serie y aviso de episodios nuevos.
-- **🎞 Cinemateca**: 10 listas de joyas del cine (hitos de la historia, cine de culto, cine argentino esencial,
+- **🎞 Cinemateca** (también como mosaico en el menú): 15 listas de joyas del cine (hitos de la historia, cine de culto, cine argentino esencial,
   series que marcaron época, documentales, cortos legendarios, cine japonés, cine filosófico, psicología y cine,
-  Oscars a mejor película) y **27 guías de sagas** (Star Wars, Marvel, Harry Potter, la Tierra Media, James Bond,
+  Oscars a mejor película, terror clásico, cine latinoamericano, ciencia ficción, musicales y cine bélico) y **27 guías de sagas** (Star Wars, Marvel, Harry Potter, la Tierra Media, James Bond,
   Matrix, Misión Imposible, Jurassic Park, X-Men, Indiana Jones, Batman, Spider-Man y más) en orden de estreno,
   cronológico u otros órdenes recomendados.
+- **🎉 Tu año en el cine** (Perfil): películas, series, horas, géneros, mes más cinéfilo y sagas, con una imagen para compartir.
+- **Modo cine**: los tráileres se abren a oscuras, con telón y el color del título alrededor del video.
+- **Bienvenida** con el nombre del autor al abrir el centro.
 - **🌙 Esta noche para vos**: 3 sugerencias del día según tus 👍 (cambian a la medianoche).
 - **▶ Seguir viendo** y, en el menú, **A continuación**: las series en curso y tu lista.
 - **Tráiler dentro del centro** (en la versión online) y **vista previa** al dejar el mouse sobre un póster (PC).
