@@ -954,6 +954,48 @@
     .tni { left: 14px; right: 14px; bottom: 12px; }
   }
 
+  /* Barra de arriba en PC: más compacta para que entren todas las secciones en una fila */
+  @media (min-width: 641px) {
+    .topbar { gap: .8vw; }
+    .tbtns .btn { padding: .55em .85em; }
+  }
+  @media (min-width: 641px) and (max-width: 1700px) {
+    #profBtn .lbl { display: none; }
+    .tbtns .btn { font-size: clamp(14px, .95vw, 18px); }
+  }
+  /* ===== 🎞 Cinemateca ===== */
+  .culthead { padding: 2vh 4vw 0; }
+  .culthead h2 { font-size: clamp(24px, 2vw, 40px); letter-spacing: -.02em; }
+  .culthead p { color: var(--muted); margin: .5em 0 1.2em; max-width: 70ch; line-height: 1.5; font-size: clamp(14px, .95vw, 18px); }
+  .culthead .wrap, .sagahead .wrap { display: flex; flex-wrap: wrap; gap: .6em; font-size: clamp(14px, .95vw, 18px); }
+  .cult.mine .card[data-svcs=""] { display: none; }
+  .cult .caption { color: #c9cdda; font-weight: 600; }
+  .sagas { display: flex; gap: 1vw; overflow-x: auto; padding: 2.6vh 4vw 1vh; scrollbar-width: none; }
+  .sagas::-webkit-scrollbar { display: none; }
+  .sagab {
+    flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: .4em; cursor: pointer;
+    min-width: clamp(150px, 11vw, 220px); padding: 1em 1.1em; border-radius: 16px; text-align: left;
+    background: var(--surface); border: 2px solid var(--surface-2); font-weight: 700; font-size: clamp(14px, .95vw, 18px);
+    transition: transform .2s cubic-bezier(.2,.8,.2,1), border-color .2s, background .2s;
+  }
+  .sagab span { font-size: 1.8em; line-height: 1; }
+  .sagab:hover, .sagab:focus { transform: translateY(-3px); border-color: var(--focus); }
+  .sagab.on { background: linear-gradient(160deg, #f5b301, #e0761a); color: #111; border-color: transparent; }
+  .sagahead { padding: 1.4vh 4vw 0; }
+  .sagahead h3 { font-size: clamp(20px, 1.6vw, 32px); }
+  .sagahead > p { color: var(--muted); margin: .3em 0 1em; }
+  .sagatip { color: #d6d9e4; margin-top: 1em; font-size: clamp(14px, .95vw, 18px); line-height: 1.5; }
+  .sagaprog { display: flex; align-items: center; gap: 1em; margin-top: .8em; color: var(--muted); font-weight: 600; }
+  .pbar { width: min(320px, 50vw); height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+  .pbar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f5b301, #e0761a); transition: width .6s; }
+  #sagaList .sk.c { aspect-ratio: 2 / 3; border-radius: 14px; }
+  @media (max-width: 640px) {
+    .culthead { padding: 14px 14px 0; }
+    .sagas { gap: 10px; padding: 16px 14px 8px; }
+    .sagab { min-width: 130px; }
+    .sagahead { padding: 8px 14px 0; }
+  }
+
   .qr { display: none; margin: 1em 0 .4em; }
   .qr.on { display: block; }
   .qr svg { width: min(260px, 70vw); height: auto; background: #fff; border-radius: 14px; padding: 12px; display: block; }
@@ -1043,6 +1085,7 @@
     <button class="btn focusable nav cur" id="homeBtn" data-ic="home" title="Volver a tendencias"><span class="sh">Inicio</span></button>
     <button class="btn focusable nav" id="pickBtn" data-ic="dice"><span class="lbl">¿Qué veo hoy?</span><span class="sh">¿Qué veo?</span></button>
     <button class="btn focusable nav" id="catBtn" data-ic="grid"><span class="lbl">Categorías</span><span class="sh">Géneros</span></button>
+    <button class="btn focusable nav" id="cultBtn" data-ic="film"><span class="lbl">Cinemateca</span><span class="sh">Clásicos</span></button>
     <button class="btn focusable nav" id="rankBtn" data-ic="trophy"><span class="lbl">Rankings</span><span class="sh">Top</span></button>
     <button class="btn focusable nav" id="upBtn" data-ic="calendar"><span class="lbl">Estrenos</span><span class="sh">Estrenos</span></button>
     <button class="btn focusable nav" id="profBtn"><span class="pe">🙂</span><span class="lbl">Perfil</span><span class="sh">Perfil</span></button>
@@ -1169,6 +1212,7 @@ const ICONS = {
   copy: '<rect x="8" y="8" width="13" height="13" rx="3"/><path d="M16 8V6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h2"/>',
   play: '<path d="M7 4.5v15l13-7.5z" fill="currentColor"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>',
+  film: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7.5 3v18M16.5 3v18M3 8h4.5M3 12h18M3 16h4.5M16.5 8H21M16.5 16H21"/>',
   left: '<path d="m15 18-6-6 6-6"/>',
   right: '<path d="m9 18 6-6-6-6"/>'
 };
@@ -2415,6 +2459,7 @@ if (SpeechRec) {
 $('pickBtn').addEventListener('click', () => renderPicker());
 $('catBtn').addEventListener('click', () => renderCategories());
 $('rankBtn').addEventListener('click', () => renderRankings());
+$('cultBtn').addEventListener('click', () => renderCult());
 $('upBtn').addEventListener('click', () => renderUpcoming());
 $('profBtn').addEventListener('click', () => renderProfiles());
 
@@ -2476,27 +2521,29 @@ $('filters').addEventListener('click', e => {
 
 function applyFilters() {
   if (content.querySelector('.picker')) return;
-  const min = parseInt(filters.min, 10) * 10;
-  const age = kidsMode() ? 'kids' : filters.age;
+  // (en las secciones donde la barra de filtros no está a la vista, no se aplican: solo el perfil para chicos)
+  const f = $('filters').classList.contains('off') ? { svc: 'all', type: 'all', min: '0', sort: 'rel', age: 'all' } : filters;
+  const min = parseInt(f.min, 10) * 10;
+  const age = kidsMode() ? 'kids' : f.age;
   const ageGroup = document.querySelector('.fgroup[data-f="age"]');
   if (ageGroup) ageGroup.style.display = kidsMode() ? 'none' : '';
   content.querySelectorAll('.card').forEach(c => {
     const svcs = (c.dataset.svcs || '').split(' ');
     const r = parseInt(c.dataset.r, 10) || 0;
     const y = parseInt(c.dataset.y, 10) || 0;
-    const ok = (filters.svc === 'all' || svcs.includes(filters.svc))
-      && (filters.type === 'all' || c.dataset.t === filters.type)
+    const ok = (f.svc === 'all' || svcs.includes(f.svc))
+      && (f.type === 'all' || c.dataset.t === f.type)
       && (!min || r >= min)
       && (age === 'all' || (age === 'kids') === isKids(c));
     const disp = ok ? '' : 'none';
     if (c.style.display !== disp) c.style.display = disp;
     const w = parseInt(c.dataset.w, 10) || 0;
-    const ord = String(filters.sort === 'rating' ? -w : filters.sort === 'new' ? -y : filters.sort === 'old' ? (y || 9999) : 0);
+    const ord = String(f.sort === 'rating' ? -w : f.sort === 'new' ? -y : f.sort === 'old' ? (y || 9999) : 0);
     if ((c.style.order || '0') !== ord) c.style.order = ord;
   });
   // Con algún filtro puesto, el banner destacado se esconde (puede no cumplirlo)
   const hero = $('hero');
-  if (hero) hero.style.display = filters.svc === 'all' && filters.type === 'all' && !min && age === 'all' ? '' : 'none';
+  if (hero) hero.style.display = f.svc === 'all' && f.type === 'all' && !min && age === 'all' ? '' : 'none';
   // Oculta las filas que quedaron sin títulos
   content.querySelectorAll('.row').forEach(row => {
     const cards = row.querySelectorAll('.card');
@@ -2504,7 +2551,7 @@ function applyFilters() {
     const rd = [...cards].some(c => c.style.display !== 'none') ? '' : 'none';
     if (row.style.display !== rd) row.style.display = rd;
     const strip = row.querySelector('.strip');
-    if (strip && filters.sort !== 'rel') strip.scrollLeft = 0;
+    if (strip && f.sort !== 'rel') strip.scrollLeft = 0;
   });
 }
 // Se vuelven a aplicar solos cada vez que llegan resultados nuevos
@@ -2549,6 +2596,304 @@ function renderCategories() {
     runSearch();
   }));
   setTimeout(() => { const c = content.querySelector('.chip'); if (c) c.focus(); }, 30);
+}
+
+/* ================= 🎞 Cinemateca: joyas del cine y guías de sagas =================
+   Listas curadas a mano: [tipo, título original, año, nota]. Se buscan en TMDB por nombre y año. */
+const CANON = [
+  { id: 'hitos', title: '🏛 Hitos que cambiaron el cine', items: [
+    ['movie', 'A Trip to the Moon', 1902, 'El primer gran viaje de fantasía'],
+    ['movie', 'Battleship Potemkin', 1925, 'Inventó el montaje moderno'],
+    ['movie', 'Metropolis', 1927, 'La madre de la ciencia ficción'],
+    ['movie', 'Citizen Kane', 1941, 'Revolucionó cómo se cuenta una historia'],
+    ['movie', 'Rashomon', 1950, 'Una verdad, cuatro versiones'],
+    ['movie', 'Vertigo', 1958, 'Hitchcock en su punto máximo'],
+    ['movie', 'Breathless', 1960, 'La Nueva Ola francesa'],
+    ['movie', 'Psycho', 1960, 'Cambió el suspenso para siempre'],
+    ['movie', '2001: A Space Odyssey', 1968, 'Kubrick y el espacio'],
+    ['movie', 'The Godfather', 1972, 'La saga familiar definitiva'],
+    ['movie', 'Jaws', 1975, 'El primer gran éxito de verano'],
+    ['movie', 'Star Wars', 1977, 'Cambió los efectos y el negocio'],
+    ['movie', 'Blade Runner', 1982, 'La estética del futuro'],
+    ['movie', 'Pulp Fiction', 1994, 'El cine independiente llegó a todos'],
+    ['movie', 'Toy Story', 1995, 'La primera película hecha por computadora'],
+    ['movie', 'The Matrix', 1999, 'Efectos que todos copiaron'],
+    ['movie', 'Spirited Away', 2001, 'La obra maestra de Miyazaki'],
+    ['movie', 'Parasite', 2019, 'Primer Oscar a mejor película no hablada en inglés']
+  ] },
+  { id: 'culto', title: '🕯 Cine de culto', items: [
+    ['movie', 'The Rocky Horror Picture Show', 1975, 'El rey de las funciones de medianoche'],
+    ['movie', 'Eraserhead', 1977, 'El sueño raro de David Lynch'],
+    ['movie', 'The Thing', 1982, 'Terror y paranoia en la Antártida'],
+    ['movie', 'Videodrome', 1983, 'Cronenberg y la televisión'],
+    ['movie', 'Brazil', 1985, 'Burocracia en clave de pesadilla'],
+    ['movie', 'Blue Velvet', 1986, 'Lo oscuro de los suburbios'],
+    ['movie', 'The Princess Bride', 1987, 'Aventura, humor y romance'],
+    ['movie', 'Akira', 1988, 'El anime que conquistó Occidente'],
+    ['movie', 'Heathers', 1988, 'Comedia negra adolescente'],
+    ['movie', 'Clerks', 1994, 'Hecha con casi nada'],
+    ['movie', 'Trainspotting', 1996, 'Una generación en pantalla'],
+    ['movie', 'The Big Lebowski', 1998, 'El Dude, ícono absoluto'],
+    ['movie', 'Fight Club', 1999, 'Fracasó en cines, triunfó después'],
+    ['movie', 'Office Space', 1999, 'El odio a la oficina'],
+    ['movie', 'Donnie Darko', 2001, 'Viajes en el tiempo y un conejo'],
+    ['movie', 'Mulholland Drive', 2001, 'Un rompecabezas de Hollywood'],
+    ['movie', 'Oldboy', 2003, 'El thriller coreano que voló cabezas'],
+    ['movie', 'Shaun of the Dead', 2004, 'Zombis y cerveza']
+  ] },
+  { id: 'arg', title: '🇦🇷 Cine argentino esencial', items: [
+    ['movie', 'La historia oficial', 1985, 'Primer Oscar para la Argentina'],
+    ['movie', 'Esperando la carroza', 1985, 'Comedia de culto nacional'],
+    ['movie', 'Pizza, birra, faso', 1998, 'Nació el Nuevo Cine Argentino'],
+    ['movie', 'Mundo grúa', 1999, 'Trapero y la vida del trabajador'],
+    ['movie', 'Nueve reinas', 2000, 'La estafa perfecta'],
+    ['movie', 'La ciénaga', 2001, 'El debut de Lucrecia Martel'],
+    ['movie', 'El hijo de la novia', 2001, 'Darín, familia y emoción'],
+    ['movie', 'El secreto de sus ojos', 2009, 'Segundo Oscar argentino'],
+    ['movie', 'Relatos salvajes', 2014, 'Seis historias al límite'],
+    ['movie', 'El clan', 2015, 'La historia real de los Puccio'],
+    ['movie', 'Argentina, 1985', 2022, 'El Juicio a las Juntas']
+  ] },
+  { id: 'series', title: '📺 Series que marcaron época', items: [
+    ['tv', 'The Twilight Zone', 1959, 'La madre de las series de antología'],
+    ['tv', 'The Simpsons', 1989, 'La familia más famosa de la TV'],
+    ['tv', 'Seinfeld', 1989, 'La comedia sobre nada'],
+    ['tv', 'Twin Peaks', 1990, '¿Quién mató a Laura Palmer?'],
+    ['tv', 'The X-Files', 1993, 'La verdad está ahí afuera'],
+    ['tv', 'Friends', 1994, 'La sitcom de una generación'],
+    ['tv', 'The Sopranos', 1999, 'Empezó la edad de oro de la TV'],
+    ['tv', 'The Wire', 2002, 'Una ciudad como protagonista'],
+    ['tv', 'Lost', 2004, 'Misterio semanal en todo el mundo'],
+    ['tv', 'Mad Men', 2007, 'Los años 60 por dentro'],
+    ['tv', 'Breaking Bad', 2008, 'De profesor a criminal'],
+    ['tv', 'Game of Thrones', 2011, 'El fenómeno mundial'],
+    ['tv', 'Black Mirror', 2011, 'El lado oscuro de la tecnología'],
+    ['tv', 'True Detective', 2014, 'Cine hecho serie'],
+    ['tv', 'Chernobyl', 2019, 'La miniserie perfecta']
+  ] },
+  { id: 'docs', title: '🎥 Documentales imprescindibles', items: [
+    ['movie', 'Nanook of the North', 1922, 'El primer gran documental'],
+    ['tv', 'Cosmos', 1980, 'Carl Sagan y el universo'],
+    ['movie', 'Shoah', 1985, 'La memoria del Holocausto'],
+    ['movie', 'Hoop Dreams', 1994, 'Dos chicos y un sueño'],
+    ['movie', 'Bowling for Columbine', 2002, 'Armas en Estados Unidos'],
+    ['tv', 'Planet Earth', 2006, 'La naturaleza como nunca se vio'],
+    ['movie', 'Man on Wire', 2008, 'Caminar entre las Torres Gemelas'],
+    ['movie', 'Senna', 2010, 'La vida de Ayrton Senna'],
+    ['movie', 'Searching for Sugar Man', 2012, 'Un músico perdido y encontrado'],
+    ['movie', 'The Act of Killing', 2012, 'Los asesinos se cuentan a sí mismos'],
+    ['tv', 'Making a Murderer', 2015, 'Inició la moda del true crime'],
+    ['movie', '13th', 2016, 'Racismo y cárceles'],
+    ['movie', 'Free Solo', 2018, 'Escalar sin cuerdas'],
+    ['tv', 'The Last Dance', 2020, 'Michael Jordan y los Bulls'],
+    ['movie', 'My Octopus Teacher', 2020, 'Una amistad con un pulpo']
+  ] },
+  { id: 'cortos', title: '🎬 Cortos legendarios', items: [
+    ['movie', 'Un Chien Andalou', 1929, 'Buñuel, Dalí y el surrealismo'],
+    ['movie', 'The Red Balloon', 1956, 'Un globo y un chico en París'],
+    ['movie', 'La Jetée', 1962, 'Ciencia ficción hecha con fotos'],
+    ['movie', 'Luxo Jr.', 1986, 'Nació la lámpara de Pixar'],
+    ['movie', 'The Man Who Planted Trees', 1987, 'Animación poética'],
+    ['movie', 'Logorama', 2009, 'Un mundo hecho de logos'],
+    ['movie', 'La Luna', 2011, 'Pixar y la luna'],
+    ['movie', 'Paperman', 2012, 'Un avión de papel enamorado'],
+    ['movie', 'Feast', 2014, 'Un perro y su dueño'],
+    ['movie', 'Bear Story', 2014, 'Oscar para Chile'],
+    ['movie', 'Piper', 2016, 'Un pajarito y el mar'],
+    ['movie', 'Bao', 2018, 'Una madre y un dumpling'],
+    ['movie', 'Kitbull', 2019, 'Un gatito y un pitbull'],
+    ['movie', 'Hair Love', 2019, 'Un padre aprende a peinar']
+  ] }
+];
+
+/* Guías de sagas: cada una con varios órdenes posibles */
+const SAGAS = [
+  { id: 'starwars', title: 'Star Wars', icon: '⭐', intro: 'Hay tres formas famosas de verla.', orders: {
+    'Orden de estreno': ['Como la vio el público: sorpresas intactas.', [
+      ['movie', 'Star Wars', 1977, 'Episodio IV · Una nueva esperanza'], ['movie', 'The Empire Strikes Back', 1980, 'Episodio V'],
+      ['movie', 'Return of the Jedi', 1983, 'Episodio VI'], ['movie', 'Star Wars: Episode I - The Phantom Menace', 1999, 'Episodio I'],
+      ['movie', 'Star Wars: Episode II - Attack of the Clones', 2002, 'Episodio II'], ['movie', 'Star Wars: Episode III - Revenge of the Sith', 2005, 'Episodio III'],
+      ['tv', 'Star Wars: The Clone Wars', 2008, 'Serie animada'], ['tv', 'Star Wars Rebels', 2014, 'Serie animada'],
+      ['movie', 'Star Wars: The Force Awakens', 2015, 'Episodio VII'], ['movie', 'Rogue One: A Star Wars Story', 2016, 'Spin-off'],
+      ['movie', 'Star Wars: The Last Jedi', 2017, 'Episodio VIII'], ['movie', 'Solo: A Star Wars Story', 2018, 'Spin-off'],
+      ['tv', 'The Mandalorian', 2019, 'Serie'], ['movie', 'Star Wars: The Rise of Skywalker', 2019, 'Episodio IX'],
+      ['tv', 'The Book of Boba Fett', 2021, 'Serie'], ['tv', 'Star Wars: The Bad Batch', 2021, 'Serie animada'],
+      ['tv', 'Obi-Wan Kenobi', 2022, 'Miniserie'], ['tv', 'Andor', 2022, 'Serie'], ['tv', 'Ahsoka', 2023, 'Serie'],
+      ['tv', 'The Acolyte', 2024, 'Serie'], ['tv', 'Star Wars: Skeleton Crew', 2024, 'Serie']]],
+    'Orden cronológico': ['Según la historia de la galaxia, de lo más antiguo a lo más nuevo.', [
+      ['tv', 'The Acolyte', 2024, '100 años antes del Episodio I'], ['movie', 'Star Wars: Episode I - The Phantom Menace', 1999, 'Episodio I'],
+      ['movie', 'Star Wars: Episode II - Attack of the Clones', 2002, 'Episodio II'], ['tv', 'Star Wars: The Clone Wars', 2008, 'La Guerra de los Clones'],
+      ['movie', 'Star Wars: Episode III - Revenge of the Sith', 2005, 'Episodio III'], ['tv', 'Star Wars: The Bad Batch', 2021, 'Justo después del III'],
+      ['movie', 'Solo: A Star Wars Story', 2018, 'Han Solo joven'], ['tv', 'Obi-Wan Kenobi', 2022, '10 años después del III'],
+      ['tv', 'Andor', 2022, 'Nace la Rebelión'], ['tv', 'Star Wars Rebels', 2014, 'Rebeldes'],
+      ['movie', 'Rogue One: A Star Wars Story', 2016, 'Termina donde empieza el IV'], ['movie', 'Star Wars', 1977, 'Episodio IV'],
+      ['movie', 'The Empire Strikes Back', 1980, 'Episodio V'], ['movie', 'Return of the Jedi', 1983, 'Episodio VI'],
+      ['tv', 'The Mandalorian', 2019, 'Después del VI'], ['tv', 'The Book of Boba Fett', 2021, 'Después del VI'],
+      ['tv', 'Star Wars: Skeleton Crew', 2024, 'Después del VI'], ['tv', 'Ahsoka', 2023, 'Después del VI'],
+      ['movie', 'Star Wars: The Force Awakens', 2015, 'Episodio VII'], ['movie', 'Star Wars: The Last Jedi', 2017, 'Episodio VIII'],
+      ['movie', 'Star Wars: The Rise of Skywalker', 2019, 'Episodio IX']]],
+    'Orden Machete': ['IV y V primero; II y III como "flashback" antes del final; el I se saltea. La sorpresa de Vader queda intacta.', [
+      ['movie', 'Star Wars', 1977, 'Episodio IV'], ['movie', 'The Empire Strikes Back', 1980, 'Episodio V · ¡la gran revelación!'],
+      ['movie', 'Star Wars: Episode II - Attack of the Clones', 2002, 'Episodio II · flashback'], ['movie', 'Star Wars: Episode III - Revenge of the Sith', 2005, 'Episodio III · flashback'],
+      ['movie', 'Return of the Jedi', 1983, 'Episodio VI · el final'], ['movie', 'Star Wars: The Force Awakens', 2015, 'Episodio VII (opcional)'],
+      ['movie', 'Star Wars: The Last Jedi', 2017, 'Episodio VIII (opcional)'], ['movie', 'Star Wars: The Rise of Skywalker', 2019, 'Episodio IX (opcional)']]]
+  } },
+  { id: 'marvel', title: 'Marvel: la Saga del Infinito', icon: '🦸', intro: 'Las 23 películas, de Iron Man a Endgame.', orders: {
+    'Orden de estreno': ['Como se fueron estrenando: las escenas poscréditos tienen más sentido.', [
+      ['movie', 'Iron Man', 2008], ['movie', 'The Incredible Hulk', 2008], ['movie', 'Iron Man 2', 2010], ['movie', 'Thor', 2011],
+      ['movie', 'Captain America: The First Avenger', 2011], ['movie', 'The Avengers', 2012], ['movie', 'Iron Man 3', 2013],
+      ['movie', 'Thor: The Dark World', 2013], ['movie', 'Captain America: The Winter Soldier', 2014], ['movie', 'Guardians of the Galaxy', 2014],
+      ['movie', 'Avengers: Age of Ultron', 2015], ['movie', 'Ant-Man', 2015], ['movie', 'Captain America: Civil War', 2016],
+      ['movie', 'Doctor Strange', 2016], ['movie', 'Guardians of the Galaxy Vol. 2', 2017], ['movie', 'Spider-Man: Homecoming', 2017],
+      ['movie', 'Thor: Ragnarok', 2017], ['movie', 'Black Panther', 2018], ['movie', 'Avengers: Infinity War', 2018],
+      ['movie', 'Ant-Man and the Wasp', 2018], ['movie', 'Captain Marvel', 2019], ['movie', 'Avengers: Endgame', 2019],
+      ['movie', 'Spider-Man: Far From Home', 2019]]],
+    'Orden cronológico': ['Según cuándo pasa cada historia.', [
+      ['movie', 'Captain America: The First Avenger', 2011, 'Segunda Guerra Mundial'], ['movie', 'Captain Marvel', 2019, 'Años 90'],
+      ['movie', 'Iron Man', 2008], ['movie', 'Iron Man 2', 2010], ['movie', 'The Incredible Hulk', 2008], ['movie', 'Thor', 2011],
+      ['movie', 'The Avengers', 2012], ['movie', 'Iron Man 3', 2013], ['movie', 'Thor: The Dark World', 2013],
+      ['movie', 'Captain America: The Winter Soldier', 2014], ['movie', 'Guardians of the Galaxy', 2014], ['movie', 'Guardians of the Galaxy Vol. 2', 2017],
+      ['movie', 'Avengers: Age of Ultron', 2015], ['movie', 'Ant-Man', 2015], ['movie', 'Captain America: Civil War', 2016],
+      ['movie', 'Black Widow', 2021, 'Después de Civil War'], ['movie', 'Black Panther', 2018], ['movie', 'Spider-Man: Homecoming', 2017],
+      ['movie', 'Doctor Strange', 2016], ['movie', 'Thor: Ragnarok', 2017], ['movie', 'Ant-Man and the Wasp', 2018],
+      ['movie', 'Avengers: Infinity War', 2018], ['movie', 'Avengers: Endgame', 2019], ['movie', 'Spider-Man: Far From Home', 2019]]]
+  } },
+  { id: 'potter', title: 'Harry Potter y Animales Fantásticos', icon: '⚡', intro: 'El Mundo Mágico completo.', orders: {
+    'Orden de estreno': ['Empezar por Harry, como fue en los cines.', [
+      ['movie', "Harry Potter and the Philosopher's Stone", 2001], ['movie', 'Harry Potter and the Chamber of Secrets', 2002],
+      ['movie', 'Harry Potter and the Prisoner of Azkaban', 2004], ['movie', 'Harry Potter and the Goblet of Fire', 2005],
+      ['movie', 'Harry Potter and the Order of the Phoenix', 2007], ['movie', 'Harry Potter and the Half-Blood Prince', 2009],
+      ['movie', 'Harry Potter and the Deathly Hallows: Part 1', 2010], ['movie', 'Harry Potter and the Deathly Hallows: Part 2', 2011],
+      ['movie', 'Fantastic Beasts and Where to Find Them', 2016], ['movie', 'Fantastic Beasts: The Crimes of Grindelwald', 2018],
+      ['movie', 'Fantastic Beasts: The Secrets of Dumbledore', 2022]]],
+    'Orden cronológico': ['Animales Fantásticos pasa unos 70 años antes de Harry.', [
+      ['movie', 'Fantastic Beasts and Where to Find Them', 2016, '1926'], ['movie', 'Fantastic Beasts: The Crimes of Grindelwald', 2018, '1927'],
+      ['movie', 'Fantastic Beasts: The Secrets of Dumbledore', 2022, '1932'], ['movie', "Harry Potter and the Philosopher's Stone", 2001, '1991'],
+      ['movie', 'Harry Potter and the Chamber of Secrets', 2002], ['movie', 'Harry Potter and the Prisoner of Azkaban', 2004],
+      ['movie', 'Harry Potter and the Goblet of Fire', 2005], ['movie', 'Harry Potter and the Order of the Phoenix', 2007],
+      ['movie', 'Harry Potter and the Half-Blood Prince', 2009], ['movie', 'Harry Potter and the Deathly Hallows: Part 1', 2010],
+      ['movie', 'Harry Potter and the Deathly Hallows: Part 2', 2011]]]
+  } },
+  { id: 'tolkien', title: 'La Tierra Media', icon: '💍', intro: 'El Señor de los Anillos, El Hobbit y más.', orders: {
+    'Orden de estreno': ['Empezar por El Señor de los Anillos (la mejor puerta de entrada).', [
+      ['movie', 'The Lord of the Rings: The Fellowship of the Ring', 2001], ['movie', 'The Lord of the Rings: The Two Towers', 2002],
+      ['movie', 'The Lord of the Rings: The Return of the King', 2003], ['movie', 'The Hobbit: An Unexpected Journey', 2012],
+      ['movie', 'The Hobbit: The Desolation of Smaug', 2013], ['movie', 'The Hobbit: The Battle of the Five Armies', 2014],
+      ['tv', 'The Lord of the Rings: The Rings of Power', 2022, 'Serie'], ['movie', 'The Lord of the Rings: The War of the Rohirrim', 2024, 'Animada']]],
+    'Orden cronológico': ['Desde la Segunda Edad hasta la caída de Sauron.', [
+      ['tv', 'The Lord of the Rings: The Rings of Power', 2022, 'Segunda Edad'], ['movie', 'The Lord of the Rings: The War of the Rohirrim', 2024, '183 años antes de El Hobbit'],
+      ['movie', 'The Hobbit: An Unexpected Journey', 2012], ['movie', 'The Hobbit: The Desolation of Smaug', 2013],
+      ['movie', 'The Hobbit: The Battle of the Five Armies', 2014], ['movie', 'The Lord of the Rings: The Fellowship of the Ring', 2001],
+      ['movie', 'The Lord of the Rings: The Two Towers', 2002], ['movie', 'The Lord of the Rings: The Return of the King', 2003]]]
+  } },
+  { id: 'fast', title: 'Rápidos y Furiosos', icon: '🏎', intro: 'Ojo: Tokyo Drift pasa mucho después de cuando se estrenó.', orders: {
+    'Orden de estreno': ['Tal como salieron.', [
+      ['movie', 'The Fast and the Furious', 2001], ['movie', '2 Fast 2 Furious', 2003], ['movie', 'The Fast and the Furious: Tokyo Drift', 2006],
+      ['movie', 'Fast & Furious', 2009], ['movie', 'Fast Five', 2011], ['movie', 'Fast & Furious 6', 2013], ['movie', 'Furious 7', 2015],
+      ['movie', 'The Fate of the Furious', 2017], ['movie', 'Fast & Furious Presents: Hobbs & Shaw', 2019], ['movie', 'F9', 2021], ['movie', 'Fast X', 2023]]],
+    'Orden cronológico': ['Tokyo Drift va entre la 6 y la 7.', [
+      ['movie', 'The Fast and the Furious', 2001], ['movie', '2 Fast 2 Furious', 2003], ['movie', 'Fast & Furious', 2009], ['movie', 'Fast Five', 2011],
+      ['movie', 'Fast & Furious 6', 2013], ['movie', 'The Fast and the Furious: Tokyo Drift', 2006, 'Acá va Tokyo Drift'], ['movie', 'Furious 7', 2015],
+      ['movie', 'The Fate of the Furious', 2017], ['movie', 'Fast & Furious Presents: Hobbs & Shaw', 2019, 'Spin-off'], ['movie', 'F9', 2021], ['movie', 'Fast X', 2023]]]
+  } },
+  { id: 'alien', title: 'Alien', icon: '👽', intro: 'Las precuelas cuentan el origen del monstruo.', orders: {
+    'Orden de estreno': ['Recomendado: el misterio se disfruta más.', [
+      ['movie', 'Alien', 1979], ['movie', 'Aliens', 1986], ['movie', 'Alien³', 1992], ['movie', 'Alien Resurrection', 1997],
+      ['movie', 'Prometheus', 2012], ['movie', 'Alien: Covenant', 2017], ['movie', 'Alien: Romulus', 2024], ['tv', 'Alien: Earth', 2025, 'Serie']]],
+    'Orden cronológico': ['Según el año en que pasa cada historia.', [
+      ['movie', 'Prometheus', 2012, 'Año 2093'], ['movie', 'Alien: Covenant', 2017, 'Año 2104'], ['tv', 'Alien: Earth', 2025, 'Año 2120'],
+      ['movie', 'Alien', 1979, 'Año 2122'], ['movie', 'Alien: Romulus', 2024, 'Año 2142'], ['movie', 'Aliens', 1986, 'Año 2179'],
+      ['movie', 'Alien³', 1992], ['movie', 'Alien Resurrection', 1997, '200 años después']]]
+  } },
+  { id: 'conjuring', title: 'El Conjuro (universo)', icon: '👻', intro: 'Los casos de los Warren, Annabelle y La Monja.', orders: {
+    'Orden de estreno': ['Como se estrenaron.', [
+      ['movie', 'The Conjuring', 2013], ['movie', 'Annabelle', 2014], ['movie', 'The Conjuring 2', 2016], ['movie', 'Annabelle: Creation', 2017],
+      ['movie', 'The Nun', 2018], ['movie', 'The Curse of La Llorona', 2019], ['movie', 'Annabelle Comes Home', 2019],
+      ['movie', 'The Conjuring: The Devil Made Me Do It', 2021], ['movie', 'The Nun II', 2023], ['movie', 'The Conjuring: Last Rites', 2025]]],
+    'Orden cronológico': ['De 1952 a 1986.', [
+      ['movie', 'The Nun', 2018, '1952'], ['movie', 'Annabelle: Creation', 2017, '1955'], ['movie', 'The Nun II', 2023, '1956'],
+      ['movie', 'Annabelle', 2014, '1967'], ['movie', 'The Conjuring', 2013, '1971'], ['movie', 'Annabelle Comes Home', 2019, '1972'],
+      ['movie', 'The Curse of La Llorona', 2019, '1973'], ['movie', 'The Conjuring 2', 2016, '1977'],
+      ['movie', 'The Conjuring: The Devil Made Me Do It', 2021, '1981'], ['movie', 'The Conjuring: Last Rites', 2025, '1986']]]
+  } }
+];
+
+// Busca un título curado en TMDB (por nombre y año) y lo guarda 60 días
+async function resolveCanon([type, q, year]) {
+  const key = `c:canon:${type}:${q}:${year}`;
+  const hit = cacheGet(key, true);
+  if (hit) return hit.d;
+  const yp = type === 'movie' ? 'primary_release_year' : 'first_air_date_year';
+  const search = params => limited(() => api('search/' + type, { query: q, include_adult: 'false', ...params }));
+  let d = await search({ [yp]: year }).catch(() => null);
+  let r = d && (d.results || [])[0];
+  if (!r) { d = await search({}).catch(() => null); r = d && (d.results || []).find(x => Math.abs(parseInt((x.release_date || x.first_air_date || '0').slice(0, 4), 10) - year) <= 1) || (d && d.results || [])[0]; }
+  const out = r ? { ...slim({ ...r, _type: type }) } : null;
+  if (out) cacheSet(key, out, 60 * 24 * HOUR);
+  return out;
+}
+const canonCard = (it, note, n) => {
+  let html = cardHTML(it, null, note);
+  if (n) html = html.replace(/<div class="poster( sh)?">/, m => `${m}<span class="rank">${n}</span>`);
+  return html;
+};
+
+let cultTab = 'joyas', cultMine = false, sagaSel = 'starwars', sagaOrder = null;
+function renderCult() {
+  ++searchSeq;
+  const seq = searchSeq;
+  exploreLoaded = false;
+  $('filters').classList.add('off');
+  const saga = SAGAS.find(s => s.id === sagaSel) || SAGAS[0];
+  const orders = Object.keys(saga.orders);
+  if (!orders.includes(sagaOrder)) sagaOrder = orders[0];
+  content.innerHTML = `<div class="cult${cultMine ? ' mine' : ''}">
+    <div class="culthead">
+      <h2>🎞 Cinemateca</h2>
+      <p>Películas, series, documentales y cortos que hicieron historia, y guías para ver las grandes sagas en el orden que prefieras.</p>
+      <div class="wrap">
+        <button class="chip focusable${cultTab === 'joyas' ? ' on' : ''}" data-ctab="joyas">🏛 Joyas del cine</button>
+        <button class="chip focusable${cultTab === 'sagas' ? ' on' : ''}" data-ctab="sagas">🧭 Guías de sagas</button>
+        <button class="chip focusable${cultMine ? ' on' : ''}" data-cmine>${cultMine ? '✓ ' : ''}Solo lo que está en mis plataformas</button>
+      </div>
+    </div>
+    <div id="cultBody"></div></div>`;
+  content.querySelector('.culthead').addEventListener('click', e => {
+    const t = e.target.closest('[data-ctab]');
+    if (t) { cultTab = t.dataset.ctab; renderCult(); return; }
+    if (e.target.closest('[data-cmine]')) { cultMine = !cultMine; renderCult(); }
+  });
+  const body = $('cultBody');
+  if (cultTab === 'joyas') {
+    const skRow = '<div class="skrow"><div class="sk h"></div><div class="cards">' + '<div class="sk c"></div>'.repeat(9) + '</div></div>';
+    body.innerHTML = CANON.map(c => `<div id="canon-${c.id}">${skRow}</div>`).join('');
+    // Cada lista se completa sola, a medida que llegan los datos
+    CANON.forEach(async c => {
+      const list = await Promise.all(c.items.map(x => resolveCanon(x).then(it => it && { it, note: x[3] }).catch(() => null)));
+      if (seq !== searchSeq) return;
+      const box = $('canon-' + c.id);
+      const ok = list.filter(Boolean);
+      box.innerHTML = ok.length ? rowHTML(c.title, ok.map(x => canonCard(x.it, x.note)).join('')) : '';
+      fillBadges(box);
+    });
+  } else {
+    body.innerHTML = `<div class="sagas">${SAGAS.map(s => `<button class="sagab focusable${s.id === saga.id ? ' on' : ''}" data-saga="${s.id}"><span>${s.icon}</span>${esc(s.title)}</button>`).join('')}</div>
+      <div class="sagahead"><h3>${saga.icon} ${esc(saga.title)}</h3><p>${esc(saga.intro)}</p>
+        <div class="wrap">${orders.map(o => `<button class="chip focusable${o === sagaOrder ? ' on' : ''}" data-order="${esc(o)}">${esc(o)}</button>`).join('')}</div>
+        <p class="sagatip">${esc(saga.orders[sagaOrder][0])}</p><div class="sagaprog" id="sagaProg"></div></div>
+      <div class="results" id="sagaList">${'<div class="sk c"></div>'.repeat(8)}</div>`;
+    body.querySelector('.sagas').addEventListener('click', e => { const b = e.target.closest('[data-saga]'); if (b) { sagaSel = b.dataset.saga; sagaOrder = null; renderCult(); } });
+    body.querySelector('.sagahead').addEventListener('click', e => { const b = e.target.closest('[data-order]'); if (b) { sagaOrder = b.dataset.order; renderCult(); } });
+    const steps = saga.orders[sagaOrder][1];
+    Promise.all(steps.map(x => resolveCanon(x).catch(() => null))).then(list => {
+      if (seq !== searchSeq || !$('sagaList')) return;
+      $('sagaList').innerHTML = list.map((it, i) => it ? canonCard(it, steps[i][3] || String(steps[i][2]), i + 1) : '').join('');
+      fillBadges($('sagaList'));
+      // Cuánto de la saga ya viste
+      const found = list.filter(Boolean), seen = found.filter(it => isSeen(keyOf(it))).length;
+      $('sagaProg').innerHTML = found.length ? `<div class="pbar"><i style="width:${Math.round(seen / found.length * 100)}%"></i></div><span>Viste ${seen} de ${found.length}${seen === found.length ? ' 🎉' : ''}</span>` : '';
+    });
+  }
 }
 
 /* ================= Rankings ================= */
