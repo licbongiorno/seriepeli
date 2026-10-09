@@ -968,6 +968,8 @@
     #profBtn .lbl { display: none; }
     .tbtns .btn { font-size: clamp(14px, .95vw, 18px); }
   }
+  /* Carruseles horizontales: solo se mueven de costado (la ruedita del mouse baja la página) */
+  .hslides, .strip, .tngrid, .sagas, .unstrip, .filters, .tbtns { overflow-y: hidden; overscroll-behavior-x: contain; }
   /* Menú: si los mosaicos no entran, se puede desplazar */
   #menu main { overflow-y: auto; scrollbar-width: none; }
   #menu main::-webkit-scrollbar { display: none; }
@@ -1125,6 +1127,47 @@
     .tbar { padding: 0 12px; }
   }
 
+  /* ===== Animaciones premium ===== */
+  /* Transición entre pantallas */
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .32s; animation-timing-function: cubic-bezier(.2,.8,.2,1); }
+  ::view-transition-group(cm-poster) { animation-duration: .5s; animation-timing-function: cubic-bezier(.2,.8,.2,1); }
+  ::view-transition-old(cm-poster), ::view-transition-new(cm-poster) { height: 100%; object-fit: cover; }
+  .overlay.vt.on, .overlay.vt.on .detail { animation: none; }
+  .overlay.vt.on .detail > :not(.top) { animation: fade .45s .15s ease backwards; }
+  .overlay.vt.on .info > * { animation: rise .5s .12s cubic-bezier(.2,.8,.2,1) backwards; }
+
+  /* Logos del menú */
+  .tile svg.logo { width: 40%; filter: drop-shadow(0 6px 18px rgba(0,0,0,.35)); }
+  .disney svg.logo { width: 46%; }
+
+  /* Inclinación 3D con brillo */
+  .tile, .tn, .un, .sagab, .cultpromo { transform-style: preserve-3d; }
+  .tilt { transform: perspective(900px) rotateX(var(--rx, 0)) rotateY(var(--ry, 0)) translateZ(0) !important; transition: transform .12s ease-out !important; }
+  .tile.active.tilt { transform: perspective(900px) rotateX(var(--rx, 0)) rotateY(var(--ry, 0)) scale(1.08) !important; }
+  .tile::after, .tn::after, .un::after, .sagab::after, .cultpromo::after { pointer-events: none; }
+  .tilt::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2; opacity: 1 !important; animation: none !important;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.22), transparent 55%) !important;
+  }
+  .sagab, .cultpromo { position: relative; overflow: hidden; }
+
+  /* Onda al presionar (:where no pisa las posiciones especiales de cada botón) */
+  :where(.btn, .chip, .tile) { position: relative; overflow: hidden; }
+  .tbtns .btn { overflow: visible; }
+  .ripple { position: absolute; border-radius: 50%; pointer-events: none; background: rgba(255,255,255,.28); transform: scale(0); animation: ripple .6s ease-out forwards; z-index: 3; }
+  .btn.primary .ripple, .chip.on .ripple { background: rgba(0,0,0,.15); }
+  @keyframes ripple { to { transform: scale(1); opacity: 0; } }
+
+  /* Filas que aparecen al llegar */
+  .row.rv { opacity: 0; transform: translateY(26px); transition: opacity .6s ease, transform .7s cubic-bezier(.2,.8,.2,1); }
+  .row.rv.in { opacity: 1; transform: none; }
+
+  /* Botones: brillo suave al pasar */
+  .btn.primary { background-image: linear-gradient(110deg, #fff 40%, #f3f0ff 50%, #fff 60%); background-size: 250% 100%; background-position: 100% 0; transition: background-position .6s ease, border-color .15s, transform .15s; }
+  .btn.primary:hover { background-position: 0 0; }
+
+  @media (prefers-reduced-motion: reduce) { .row.rv { opacity: 1; transform: none; } }
+
   .qr { display: none; margin: 1em 0 .4em; }
   .qr.on { display: block; }
   .qr svg { width: min(260px, 70vw); height: auto; background: #fff; border-radius: 14px; padding: 12px; display: block; }
@@ -1174,12 +1217,12 @@
       </button>
       <button class="tile max" data-url="https://play.hbomax.com/">
         <span class="key">2</span>
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="gmax" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#b9c4ff"/></linearGradient></defs><circle cx="32" cy="32" r="27" fill="none" stroke="url(#gmax)" stroke-width="3" opacity=".9"/><path d="M26 21.5v21l17-10.5z" fill="url(#gmax)" stroke="url(#gmax)" stroke-width="2.5" stroke-linejoin="round"/></svg>
         <span class="name">HBO Max</span>
       </button>
       <button class="tile disney" data-url="https://www.disneyplus.com/home">
         <span class="key">3</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 15c3-7 12-9 18-5"/><path d="M12 9v6M9 12h6"/></svg>
+        <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="gdis" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1e3cff" stop-opacity="0"/><stop offset=".45" stop-color="#39e1f5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path d="M6 44C14 22 38 12 58 26" fill="none" stroke="url(#gdis)" stroke-width="3.5" stroke-linecap="round"/><path d="M42 24v20M32 34h20" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/><circle cx="58" cy="26" r="2.5" fill="#fff"/></svg>
         <span class="name">Disney+</span>
       </button>
       <button class="tile youtube" data-url="https://www.youtube.com/">
@@ -1326,6 +1369,15 @@ function svcList(conj = 'y') {
 }
 const REGION = 'AR';
 const AUTHOR = 'Lic. Nicolás Bongiorno';
+// Si el sistema pide menos movimiento, se apagan los efectos
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Transición suave entre pantallas (si el navegador la tiene)
+function smooth(fn) {
+  if (REDUCED || !document.startViewTransition || document.hidden) return fn();
+  let out;
+  document.startViewTransition(() => { out = fn(); });
+  return out;
+}
 // Celular o tablet: pantalla táctil sin mouse
 const IS_TOUCH = matchMedia('(hover: none) and (pointer: coarse)').matches;
 document.documentElement.classList.toggle('touch', IS_TOUCH);
@@ -1449,7 +1501,7 @@ function openTile(i) {
   const t = tiles[i];
   store('cm-last', String(i));
   buzz();
-  if (t.dataset.view) { show(t.dataset.view); if (t.dataset.cult) { setNav('cultBtn'); renderCult(); } return; }
+  if (t.dataset.view) { smooth(() => { show(t.dataset.view); if (t.dataset.cult) { setNav('cultBtn'); renderCult(); } }); return; }
   go(t.dataset.url, t.querySelector('.name').textContent);
 }
 function menuKey(e) {
@@ -2472,7 +2524,7 @@ content.addEventListener('click', e => {
   const arrow = e.target.closest('[data-scroll]');
   if (arrow) { const st = arrow.parentNode.querySelector('.strip'); st.scrollBy({ left: +arrow.dataset.scroll * st.clientWidth * .85, behavior: 'smooth' }); return; }
   const card = e.target.closest('.card, .tn');
-  if (card) { buzz(); openDetail(card.dataset.key); }
+  if (card) { buzz(); openDetail(card.dataset.key, card); }
 });
 content.addEventListener('mouseover', e => {
   const card = e.target.closest('.card');
@@ -2543,6 +2595,13 @@ content.addEventListener('scroll', e => { if (!(e.target.classList && e.target.c
 document.addEventListener('keydown', hidePreview, true);
 document.addEventListener('mousedown', e => { if (!e.target.closest('#pv')) hidePreview(); }, true);
 content.addEventListener('mouseover', e => { if (!e.target.closest('.card')) hidePreview(); });
+// La ruedita del mouse sobre la barra de arriba, los filtros o la vista previa también desplaza la página
+document.addEventListener('wheel', e => {
+  if (view !== 'explore' || overlay.classList.contains('on') || trailerOpen()) return;
+  const t = e.target;
+  if (t.closest && t.closest('#pv')) { hidePreview(); content.scrollBy({ top: e.deltaY }); return; }
+  if (t.closest && !content.contains(t) && !t.closest('.suggest, .platpanel') && Math.abs(e.deltaY) > Math.abs(e.deltaX)) content.scrollBy({ top: e.deltaY });
+}, { passive: true });
 
 $('backBtn').addEventListener('click', () => show('menu'));
 $('keyBtn').addEventListener('click', () => { $('filters').classList.add('off'); renderSetup(); });
@@ -2603,12 +2662,12 @@ if (SpeechRec) {
     y0 = null;
   });
 }
-$('pickBtn').addEventListener('click', () => renderPicker());
-$('catBtn').addEventListener('click', () => renderCategories());
-$('rankBtn').addEventListener('click', () => renderRankings());
-$('cultBtn').addEventListener('click', () => renderCult());
-$('upBtn').addEventListener('click', () => renderUpcoming());
-$('profBtn').addEventListener('click', () => renderProfiles());
+$('pickBtn').addEventListener('click', () => smooth(() => renderPicker()));
+$('catBtn').addEventListener('click', () => smooth(() => renderCategories()));
+$('rankBtn').addEventListener('click', () => smooth(() => renderRankings()));
+$('cultBtn').addEventListener('click', () => smooth(() => renderCult()));
+$('upBtn').addEventListener('click', () => smooth(() => renderUpcoming()));
+$('profBtn').addEventListener('click', () => smooth(() => renderProfiles()));
 
 /* ================= Filtros ================= */
 const filters = { svc: 'all', type: 'all', min: '0', sort: 'rel', age: 'all' };
@@ -3294,6 +3353,8 @@ function renderCult() {
       </div>
     </div>
     <div id="cultBody"></div></div>`;
+  // Con teclado o control remoto, el foco queda en la opción elegida
+  if (!IS_TOUCH) setTimeout(() => { const c = content.querySelector('.culthead .chip.on'); if (c && !content.contains(document.activeElement)) c.focus({ preventScroll: true }); }, 30);
   content.querySelector('.culthead').addEventListener('click', e => {
     const t = e.target.closest('[data-ctab]');
     if (t) { cultTab = t.dataset.ctab; renderCult(); return; }
@@ -3382,10 +3443,10 @@ function renderYear() {
   content.innerHTML = `<div class="yr">
     <div class="yrhero"><small>${esc(me.emoji)} ${esc(me.name)}</small><h2>Tu ${year} en el cine</h2><p>Todo lo que marcaste como visto este año.</p></div>
     <div class="yrnums">
-      <div><b>${st.movies.length}</b><span>películas</span></div>
-      <div><b>${st.series.length}</b><span>series</span></div>
-      <div><b>${st.hours}</b><span>horas de películas</span></div>
-      <div><b>${st.liked.length}</b><span>👍 te encantaron</span></div>
+      <div><b data-count="${st.movies.length}">${st.movies.length}</b><span>películas</span></div>
+      <div><b data-count="${st.series.length}">${st.series.length}</b><span>series</span></div>
+      <div><b data-count="${st.hours}">${st.hours}</b><span>horas de películas</span></div>
+      <div><b data-count="${st.liked.length}">${st.liked.length}</b><span>👍 te encantaron</span></div>
     </div>
     <div class="yrgrid">
       <section><h3>Tus géneros</h3>${st.genres.map(([n, c]) => `<div class="bar"><span>${esc(n)}</span><i style="width:${Math.max(6, c / maxG * 100)}%"></i><em>${c}</em></div>`).join('') || '<p class="yrmuted">Sin datos de géneros.</p>'}</section>
@@ -3398,6 +3459,7 @@ function renderYear() {
     <div class="yrshare"><button class="btn primary focusable" id="yrImg">🖼 Compartir mi resumen</button><button class="btn focusable" id="yrTxt">📋 Copiar en texto</button></div>
   </div>`;
   fillBadges(content);
+  countUp(content);
   $('yrImg').addEventListener('click', () => shareYearImage(st));
   $('yrTxt').addEventListener('click', async () => toast((await copyText(yearText(st))) ? '📋 Copiado: pegalo donde quieras' : 'No se pudo copiar'));
 }
@@ -4566,7 +4628,7 @@ function accentOf(path) {
 
 const backdropHTML = path => path ? `<div class="dback" style="background-image:url('${IMG}${IS_TOUCH ? 'w780' : 'w1280'}${esc(path)}')"></div>` : '';
 
-async function openDetail(key) {
+async function openDetail(key, srcEl) {
   const it = items.get(key);
   if (!it) return;
   // Abrir otra ficha desde una ficha: se repite la animación de entrada
@@ -4577,9 +4639,14 @@ async function openDetail(key) {
   const title = it.title || it.name;
   const year = (it.release_date || it.first_air_date || '').slice(0, 4);
   const rating = it.vote_average ? '★ ' + it.vote_average.toFixed(1) : '';
+  // Si se abrió desde un póster y el navegador lo permite, el póster "vuela" hasta la ficha
+  const srcPoster = srcEl && srcEl.querySelector && srcEl.querySelector('.poster');
+  const flying = !!(srcPoster && document.startViewTransition && !REDUCED && !overlay.classList.contains('on'));
+  if (flying) srcPoster.style.viewTransitionName = 'cm-poster';
+  const paint = () => {
   $('detail').innerHTML = `${backdropHTML(it.backdrop_path)}<button class="btn dclose" data-close aria-label="Cerrar" title="Cerrar">${ic('x')}</button>
     <div class="top">
-      <div class="poster">${it.poster_path ? `<img src="${IMG}w500${it.poster_path}" alt="">` : `<div class="noimg">${esc(title)}</div>`}</div>
+      <div class="poster">${it.poster_path ? `<img class="ok" src="${IMG}w342${it.poster_path}" data-hi="${IMG}w500${it.poster_path}" alt="">` : `<div class="noimg">${esc(title)}</div>`}</div>
       <div class="info">
         <h3>${esc(title)}</h3>
         <div class="meta" id="dmeta">${[type === 'tv' ? 'Serie' : 'Película', year, rating].filter(Boolean).join(' · ')}</div>
@@ -4595,6 +4662,15 @@ async function openDetail(key) {
   $('detail').style.removeProperty('--acc');
   accentOf(it.poster_path).then(rgb => { if (rgb && detailKey === key) $('detail').style.setProperty('--acc', rgb); });
   overlay.classList.add('on');
+  if (flying) { srcPoster.style.viewTransitionName = ''; $('detail').querySelector('.poster').style.viewTransitionName = 'cm-poster'; overlay.classList.add('vt'); }
+  };
+  if (flying) {
+    const t = document.startViewTransition(paint);
+    await t.updateCallbackDone.catch(() => {});
+    t.finished.finally(() => { const dp = $('detail').querySelector('.poster'); if (dp) dp.style.viewTransitionName = ''; overlay.classList.remove('vt'); });
+  } else paint();
+  // Póster en alta calidad apenas carga
+  { const im = $('detail').querySelector('.poster img[data-hi]'); if (im) { const hi = new Image(); hi.onload = () => { if (im.isConnected) im.src = im.dataset.hi; }; hi.src = im.dataset.hi; } }
 
   const extra = type === 'movie' ? 'videos,credits,recommendations,similar,release_dates,external_ids' : 'videos,aggregate_credits,recommendations,similar,content_ratings,external_ids';
   const [p, d] = await Promise.all([
@@ -4815,7 +4891,7 @@ overlay.addEventListener('click', e => {
     if ($('dprog')) $('dprog').innerHTML = progressLine(it.id);
     else $('dfacts').insertAdjacentHTML('beforeend', `<br><span id="dprog">${progressLine(it.id)}</span>`);
   }
-  else if (card) openDetail(card.dataset.key);
+  else if (card) openDetail(card.dataset.key, card);
   else if (person) {
     closeDetail();
     $('q').value = person.dataset.person;
@@ -4963,6 +5039,53 @@ syncRun();
   const hide = () => { sp.classList.add('out'); setTimeout(() => sp.remove(), 700); };
   if (shown) sp.remove();
   else { sp.addEventListener('click', hide); setTimeout(hide, 1300); }
+}
+
+/* ===== Efectos premium ===== */
+if (!REDUCED) {
+  // Inclinación 3D con brillo que sigue al mouse (mosaicos y tarjetas grandes, solo PC)
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const TILT = '.tile, .tn, .un, .sagab, .cultpromo';
+    document.addEventListener('pointermove', e => {
+      const el = e.target.closest && e.target.closest(TILT);
+      if (!el) return;
+      const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      el.style.setProperty('--rx', ((.5 - y) * 8).toFixed(2) + 'deg');
+      el.style.setProperty('--ry', ((x - .5) * 10).toFixed(2) + 'deg');
+      el.style.setProperty('--mx', (x * 100).toFixed(1) + '%');
+      el.style.setProperty('--my', (y * 100).toFixed(1) + '%');
+      el.classList.add('tilt');
+    }, { passive: true });
+    document.addEventListener('pointerout', e => {
+      const el = e.target.closest && e.target.closest(TILT);
+      if (el && !el.contains(e.relatedTarget)) { el.classList.remove('tilt'); el.style.removeProperty('--rx'); el.style.removeProperty('--ry'); }
+    }, { passive: true });
+  }
+  // Onda al presionar
+  document.addEventListener('pointerdown', e => {
+    const el = e.target.closest && e.target.closest('.btn, .chip, .tile, .sagab, .cultpromo');
+    if (!el) return;
+    const r = el.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.2;
+    const w = document.createElement('span');
+    w.className = 'ripple';
+    w.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+    el.appendChild(w);
+    setTimeout(() => w.remove(), 650);
+  }, { passive: true });
+  // Las filas aparecen suavemente al llegar a ellas
+  const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }), { root: content, rootMargin: '0px 0px -6% 0px' });
+  const watchRows = () => content.querySelectorAll('.row:not(.rv)').forEach(r => { r.classList.add('rv'); io.observe(r); });
+  new MutationObserver(watchRows).observe(content, { childList: true, subtree: true });
+}
+// Números que cuentan hasta su valor (Tu año en el cine)
+function countUp(root) {
+  root.querySelectorAll('[data-count]').forEach(el => {
+    const to = +el.dataset.count;
+    if (REDUCED || !to) { el.textContent = to; return; }
+    const t0 = performance.now(), dur = 900;
+    const step = now => { const k = Math.min(1, (now - t0) / dur); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
 }
 
 // Atajos del ícono de la app (mantener apretado el ícono en el celular)
