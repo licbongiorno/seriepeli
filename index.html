@@ -971,6 +971,7 @@
   .cult.mine .card[data-svcs=""] { display: none; }
   .cult .caption { color: #c9cdda; font-weight: 600; }
   .sagas { display: flex; gap: 1vw; overflow-x: auto; padding: 2.6vh 4vw 1vh; scrollbar-width: none; }
+  @media (min-width: 641px) { .sagas { flex-wrap: wrap; overflow: visible; } .sagab { min-width: 0; width: clamp(150px, 10.6vw, 210px); } }
   .sagas::-webkit-scrollbar { display: none; }
   .sagab {
     flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: .4em; cursor: pointer;
@@ -2818,6 +2819,185 @@ const SAGAS = [
   } }
 ];
 
+/* ----- Más listas de la Cinemateca ----- */
+CANON.push(
+  { id: 'japon', title: '🇯🇵 Cine japonés', items: [
+    ['movie', 'Tokyo Story', 1953, 'Ozu: la familia y el paso del tiempo'],
+    ['movie', 'Ugetsu', 1953, 'Fantasmas y ambición'],
+    ['movie', 'Seven Samurai', 1954, 'El molde de todas las películas de acción'],
+    ['movie', 'Godzilla', 1954, 'El monstruo nacido de la bomba'],
+    ['movie', 'Yojimbo', 1961, 'Kurosawa inspiró al western'],
+    ['movie', 'Harakiri', 1962, 'Honor y crítica a los samuráis'],
+    ['movie', 'Woman in the Dunes', 1964, 'Atrapados en la arena'],
+    ['movie', 'Ran', 1985, 'Shakespeare según Kurosawa'],
+    ['movie', 'My Neighbor Totoro', 1988, 'El ícono de Ghibli'],
+    ['movie', 'Akira', 1988, 'Neo-Tokio explota'],
+    ['movie', 'Ghost in the Shell', 1995, 'Inspiró a Matrix'],
+    ['movie', 'Princess Mononoke', 1997, 'Naturaleza contra progreso'],
+    ['movie', 'Perfect Blue', 1997, 'Satoshi Kon y la identidad'],
+    ['movie', 'Hana-bi', 1997, 'Kitano: violencia y poesía'],
+    ['movie', 'Ring', 1998, 'El terror japonés conquistó el mundo'],
+    ['movie', 'Audition', 1999, 'Takashi Miike, perturbador'],
+    ['movie', 'Battle Royale', 2000, 'Antes de Los juegos del hambre'],
+    ['movie', 'Spirited Away', 2001, 'Oscar a mejor animada'],
+    ['movie', 'Departures', 2008, 'Oscar a mejor película extranjera'],
+    ['movie', 'Your Name.', 2016, 'Fenómeno del anime moderno'],
+    ['movie', 'Shoplifters', 2018, 'Palma de Oro en Cannes'],
+    ['movie', 'Drive My Car', 2021, 'Oscar a mejor película internacional'],
+    ['movie', 'Perfect Days', 2023, 'La belleza de lo cotidiano'],
+    ['movie', 'The Boy and the Heron', 2023, 'El último Miyazaki']
+  ] },
+  { id: 'filo', title: '🤔 Cine filosófico', items: [
+    ['movie', 'Ikiru', 1952, '¿Qué hace que una vida valga la pena?'],
+    ['movie', 'The Seventh Seal', 1957, 'Una partida de ajedrez con la Muerte'],
+    ['movie', 'Wild Strawberries', 1957, 'La vejez y los recuerdos'],
+    ['movie', '8½', 1963, 'Fellini y la crisis del creador'],
+    ['movie', 'Solaris', 1972, 'La memoria y el otro'],
+    ['movie', 'Stalker', 1979, 'El deseo más profundo'],
+    ['movie', 'Wings of Desire', 1987, 'Ángeles que quieren ser humanos'],
+    ['movie', 'Groundhog Day', 1993, 'El eterno retorno, en comedia'],
+    ['movie', 'Gattaca', 1997, 'Genética y destino'],
+    ['movie', 'The Truman Show', 1998, '¿Y si tu vida fuera un show?'],
+    ['movie', 'The Matrix', 1999, 'La caverna de Platón'],
+    ['movie', 'Being John Malkovich', 1999, 'Meterse en la cabeza de otro'],
+    ['movie', 'Waking Life', 2001, 'Un sueño lleno de filosofía'],
+    ['movie', 'Eternal Sunshine of the Spotless Mind', 2004, '¿Borrarías un amor?'],
+    ['movie', 'Synecdoche, New York', 2008, 'La vida como obra de teatro'],
+    ['movie', 'Mr. Nobody', 2009, 'Todas las vidas posibles'],
+    ['movie', 'The Tree of Life', 2011, 'El origen de todo y una familia'],
+    ['movie', 'Her', 2013, 'Amor e inteligencia artificial'],
+    ['movie', 'Ex Machina', 2014, '¿Puede pensar una máquina?'],
+    ['movie', 'Arrival', 2016, 'El lenguaje y el tiempo']
+  ] },
+  { id: 'psico', title: '🧠 Psicología y cine', items: [
+    ['movie', 'Spellbound', 1945, 'Hitchcock y el psicoanálisis'],
+    ['movie', 'Persona', 1966, 'Dos identidades que se mezclan'],
+    ['movie', "One Flew Over the Cuckoo's Nest", 1975, 'La vida en un psiquiátrico'],
+    ['movie', 'Ordinary People', 1980, 'El duelo en una familia'],
+    ['movie', 'Good Will Hunting', 1997, 'Un genio y su terapeuta'],
+    ['movie', 'Girl, Interrupted', 1999, 'Salud mental en los años 60'],
+    ['movie', 'Memento', 2000, 'Vivir sin memoria reciente'],
+    ['movie', 'Requiem for a Dream', 2000, 'Las adicciones sin filtro'],
+    ['movie', 'A Beautiful Mind', 2001, 'Genialidad y esquizofrenia'],
+    ['movie', 'The Machinist', 2004, 'Culpa e insomnio'],
+    ['movie', 'Black Swan', 2010, 'Perfeccionismo y obsesión'],
+    ['movie', 'Shutter Island', 2010, '¿Quién está loco?'],
+    ['movie', 'Inception', 2010, 'La arquitectura de los sueños'],
+    ['movie', 'Melancholia', 2011, 'La depresión como fin del mundo'],
+    ['movie', 'Silver Linings Playbook', 2012, 'Trastorno bipolar y amor'],
+    ['movie', 'Inside Out', 2015, 'Cómo funcionan las emociones'],
+    ['movie', 'Split', 2016, 'Personalidades múltiples'],
+    ['movie', 'Beautiful Boy', 2018, 'Un padre y la adicción de su hijo'],
+    ['movie', 'Joker', 2019, 'Aislamiento y salud mental'],
+    ['movie', 'The Father', 2020, 'La demencia desde adentro'],
+    ['tv', 'In Treatment', 2008, 'Sesiones de terapia, una por episodio'],
+    ['tv', 'Mindhunter', 2017, 'Cómo piensan los asesinos seriales']
+  ] },
+  { id: 'oscar', title: '🏆 Oscars a mejor película', items: [
+    ['movie', 'Anora', 2024, 'Oscar 2025'], ['movie', 'Oppenheimer', 2023, 'Oscar 2024'],
+    ['movie', 'Everything Everywhere All at Once', 2022, 'Oscar 2023'], ['movie', 'CODA', 2021, 'Oscar 2022'],
+    ['movie', 'Nomadland', 2020, 'Oscar 2021'], ['movie', 'Parasite', 2019, 'Oscar 2020'],
+    ['movie', 'Green Book', 2018, 'Oscar 2019'], ['movie', 'The Shape of Water', 2017, 'Oscar 2018'],
+    ['movie', 'Moonlight', 2016, 'Oscar 2017'], ['movie', 'Spotlight', 2015, 'Oscar 2016'],
+    ['movie', 'Birdman or (The Unexpected Virtue of Ignorance)', 2014, 'Oscar 2015'], ['movie', '12 Years a Slave', 2013, 'Oscar 2014'],
+    ['movie', 'Argo', 2012, 'Oscar 2013'], ['movie', 'The Artist', 2011, 'Oscar 2012'],
+    ['movie', "The King's Speech", 2010, 'Oscar 2011'], ['movie', 'The Hurt Locker', 2008, 'Oscar 2010'],
+    ['movie', 'Slumdog Millionaire', 2008, 'Oscar 2009'], ['movie', 'No Country for Old Men', 2007, 'Oscar 2008'],
+    ['movie', 'The Departed', 2006, 'Oscar 2007'], ['movie', 'Crash', 2005, 'Oscar 2006'],
+    ['movie', 'Million Dollar Baby', 2004, 'Oscar 2005'], ['movie', 'The Lord of the Rings: The Return of the King', 2003, 'Oscar 2004'],
+    ['movie', 'Chicago', 2002, 'Oscar 2003'], ['movie', 'A Beautiful Mind', 2001, 'Oscar 2002'],
+    ['movie', 'Gladiator', 2000, 'Oscar 2001'], ['movie', 'American Beauty', 1999, 'Oscar 2000'],
+    ['movie', 'Shakespeare in Love', 1998, 'Oscar 1999'], ['movie', 'Titanic', 1997, 'Oscar 1998'],
+    ['movie', 'The English Patient', 1996, 'Oscar 1997'], ['movie', 'Braveheart', 1995, 'Oscar 1996'],
+    ['movie', 'Forrest Gump', 1994, 'Oscar 1995'], ['movie', "Schindler's List", 1993, 'Oscar 1994'],
+    ['movie', 'Unforgiven', 1992, 'Oscar 1993'], ['movie', 'The Silence of the Lambs', 1991, 'Oscar 1992'],
+    ['movie', 'Dances with Wolves', 1990, 'Oscar 1991'], ['movie', 'Driving Miss Daisy', 1989, 'Oscar 1990'],
+    ['movie', 'Amadeus', 1984, 'Oscar 1985'], ['movie', 'Annie Hall', 1977, 'Oscar 1978'],
+    ['movie', 'The Godfather', 1972, 'Oscar 1973'], ['movie', 'Lawrence of Arabia', 1962, 'Oscar 1963'],
+    ['movie', 'All About Eve', 1950, 'Oscar 1951'], ['movie', 'Casablanca', 1942, 'Oscar 1944']
+  ] }
+);
+
+/* ----- Más sagas ----- */
+const SAGA_EST = 'Orden de estreno', SAGA_CRO = 'Orden cronológico';
+SAGAS.push(
+  { id: 'matrix', title: 'Matrix', icon: '💊', intro: 'Pastilla roja o pastilla azul.', orders: {
+    [SAGA_EST]: ['Las cuatro películas.', [['movie', 'The Matrix', 1999], ['movie', 'The Matrix Reloaded', 2003], ['movie', 'The Matrix Revolutions', 2003], ['movie', 'The Matrix Resurrections', 2021]]],
+    'Con Animatrix': ['Los cortos animados de Animatrix van entre la 1 y la 2 (y explican cómo empezó todo).', [['movie', 'The Matrix', 1999], ['movie', 'The Animatrix', 2003, '9 cortos animados'], ['movie', 'The Matrix Reloaded', 2003], ['movie', 'The Matrix Revolutions', 2003], ['movie', 'The Matrix Resurrections', 2021]]]
+  } },
+  { id: 'mi', title: 'Misión Imposible', icon: '🕶', intro: 'Ethan Hunt, de 1996 a 2025.', orders: {
+    [SAGA_EST]: ['Cada una se entiende sola, pero desde la 5 la historia sigue.', [['movie', 'Mission: Impossible', 1996], ['movie', 'Mission: Impossible II', 2000], ['movie', 'Mission: Impossible III', 2006], ['movie', 'Mission: Impossible - Ghost Protocol', 2011], ['movie', 'Mission: Impossible - Rogue Nation', 2015], ['movie', 'Mission: Impossible - Fallout', 2018], ['movie', 'Mission: Impossible - Dead Reckoning Part One', 2023], ['movie', 'Mission: Impossible - The Final Reckoning', 2025]]],
+    'Lo esencial': ['Si tenés poco tiempo: la primera y la etapa moderna.', [['movie', 'Mission: Impossible', 1996], ['movie', 'Mission: Impossible - Ghost Protocol', 2011], ['movie', 'Mission: Impossible - Rogue Nation', 2015], ['movie', 'Mission: Impossible - Fallout', 2018], ['movie', 'Mission: Impossible - Dead Reckoning Part One', 2023], ['movie', 'Mission: Impossible - The Final Reckoning', 2025]]]
+  } },
+  { id: 'jurassic', title: 'Jurassic Park / World', icon: '🦖', intro: 'Con las series animadas en su lugar.', orders: {
+    [SAGA_EST]: ['Las películas como salieron.', [['movie', 'Jurassic Park', 1993], ['movie', 'The Lost World: Jurassic Park', 1997], ['movie', 'Jurassic Park III', 2001], ['movie', 'Jurassic World', 2015], ['movie', 'Jurassic World: Fallen Kingdom', 2018], ['movie', 'Jurassic World Dominion', 2022], ['movie', 'Jurassic World Rebirth', 2025]]],
+    [SAGA_CRO]: ['Con las series de Netflix donde van en la historia.', [['movie', 'Jurassic Park', 1993], ['movie', 'The Lost World: Jurassic Park', 1997], ['movie', 'Jurassic Park III', 2001], ['movie', 'Jurassic World', 2015], ['tv', 'Jurassic World: Camp Cretaceous', 2020, 'Pasa durante Jurassic World'], ['movie', 'Jurassic World: Fallen Kingdom', 2018], ['tv', 'Jurassic World: Chaos Theory', 2024, 'Después de Fallen Kingdom'], ['movie', 'Jurassic World Dominion', 2022], ['movie', 'Jurassic World Rebirth', 2025]]]
+  } },
+  { id: 'xmen', title: 'X-Men', icon: '🧬', intro: 'Los mutantes de Fox, con Wolverine y Deadpool.', orders: {
+    [SAGA_EST]: ['Tal como se estrenaron.', [['movie', 'X-Men', 2000], ['movie', 'X2', 2003], ['movie', 'X-Men: The Last Stand', 2006], ['movie', 'X-Men Origins: Wolverine', 2009], ['movie', 'X-Men: First Class', 2011], ['movie', 'The Wolverine', 2013], ['movie', 'X-Men: Days of Future Past', 2014], ['movie', 'Deadpool', 2016], ['movie', 'X-Men: Apocalypse', 2016], ['movie', 'Logan', 2017], ['movie', 'Deadpool 2', 2018], ['movie', 'Dark Phoenix', 2019], ['movie', 'The New Mutants', 2020], ['movie', 'Deadpool & Wolverine', 2024]]],
+    [SAGA_CRO]: ['Según la época en que pasa cada historia.', [['movie', 'X-Men: First Class', 2011, '1962'], ['movie', 'X-Men Origins: Wolverine', 2009, 'Años 70'], ['movie', 'X-Men: Days of Future Past', 2014, '1973 y el futuro'], ['movie', 'X-Men: Apocalypse', 2016, '1983'], ['movie', 'Dark Phoenix', 2019, '1992'], ['movie', 'X-Men', 2000], ['movie', 'X2', 2003], ['movie', 'X-Men: The Last Stand', 2006], ['movie', 'The Wolverine', 2013], ['movie', 'Deadpool', 2016], ['movie', 'Deadpool 2', 2018], ['movie', 'The New Mutants', 2020], ['movie', 'Logan', 2017, '2029'], ['movie', 'Deadpool & Wolverine', 2024]]]
+  } },
+  { id: 'bond', title: 'James Bond', icon: '🍸', intro: 'Las 25 películas oficiales del 007.', orders: {
+    [SAGA_EST]: ['De Sean Connery a Daniel Craig.', [['movie', 'Dr. No', 1962, 'Sean Connery'], ['movie', 'From Russia with Love', 1963, 'Sean Connery'], ['movie', 'Goldfinger', 1964, 'Sean Connery'], ['movie', 'Thunderball', 1965, 'Sean Connery'], ['movie', 'You Only Live Twice', 1967, 'Sean Connery'], ['movie', "On Her Majesty's Secret Service", 1969, 'George Lazenby'], ['movie', 'Diamonds Are Forever', 1971, 'Sean Connery'], ['movie', 'Live and Let Die', 1973, 'Roger Moore'], ['movie', 'The Man with the Golden Gun', 1974, 'Roger Moore'], ['movie', 'The Spy Who Loved Me', 1977, 'Roger Moore'], ['movie', 'Moonraker', 1979, 'Roger Moore'], ['movie', 'For Your Eyes Only', 1981, 'Roger Moore'], ['movie', 'Octopussy', 1983, 'Roger Moore'], ['movie', 'A View to a Kill', 1985, 'Roger Moore'], ['movie', 'The Living Daylights', 1987, 'Timothy Dalton'], ['movie', 'Licence to Kill', 1989, 'Timothy Dalton'], ['movie', 'GoldenEye', 1995, 'Pierce Brosnan'], ['movie', 'Tomorrow Never Dies', 1997, 'Pierce Brosnan'], ['movie', 'The World Is Not Enough', 1999, 'Pierce Brosnan'], ['movie', 'Die Another Day', 2002, 'Pierce Brosnan'], ['movie', 'Casino Royale', 2006, 'Daniel Craig'], ['movie', 'Quantum of Solace', 2008, 'Daniel Craig'], ['movie', 'Skyfall', 2012, 'Daniel Craig'], ['movie', 'Spectre', 2015, 'Daniel Craig'], ['movie', 'No Time to Die', 2021, 'Daniel Craig']]],
+    'Etapa Daniel Craig': ['Cinco películas conectadas, con principio y final: ideal para empezar.', [['movie', 'Casino Royale', 2006], ['movie', 'Quantum of Solace', 2008], ['movie', 'Skyfall', 2012], ['movie', 'Spectre', 2015], ['movie', 'No Time to Die', 2021]]]
+  } },
+  { id: 'indy', title: 'Indiana Jones', icon: '🤠', intro: 'El templo de la perdición es una precuela.', orders: {
+    [SAGA_EST]: ['Como se estrenaron.', [['movie', 'Raiders of the Lost Ark', 1981], ['movie', 'Indiana Jones and the Temple of Doom', 1984], ['movie', 'Indiana Jones and the Last Crusade', 1989], ['movie', 'Indiana Jones and the Kingdom of the Crystal Skull', 2008], ['movie', 'Indiana Jones and the Dial of Destiny', 2023]]],
+    [SAGA_CRO]: ['Según el año de cada aventura.', [['movie', 'Indiana Jones and the Temple of Doom', 1984, '1935'], ['movie', 'Raiders of the Lost Ark', 1981, '1936'], ['movie', 'Indiana Jones and the Last Crusade', 1989, '1938'], ['movie', 'Indiana Jones and the Kingdom of the Crystal Skull', 2008, '1957'], ['movie', 'Indiana Jones and the Dial of Destiny', 2023, '1969']]]
+  } },
+  { id: 'hunger', title: 'Los juegos del hambre', icon: '🏹', intro: 'La precuela cuenta el origen de Snow.', orders: {
+    [SAGA_EST]: ['Empezar por Katniss.', [['movie', 'The Hunger Games', 2012], ['movie', 'The Hunger Games: Catching Fire', 2013], ['movie', 'The Hunger Games: Mockingjay - Part 1', 2014], ['movie', 'The Hunger Games: Mockingjay - Part 2', 2015], ['movie', 'The Hunger Games: The Ballad of Songbirds & Snakes', 2023]]],
+    [SAGA_CRO]: ['La balada pasa 64 años antes.', [['movie', 'The Hunger Games: The Ballad of Songbirds & Snakes', 2023, '64 años antes'], ['movie', 'The Hunger Games', 2012], ['movie', 'The Hunger Games: Catching Fire', 2013], ['movie', 'The Hunger Games: Mockingjay - Part 1', 2014], ['movie', 'The Hunger Games: Mockingjay - Part 2', 2015]]]
+  } },
+  { id: 'apes', title: 'El planeta de los simios', icon: '🐒', intro: 'Dos sagas distintas.', orders: {
+    'Saga moderna': ['La recomendada: César y lo que vino después.', [['movie', 'Rise of the Planet of the Apes', 2011], ['movie', 'Dawn of the Planet of the Apes', 2014], ['movie', 'War for the Planet of the Apes', 2017], ['movie', 'Kingdom of the Planet of the Apes', 2024]]],
+    'Saga clásica': ['Las originales, con uno de los mejores finales del cine.', [['movie', 'Planet of the Apes', 1968], ['movie', 'Beneath the Planet of the Apes', 1970], ['movie', 'Escape from the Planet of the Apes', 1971], ['movie', 'Conquest of the Planet of the Apes', 1972], ['movie', 'Battle for the Planet of the Apes', 1973]]]
+  } },
+  { id: 'madmax', title: 'Mad Max', icon: '🔥', intro: 'Furiosa pasa antes de Fury Road.', orders: {
+    [SAGA_EST]: ['Como se estrenaron.', [['movie', 'Mad Max', 1979], ['movie', 'Mad Max 2', 1981], ['movie', 'Mad Max Beyond Thunderdome', 1985], ['movie', 'Mad Max: Fury Road', 2015], ['movie', 'Furiosa: A Mad Max Saga', 2024]]],
+    [SAGA_CRO]: ['Furiosa justo antes de Fury Road.', [['movie', 'Mad Max', 1979], ['movie', 'Mad Max 2', 1981], ['movie', 'Mad Max Beyond Thunderdome', 1985], ['movie', 'Furiosa: A Mad Max Saga', 2024, 'Precuela'], ['movie', 'Mad Max: Fury Road', 2015]]]
+  } },
+  { id: 'wick', title: 'John Wick', icon: '🐶', intro: 'Con la serie y Ballerina.', orders: {
+    [SAGA_EST]: ['Como salieron.', [['movie', 'John Wick', 2014], ['movie', 'John Wick: Chapter 2', 2017], ['movie', 'John Wick: Chapter 3 - Parabellum', 2019], ['movie', 'John Wick: Chapter 4', 2023], ['tv', 'The Continental: From the World of John Wick', 2023, 'Miniserie'], ['movie', 'Ballerina', 2025, 'Spin-off']]],
+    [SAGA_CRO]: ['The Continental es en los años 70; Ballerina va entre la 3 y la 4.', [['tv', 'The Continental: From the World of John Wick', 2023, 'Años 70'], ['movie', 'John Wick', 2014], ['movie', 'John Wick: Chapter 2', 2017], ['movie', 'John Wick: Chapter 3 - Parabellum', 2019], ['movie', 'Ballerina', 2025, 'Entre la 3 y la 4'], ['movie', 'John Wick: Chapter 4', 2023]]]
+  } },
+  { id: 'spidey', title: 'Spider-Man', icon: '🕷', intro: 'Tres Spider-Man distintos (y el Spider-Verso).', orders: {
+    [SAGA_EST]: ['Antes de "Sin camino a casa" conviene ver las de Tobey Maguire y Andrew Garfield.', [['movie', 'Spider-Man', 2002, 'Tobey Maguire'], ['movie', 'Spider-Man 2', 2004, 'Tobey Maguire'], ['movie', 'Spider-Man 3', 2007, 'Tobey Maguire'], ['movie', 'The Amazing Spider-Man', 2012, 'Andrew Garfield'], ['movie', 'The Amazing Spider-Man 2', 2014, 'Andrew Garfield'], ['movie', 'Spider-Man: Homecoming', 2017, 'Tom Holland'], ['movie', 'Spider-Man: Far From Home', 2019, 'Tom Holland'], ['movie', 'Spider-Man: No Way Home', 2021, 'Tom Holland']]],
+    'Spider-Verso (animadas)': ['Dos de las mejores películas animadas de la historia.', [['movie', 'Spider-Man: Into the Spider-Verse', 2018], ['movie', 'Spider-Man: Across the Spider-Verse', 2023]]]
+  } },
+  { id: 'batman', title: 'Batman', icon: '🦇', intro: 'Las grandes etapas del Caballero de la Noche.', orders: {
+    'Trilogía de Nolan': ['La más aclamada.', [['movie', 'Batman Begins', 2005], ['movie', 'The Dark Knight', 2008], ['movie', 'The Dark Knight Rises', 2012]]],
+    'Clásicas': ['De Tim Burton a Joel Schumacher.', [['movie', 'Batman', 1989, 'Tim Burton'], ['movie', 'Batman Returns', 1992, 'Tim Burton'], ['movie', 'Batman Forever', 1995], ['movie', 'Batman & Robin', 1997]]],
+    'La más nueva': ['Robert Pattinson y su serie derivada.', [['movie', 'The Batman', 2022], ['tv', 'The Penguin', 2024, 'Serie: sigue después de la película']]]
+  } },
+  { id: 'monster', title: 'MonsterVerse (Godzilla y Kong)', icon: '🦍', intro: 'Godzilla, King Kong y la organización Monarch.', orders: {
+    [SAGA_EST]: ['Como se estrenaron.', [['movie', 'Godzilla', 2014], ['movie', 'Kong: Skull Island', 2017], ['movie', 'Godzilla: King of the Monsters', 2019], ['movie', 'Godzilla vs. Kong', 2021], ['tv', 'Monarch: Legacy of Monsters', 2023, 'Serie'], ['movie', 'Godzilla x Kong: The New Empire', 2024]]],
+    [SAGA_CRO]: ['Kong: La isla calavera pasa en 1973.', [['movie', 'Kong: Skull Island', 2017, '1973'], ['tv', 'Monarch: Legacy of Monsters', 2023, 'Años 50 y 2015'], ['movie', 'Godzilla', 2014], ['movie', 'Godzilla: King of the Monsters', 2019], ['movie', 'Godzilla vs. Kong', 2021], ['movie', 'Godzilla x Kong: The New Empire', 2024]]]
+  } },
+  { id: 'terminator', title: 'Terminator', icon: '🤖', intro: 'Volveré.', orders: {
+    [SAGA_EST]: ['Todas, como salieron.', [['movie', 'The Terminator', 1984], ['movie', 'Terminator 2: Judgment Day', 1991], ['movie', 'Terminator 3: Rise of the Machines', 2003], ['movie', 'Terminator Salvation', 2009], ['movie', 'Terminator Genisys', 2015], ['movie', 'Terminator: Dark Fate', 2019]]],
+    'Línea de James Cameron': ['Dark Fate continúa directo desde la 2 (ignora la 3, 4 y 5).', [['movie', 'The Terminator', 1984], ['movie', 'Terminator 2: Judgment Day', 1991], ['movie', 'Terminator: Dark Fate', 2019]]]
+  } },
+  { id: 'pirates', title: 'Piratas del Caribe', icon: '🏴‍☠️', intro: 'El capitán Jack Sparrow.', orders: {
+    [SAGA_EST]: ['Las tres primeras son una trilogía.', [['movie', 'Pirates of the Caribbean: The Curse of the Black Pearl', 2003], ["movie", "Pirates of the Caribbean: Dead Man's Chest", 2006], ["movie", "Pirates of the Caribbean: At World's End", 2007], ['movie', 'Pirates of the Caribbean: On Stranger Tides', 2011], ['movie', 'Pirates of the Caribbean: Dead Men Tell No Tales', 2017]]]
+  } },
+  { id: 'godfather', title: 'El padrino', icon: '🌹', intro: 'La familia Corleone.', orders: {
+    [SAGA_EST]: ['La segunda alterna el presente de Michael con la juventud de Vito.', [['movie', 'The Godfather', 1972], ['movie', 'The Godfather Part II', 1974], ['movie', 'The Godfather Part III', 1990]]]
+  } },
+  { id: 'rocky', title: 'Rocky y Creed', icon: '🥊', intro: 'De Rocky Balboa a Adonis Creed.', orders: {
+    [SAGA_EST]: ['Toda la saga.', [['movie', 'Rocky', 1976], ['movie', 'Rocky II', 1979], ['movie', 'Rocky III', 1982], ['movie', 'Rocky IV', 1985], ['movie', 'Rocky V', 1990], ['movie', 'Rocky Balboa', 2006], ['movie', 'Creed', 2015], ['movie', 'Creed II', 2018], ['movie', 'Creed III', 2023]]]
+  } },
+  { id: 'bttf', title: 'Volver al futuro', icon: '⏰', intro: '88 millas por hora.', orders: {
+    [SAGA_EST]: ['Una trilogía perfecta.', [['movie', 'Back to the Future', 1985], ['movie', 'Back to the Future Part II', 1989], ['movie', 'Back to the Future Part III', 1990]]]
+  } },
+  { id: 'toystory', title: 'Toy Story', icon: '🤠', intro: 'Woody, Buzz y compañía.', orders: {
+    [SAGA_EST]: ['Con Lightyear, la película que vio Andy.', [['movie', 'Toy Story', 1995], ['movie', 'Toy Story 2', 1999], ['movie', 'Toy Story 3', 2010], ['movie', 'Toy Story 4', 2019], ['movie', 'Lightyear', 2022, 'La película favorita de Andy']]]
+  } },
+  { id: 'scream', title: 'Scream', icon: '🔪', intro: '¿Cuál es tu película de terror favorita?', orders: {
+    [SAGA_EST]: ['Ghostface, de 1996 a hoy.', [['movie', 'Scream', 1996], ['movie', 'Scream 2', 1997], ['movie', 'Scream 3', 2000], ['movie', 'Scream 4', 2011], ['movie', 'Scream', 2022, 'Scream 5'], ['movie', 'Scream VI', 2023]]]
+  } }
+);
+
 // Busca un título curado en TMDB (por nombre y año) y lo guarda 60 días
 async function resolveCanon([type, q, year]) {
   const key = `c:canon:${type}:${q}:${year}`;
@@ -2882,7 +3062,13 @@ function renderCult() {
         <div class="wrap">${orders.map(o => `<button class="chip focusable${o === sagaOrder ? ' on' : ''}" data-order="${esc(o)}">${esc(o)}</button>`).join('')}</div>
         <p class="sagatip">${esc(saga.orders[sagaOrder][0])}</p><div class="sagaprog" id="sagaProg"></div></div>
       <div class="results" id="sagaList">${'<div class="sk c"></div>'.repeat(8)}</div>`;
-    body.querySelector('.sagas').addEventListener('click', e => { const b = e.target.closest('[data-saga]'); if (b) { sagaSel = b.dataset.saga; sagaOrder = null; renderCult(); } });
+    body.querySelector('.sagas').addEventListener('click', e => {
+      const b = e.target.closest('[data-saga]');
+      if (!b) return;
+      sagaSel = b.dataset.saga; sagaOrder = null; renderCult();
+      // Baja sola hasta la guía elegida
+      requestAnimationFrame(() => { const h = content.querySelector('.sagahead'); if (h) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    });
     body.querySelector('.sagahead').addEventListener('click', e => { const b = e.target.closest('[data-order]'); if (b) { sagaOrder = b.dataset.order; renderCult(); } });
     const steps = saga.orders[sagaOrder][1];
     Promise.all(steps.map(x => resolveCanon(x).catch(() => null))).then(list => {

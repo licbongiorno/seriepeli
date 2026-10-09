@@ -19,9 +19,11 @@ Se maneja con teclado, mouse o control de Xbox (flechas para moverse, Enter para
 - Búsqueda por título, actor, director, género, tema o país; también **por voz** (🎤).
 - Banner con los 5 más vistos del día, rankings, estrenos, "¿Qué veo hoy?", perfiles con Mi lista,
   "Ya la vi", 👍/👎, "voy por" de cada serie y aviso de episodios nuevos.
-- **🎞 Cinemateca**: joyas del cine (hitos de la historia, cine de culto, cine argentino esencial, series que
-  marcaron época, documentales y cortos legendarios) y **guías de sagas** para ver Star Wars, Marvel, Harry Potter,
-  la Tierra Media, Rápidos y Furiosos, Alien y El Conjuro en orden de estreno, cronológico o (Star Wars) Machete.
+- **🎞 Cinemateca**: 10 listas de joyas del cine (hitos de la historia, cine de culto, cine argentino esencial,
+  series que marcaron época, documentales, cortos legendarios, cine japonés, cine filosófico, psicología y cine,
+  Oscars a mejor película) y **27 guías de sagas** (Star Wars, Marvel, Harry Potter, la Tierra Media, James Bond,
+  Matrix, Misión Imposible, Jurassic Park, X-Men, Indiana Jones, Batman, Spider-Man y más) en orden de estreno,
+  cronológico u otros órdenes recomendados.
 - **🌙 Esta noche para vos**: 3 sugerencias del día según tus 👍 (cambian a la medianoche).
 - **▶ Seguir viendo** y, en el menú, **A continuación**: las series en curso y tu lista.
 - **Tráiler dentro del centro** (en la versión online) y **vista previa** al dejar el mouse sobre un póster (PC).
