@@ -1030,12 +1030,18 @@
   .sagaprog { display: flex; align-items: center; gap: 1em; margin-top: .8em; color: var(--muted); font-weight: 600; }
   .pbar { width: min(320px, 50vw); height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
   .pbar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f5b301, #e0761a); transition: width .6s; }
+  .sagagrp { padding: 2.2vh 4vw 0; color: var(--muted); font-weight: 700; font-size: clamp(14px, .95vw, 18px); }
+  .sagagrp + .sagas { padding-top: 1.2vh; }
+  .kidsintro { color: var(--muted); padding: 2vh 4vw 0; max-width: 80ch; line-height: 1.5; }
+  .kidsub { padding: 3vh 4vw 0; font-size: clamp(18px, 1.4vw, 28px); }
   #sagaList .sk.c { aspect-ratio: 2 / 3; border-radius: 14px; }
   @media (max-width: 640px) {
     .culthead { padding: 14px 14px 0; }
     .sagas { gap: 10px; padding: 16px 14px 8px; }
     .sagab { min-width: 130px; }
     .sagahead { padding: 8px 14px 0; }
+    .sagagrp, .kidsintro { padding: 14px 14px 0; }
+    .kidsub { padding: 22px 14px 0; }
   }
 
   /* ===== Firma del autor ===== */
@@ -2139,7 +2145,7 @@ async function loadTrending() {
     ]);
 
     const row = (title, list, svc) => list.length ? rowHTML(title, list.map(r => cardHTML(r, svc)).join(''), svc) : '';
-    let html = heroHTML(trendAll) + `<button class="cultpromo focusable" data-cult="1"><span class="cpi">🎞</span><span><b>Cinemateca</b><small>Joyas del cine, cine de culto, Oscars y guías para ver las grandes sagas en orden</small></span><span class="cpa">${ic('right')}</span></button>` + '<div id="tonightRow"></div><div id="upNextRow"></div><div id="newEpsRow"></div><div id="forYouRows"></div><div id="myListRow"></div><div id="togetherRow"></div>';
+    let html = heroHTML(trendAll) + `<button class="cultpromo focusable" data-cult="1"><span class="cpi">🎞</span><span><b>Cinemateca</b><small>Joyas del cine, anime y dibujos para chicos, curiosidades y guías para ver las grandes sagas en orden</small></span><span class="cpa">${ic('right')}</span></button>` + '<div id="tonightRow"></div><div id="upNextRow"></div><div id="newEpsRow"></div><div id="forYouRows"></div><div id="myListRow"></div><div id="togetherRow"></div>';
     html += row('🔥 Lo más visto hoy en tus plataformas', trendAll);
     html += row('🆕 Estrenos recientes', fresh);
     const order = PREMIUM;
@@ -3452,6 +3458,250 @@ CANON.push(
     ] });
 }
 
+/* ================= 🧸 Chicos y anime =================
+   Sagas largas de anime y animación (con kids: true van también en su propia pestaña) */
+SAGAS.find(s => s.id === 'toystory').kids = true;
+SAGAS.push(
+  { id: 'pokemon', kids: true, title: 'Pokémon', icon: '🔴', intro: 'Más de 1.200 episodios y 20 películas: por dónde empezar.', orders: {
+    'Para empezar': ['Lo esencial para entrar al mundo Pokémon sin ver todo.', [['tv', 'Pokémon', 1997, 'Temporada 1: Ash, Pikachu y la Liga Índigo'], ['movie', 'Pokémon: The First Movie', 1998, 'Mewtwo contraataca'], ['movie', 'Pokémon the Movie: I Choose You!', 2017, 'Cómo se conocieron Ash y Pikachu (nueva versión)'], ['movie', 'Pokémon Detective Pikachu', 2019, 'Con actores'], ['tv', 'Pokémon Concierge', 2023, 'Serie corta en stop-motion']]],
+    'El viaje de Ash': ['La serie sigue a Ash de 1997 a 2023 (25 temporadas). Las películas clásicas se ven entre temporadas.', [['tv', 'Pokémon', 1997, 'Las 25 temporadas de Ash'], ['movie', 'Pokémon: The First Movie', 1998, 'Durante la temporada 1'], ['movie', 'Pokémon: The Movie 2000', 1999, 'Las islas naranja'], ['movie', 'Pokémon 3: The Movie', 2000, 'Johto'], ['movie', 'Pokémon 4Ever', 2001, 'Johto'], ['movie', 'Pokémon Heroes', 2002, 'Johto'], ['movie', 'Pokémon: Jirachi Wish Maker', 2003, 'Hoenn'], ['movie', 'Pokémon: Destiny Deoxys', 2004, 'Hoenn'], ['movie', 'Pokémon: Lucario and the Mystery of Mew', 2005, 'Hoenn'], ['tv', 'Pokémon Horizons: The Series', 2023, 'Después de Ash: Liko y Roy']]],
+    'Películas nuevas': ['Una línea aparte, que vuelve a contar el comienzo de Ash.', [['movie', 'Pokémon the Movie: I Choose You!', 2017], ['movie', 'Pokémon the Movie: The Power of Us', 2018], ['movie', 'Mewtwo Strikes Back: Evolution', 2019, 'La primera, en 3D'], ['movie', 'Pokémon the Movie: Secrets of the Jungle', 2020], ['movie', 'Pokémon Detective Pikachu', 2019, 'Con actores']]]
+  } },
+  { id: 'dragonball', kids: true, title: 'Dragon Ball', icon: '🐉', intro: 'De Goku niño a Dragon Ball Super, con y sin relleno.', orders: {
+    'Historia oficial': ['La historia de Akira Toriyama en orden. GT queda afuera porque no es del autor.', [['tv', 'Dragon Ball', 1986, 'Goku de chico'], ['tv', 'Dragon Ball Z', 1989, 'De los saiyajin a Majin Buu'], ['tv', 'Dragon Ball DAIMA', 2024, 'Pasa justo después de Majin Buu'], ['tv', 'Dragon Ball Super', 2015, 'Bills, Freezer y el Torneo del Poder'], ['movie', 'Dragon Ball Super: Broly', 2018, 'Después de la serie'], ['movie', 'Dragon Ball Super: Super Hero', 2022]]],
+    'Versión rápida': ['Dragon Ball Z Kai es Z sin relleno: casi la mitad de episodios.', [['tv', 'Dragon Ball', 1986, 'Opcional: la infancia de Goku'], ['tv', 'Dragon Ball Z Kai', 2009, 'Z sin relleno'], ['tv', 'Dragon Ball Super', 2015], ['movie', 'Dragon Ball Super: Broly', 2018], ['movie', 'Dragon Ball Super: Super Hero', 2022]]],
+    [SAGA_EST]: ['Todo como salió, con GT y las películas de Bills.', [['tv', 'Dragon Ball', 1986], ['tv', 'Dragon Ball Z', 1989], ['tv', 'Dragon Ball GT', 1996, 'Fuera de la historia oficial'], ['movie', 'Dragon Ball Z: Battle of Gods', 2013, 'Aparece Bills'], ["movie", "Dragon Ball Z: Resurrection 'F'", 2015, 'Vuelve Freezer'], ['tv', 'Dragon Ball Super', 2015, 'Arranca rehaciendo esas dos películas'], ['movie', 'Dragon Ball Super: Broly', 2018], ['movie', 'Dragon Ball Super: Super Hero', 2022], ['tv', 'Dragon Ball DAIMA', 2024]]]
+  } },
+  { id: 'naruto', kids: true, title: 'Naruto', icon: '🍥', intro: 'El ninja que quería ser Hokage, y su hijo.', orders: {
+    'Orden recomendado': ['The Last va entre los episodios 493 y 494 de Shippuden.', [['tv', 'Naruto', 2002, 'Naruto de chico'], ['tv', 'Naruto Shippūden', 2007, 'Dos años después'], ['movie', 'The Last: Naruto the Movie', 2014, 'Naruto y Hinata'], ['movie', 'Boruto: Naruto the Movie', 2015, 'La nueva generación'], ['tv', 'Boruto: Naruto Next Generations', 2017, 'El hijo de Naruto']]]
+  } },
+  { id: 'onepiece', kids: true, title: 'One Piece', icon: '👒', intro: 'Luffy y el tesoro más buscado: anime, películas y versión con actores.', orders: {
+    'Anime y películas': ['El anime sigue desde 1999. Las películas son historias aparte que se pueden ver en cualquier momento.', [['tv', 'One Piece', 1999, 'El anime (más de 1.100 episodios)'], ['movie', 'One Piece Film: Strong World', 2009], ['movie', 'One Piece Film: Z', 2012], ['movie', 'One Piece Film: Gold', 2016], ['movie', 'One Piece: Stampede', 2019], ['movie', 'One Piece Film: Red', 2022, 'La más taquillera']]],
+    'Con actores': ['Ideal para empezar: cuenta la saga de East Blue.', [['tv', 'One Piece', 2023, 'Serie con actores']]]
+  } },
+  { id: 'seiya', kids: true, title: 'Los Caballeros del Zodiaco', icon: '🌠', intro: 'Seiya y los caballeros de bronce, un clásico de la tele argentina.', orders: {
+    'Orden recomendado': ['La serie clásica y la saga de Hades, que la termina.', [['tv', 'Saint Seiya', 1986, 'Santuario, Asgard y Poseidón'], ['tv', 'Saint Seiya: The Hades Chapter', 2002, 'El final de la historia'], ['tv', 'Saint Seiya: The Lost Canvas', 2009, 'La guerra santa anterior'], ['tv', 'Saint Seiya: Soul of Gold', 2015, 'Los caballeros dorados'], ['movie', 'Saint Seiya: Legend of Sanctuary', 2014, 'Nueva versión animada en 3D'], ['movie', 'Knights of the Zodiac', 2023, 'Con actores']]]
+  } },
+  { id: 'digimon', kids: true, title: 'Digimon', icon: '🥚', intro: 'Los niños elegidos y sus compañeros digitales.', orders: {
+    'Los niños elegidos': ['La historia de Tai, Agumon y compañía, hasta que son adultos.', [['tv', 'Digimon Adventure', 1999], ['tv', 'Digimon Adventure 02', 2000], ['movie', 'Digimon Adventure: Last Evolution Kizuna', 2020, 'El final de su aventura'], ['movie', 'Digimon Adventure 02: The Beginning', 2023]]],
+    'Otras temporadas': ['Historias independientes.', [['tv', 'Digimon Tamers', 2001, 'La favorita de muchos'], ['tv', 'Digimon Frontier', 2002]]]
+  } },
+  { id: 'sailormoon', kids: true, title: 'Sailor Moon', icon: '🌙', intro: 'Serena y las Sailor Scouts.', orders: {
+    'Clásica': ['La serie de los 90, la que pasaba en la tele.', [['tv', 'Sailor Moon', 1992]]],
+    'Nueva versión': ['Más fiel al manga, con las películas de Netflix como final.', [['tv', 'Sailor Moon Crystal', 2014], ['movie', 'Pretty Guardian Sailor Moon Eternal The Movie Part 1', 2021], ['movie', 'Pretty Guardian Sailor Moon Eternal The Movie Part 2', 2021], ['movie', 'Pretty Guardian Sailor Moon Cosmos The Movie Part 1', 2023], ['movie', 'Pretty Guardian Sailor Moon Cosmos The Movie Part 2', 2023]]]
+  } },
+  { id: 'kimetsu', kids: true, title: 'Demon Slayer (Kimetsu no Yaiba)', icon: '🗡', intro: 'Tanjiro contra los demonios. +13.', orders: {
+    'Orden recomendado': ['Mugen Train va entre la temporada 1 y la 2.', [['tv', 'Demon Slayer: Kimetsu no Yaiba', 2019, 'Temporadas 1 a 4'], ['movie', 'Demon Slayer -Kimetsu no Yaiba- The Movie: Mugen Train', 2020, 'Entre la temporada 1 y la 2'], ['movie', 'Demon Slayer: Kimetsu no Yaiba Infinity Castle', 2025, 'Después de la temporada 4']]]
+  } },
+  { id: 'eva', kids: true, title: 'Evangelion', icon: '🟣', intro: 'Dos formas de contar la misma historia. Para adolescentes y adultos.', orders: {
+    'Serie original': ['La serie y su final en el cine (reemplaza los dos últimos episodios).', [['tv', 'Neon Genesis Evangelion', 1995], ['movie', 'The End of Evangelion', 1997]]],
+    'Rebuild (películas)': ['Cuatro películas que la vuelven a contar y le dan otro final.', [['movie', 'Evangelion: 1.0 You Are (Not) Alone', 2007], ['movie', 'Evangelion: 2.0 You Can (Not) Advance', 2009], ['movie', 'Evangelion: 3.0 You Can (Not) Redo', 2012], ['movie', 'Evangelion: 3.0+1.0 Thrice Upon a Time', 2021]]]
+  } },
+  { id: 'aang', kids: true, title: 'Avatar: La leyenda de Aang', icon: '🌊', intro: 'Agua, tierra, fuego y aire.', orders: {
+    'Animada': ['La leyenda de Korra pasa 70 años después.', [['tv', 'Avatar: The Last Airbender', 2005, 'Una de las mejores series animadas'], ['tv', 'The Legend of Korra', 2012, '70 años después']]],
+    'Con actores': ['La versión de Netflix.', [['tv', 'Avatar: The Last Airbender', 2024]]]
+  } },
+  { id: 'shrek', kids: true, title: 'Shrek y el Gato con Botas', icon: '🧅', intro: 'Muy, muy lejano.', orders: {
+    [SAGA_EST]: ['Como se estrenaron.', [['movie', 'Shrek', 2001], ['movie', 'Shrek 2', 2004], ['movie', 'Shrek the Third', 2007], ['movie', 'Shrek Forever After', 2010], ['movie', 'Puss in Boots', 2011], ['movie', 'Puss in Boots: The Last Wish', 2022]]],
+    [SAGA_CRO]: ['El Gato con Botas cuenta su vida antes de conocer a Shrek.', [['movie', 'Puss in Boots', 2011, 'Antes de Shrek 2'], ['movie', 'Shrek', 2001], ['movie', 'Shrek 2', 2004], ['movie', 'Shrek the Third', 2007], ['movie', 'Shrek Forever After', 2010], ['movie', 'Puss in Boots: The Last Wish', 2022]]]
+  } },
+  { id: 'gru', kids: true, title: 'Mi villano favorito y Minions', icon: '🍌', intro: 'Gru, sus hijas y los Minions.', orders: {
+    [SAGA_EST]: ['Como salieron.', [['movie', 'Despicable Me', 2010], ['movie', 'Despicable Me 2', 2013], ['movie', 'Minions', 2015], ['movie', 'Despicable Me 3', 2017], ['movie', 'Minions: The Rise of Gru', 2022], ['movie', 'Despicable Me 4', 2024]]],
+    [SAGA_CRO]: ['Los Minions pasan en los años 60 y 70, antes de Gru villano.', [['movie', 'Minions', 2015, '1968'], ['movie', 'Minions: The Rise of Gru', 2022, '1976'], ['movie', 'Despicable Me', 2010], ['movie', 'Despicable Me 2', 2013], ['movie', 'Despicable Me 3', 2017], ['movie', 'Despicable Me 4', 2024]]]
+  } },
+  { id: 'panda', kids: true, title: 'Kung Fu Panda', icon: '🐼', intro: 'Po, el Guerrero Dragón.', orders: {
+    [SAGA_EST]: ['Las cuatro películas y la serie que sigue.', [['movie', 'Kung Fu Panda', 2008], ['movie', 'Kung Fu Panda 2', 2011], ['movie', 'Kung Fu Panda 3', 2016], ['movie', 'Kung Fu Panda 4', 2024], ['tv', 'Kung Fu Panda: The Dragon Knight', 2022, 'Serie']]]
+  } },
+  { id: 'dragon', kids: true, title: 'Cómo entrenar a tu dragón', icon: '🐲', intro: 'Hipo y Chimuelo.', orders: {
+    [SAGA_CRO]: ['Las series de Netflix van entre la primera y la segunda película.', [['movie', 'How to Train Your Dragon', 2010], ['tv', 'DreamWorks Dragons', 2012, 'Jinetes de Berk'], ['tv', 'Dragons: Race to the Edge', 2015, 'Antes de la 2'], ['movie', 'How to Train Your Dragon 2', 2014], ['movie', 'How to Train Your Dragon: The Hidden World', 2019], ['movie', 'How to Train Your Dragon', 2025, 'Con actores']]],
+    'Solo películas': ['La trilogía animada.', [['movie', 'How to Train Your Dragon', 2010], ['movie', 'How to Train Your Dragon 2', 2014], ['movie', 'How to Train Your Dragon: The Hidden World', 2019]]]
+  } },
+  { id: 'iceage', kids: true, title: 'La era de hielo', icon: '🦣', intro: 'Manny, Sid, Diego y la bellota de Scrat.', orders: {
+    [SAGA_EST]: ['Todas las películas.', [['movie', 'Ice Age', 2002], ['movie', 'Ice Age: The Meltdown', 2006], ['movie', 'Ice Age: Dawn of the Dinosaurs', 2009], ['movie', 'Ice Age: Continental Drift', 2012], ['movie', 'Ice Age: Collision Course', 2016], ['movie', 'The Ice Age Adventures of Buck Wild', 2022, 'Spin-off']]]
+  } },
+  { id: 'cars', kids: true, title: 'Cars', icon: '🚗', intro: 'Rayo McQueen y Mate.', orders: {
+    [SAGA_EST]: ['Las tres películas y la serie de Disney+.', [['movie', 'Cars', 2006], ['movie', 'Cars 2', 2011], ['movie', 'Cars 3', 2017], ['tv', 'Cars on the Road', 2022, 'Serie']]]
+  } },
+  { id: 'frozen', kids: true, title: 'Frozen', icon: '❄️', intro: 'Elsa, Anna y Olaf.', orders: {
+    [SAGA_EST]: ['Con los cortos de Olaf.', [['movie', 'Frozen', 2013], ['movie', 'Frozen Fever', 2015, 'Corto'], ["movie", "Olaf's Frozen Adventure", 2017, 'Corto'], ['movie', 'Frozen II', 2019], ['movie', 'Once Upon a Snowman', 2020, 'Corto: el origen de Olaf']]]
+  } }
+);
+
+// Listas de la pestaña "Chicos y anime"
+const KIDS = [
+  { id: 'anime', title: '🍥 Anime esencial', items: [
+    ['tv', 'Captain Tsubasa', 1983, 'Los Supercampeones'],
+    ['tv', 'Slam Dunk', 1993, 'El básquet según el anime'],
+    ['tv', 'Neon Genesis Evangelion', 1995, 'Robots y angustia'],
+    ['tv', 'Cowboy Bebop', 1998, 'Cazarrecompensas con jazz'],
+    ['tv', 'Monster', 2004, 'Un thriller de manual'],
+    ['tv', 'Samurai Champloo', 2004, 'Samuráis y hip hop'],
+    ['tv', 'Death Note', 2006, 'Un cuaderno que mata'],
+    ['tv', 'Code Geass: Lelouch of the Rebellion', 2006, 'Estrategia y rebelión'],
+    ['tv', 'Fullmetal Alchemist: Brotherhood', 2009, 'Para muchos, el mejor anime'],
+    ['tv', 'Hunter x Hunter', 2011, 'Aventura que se vuelve oscura'],
+    ['tv', 'Steins;Gate', 2011, 'Viajes en el tiempo'],
+    ['tv', 'Attack on Titan', 2013, 'Titanes y muros'],
+    ['tv', 'Haikyu!!', 2014, 'Vóley con corazón'],
+    ['tv', 'One-Punch Man', 2015, 'El héroe que gana de un golpe'],
+    ['tv', 'My Hero Academia', 2016, 'Escuela de superhéroes'],
+    ['tv', 'Mob Psycho 100', 2016, 'Poderes y adolescencia'],
+    ['tv', 'Vinland Saga', 2019, 'Vikingos'],
+    ['tv', 'Jujutsu Kaisen', 2020, 'Hechiceros contra maldiciones'],
+    ['tv', 'Spy x Family', 2022, 'Una familia de mentira'],
+    ['tv', 'Chainsaw Man', 2022, 'Salvaje (+16)'],
+    ['tv', 'Cyberpunk: Edgerunners', 2022, 'Night City'],
+    ['tv', "Frieren: Beyond Journey's End", 2023, 'Después de la aventura'],
+    ['tv', 'Dan Da Dan', 2024, 'Fantasmas y extraterrestres']
+  ] },
+  { id: 'animepeli', title: '🎌 Películas de anime', items: [
+    ['movie', 'Akira', 1988, 'Neo-Tokio explota'],
+    ['movie', 'Ghost in the Shell', 1995, 'Inspiró a Matrix'],
+    ['movie', 'Perfect Blue', 1997, 'Satoshi Kon'],
+    ['movie', 'Millennium Actress', 2001, 'Una vida de cine'],
+    ['movie', 'Tokyo Godfathers', 2003, 'Navidad en Tokio'],
+    ['movie', 'Paprika', 2006, 'Sueños que se mezclan'],
+    ['movie', 'The Girl Who Leapt Through Time', 2006, 'Saltar en el tiempo'],
+    ['movie', 'Summer Wars', 2009, 'Familia y mundo virtual'],
+    ['movie', 'Wolf Children', 2012, 'Una madre y sus hijos lobo'],
+    ['movie', 'Your Name.', 2016, 'Dos vidas intercambiadas'],
+    ['movie', 'A Silent Voice', 2016, 'Bullying y perdón'],
+    ['movie', 'Weathering with You', 2019, 'La chica que trae el sol'],
+    ['movie', 'Jujutsu Kaisen 0', 2021, 'Precuela de la serie'],
+    ['movie', 'Belle', 2021, 'La Bella y la Bestia virtual'],
+    ['movie', 'The First Slam Dunk', 2022, 'El partido definitivo'],
+    ['movie', 'Suzume', 2022, 'Puertas que cierran desastres'],
+    ['movie', 'Look Back', 2024, 'Una hora que emociona']
+  ] },
+  { id: 'ghibli', title: '🌳 Studio Ghibli', items: [
+    ['movie', 'Nausicaä of the Valley of the Wind', 1984, 'La que dio origen al estudio'],
+    ['movie', 'Castle in the Sky', 1986, 'Laputa'],
+    ['movie', 'My Neighbor Totoro', 1988, 'El símbolo de Ghibli'],
+    ['movie', 'Grave of the Fireflies', 1988, 'Prepará pañuelos'],
+    ['movie', "Kiki's Delivery Service", 1989, 'Una brujita repartidora'],
+    ['movie', 'Porco Rosso', 1992, 'Un aviador con cara de cerdo'],
+    ['movie', 'Whisper of the Heart', 1995, 'Crecer y crear'],
+    ['movie', 'Princess Mononoke', 1997, 'Bosque contra humanos'],
+    ['movie', 'Spirited Away', 2001, 'Oscar a mejor animada'],
+    ['movie', 'The Cat Returns', 2002, 'El reino de los gatos'],
+    ['movie', "Howl's Moving Castle", 2004, 'Un castillo que camina'],
+    ['movie', 'Ponyo', 2008, 'La sirenita de Miyazaki'],
+    ['movie', 'The Secret World of Arrietty', 2010, 'Gente diminuta'],
+    ['movie', 'The Wind Rises', 2013, 'El sueño de volar'],
+    ['movie', 'The Tale of the Princess Kaguya', 2013, 'Dibujada como acuarela'],
+    ['movie', 'When Marnie Was There', 2014, 'Una amistad misteriosa'],
+    ['movie', 'The Boy and the Heron', 2023, 'Oscar 2024']
+  ] },
+  { id: 'disney', title: '🏰 Clásicos de Disney', items: [
+    ['movie', 'Snow White and the Seven Dwarfs', 1937, 'El primer largo animado'],
+    ['movie', 'Pinocchio', 1940],
+    ['movie', 'Fantasia', 1940, 'Música clásica animada'],
+    ['movie', 'Dumbo', 1941],
+    ['movie', 'Bambi', 1942],
+    ['movie', 'Cinderella', 1950],
+    ['movie', 'Alice in Wonderland', 1951],
+    ['movie', 'Peter Pan', 1953],
+    ['movie', 'Lady and the Tramp', 1955, 'La escena del spaghetti'],
+    ['movie', 'Sleeping Beauty', 1959],
+    ['movie', 'One Hundred and One Dalmatians', 1961],
+    ['movie', 'The Jungle Book', 1967],
+    ['movie', 'The Little Mermaid', 1989, 'El renacimiento de Disney'],
+    ['movie', 'Beauty and the Beast', 1991, 'Nominada a mejor película'],
+    ['movie', 'Aladdin', 1992, 'El Genio de Robin Williams'],
+    ['movie', 'The Lion King', 1994, 'El ciclo de la vida'],
+    ['movie', 'Mulan', 1998],
+    ['movie', 'Tarzan', 1999],
+    ['movie', 'Lilo & Stitch', 2002, 'Ohana'],
+    ['movie', 'Tangled', 2010, 'Rapunzel'],
+    ['movie', 'Frozen', 2013, 'Libre soy'],
+    ['movie', 'Zootopia', 2016],
+    ['movie', 'Moana', 2016],
+    ['movie', 'Encanto', 2021, 'No se habla de Bruno']
+  ] },
+  { id: 'pixar', title: '💡 Pixar', items: [
+    ['movie', 'Toy Story', 1995, 'La primera hecha toda en computadora'],
+    ['movie', "A Bug's Life", 1998],
+    ['movie', 'Monsters, Inc.', 2001],
+    ['movie', 'Finding Nemo', 2003],
+    ['movie', 'The Incredibles', 2004],
+    ['movie', 'Cars', 2006],
+    ['movie', 'Ratatouille', 2007, 'Cualquiera puede cocinar'],
+    ['movie', 'WALL·E', 2008, 'Casi sin diálogos'],
+    ['movie', 'Up', 2009, 'Los primeros 10 minutos'],
+    ['movie', 'Toy Story 3', 2010],
+    ['movie', 'Inside Out', 2015, 'Las emociones por dentro'],
+    ['movie', 'Coco', 2017, 'El Día de Muertos'],
+    ['movie', 'Incredibles 2', 2018],
+    ['movie', 'Soul', 2020, '¿Para qué vivimos?'],
+    ['movie', 'Luca', 2021],
+    ['movie', 'Turning Red', 2022],
+    ['movie', 'Elemental', 2023],
+    ['movie', 'Inside Out 2', 2024, 'Llega Ansiedad']
+  ] },
+  { id: 'animadas', title: '🐉 Más animación para toda la familia', items: [
+    ['movie', 'The Iron Giant', 1999, 'Un robot con corazón'],
+    ['movie', 'Chicken Run', 2000, 'Plastilina y fuga'],
+    ['movie', 'Shrek', 2001, 'El primer Oscar a mejor animada'],
+    ['movie', 'Wallace & Gromit: The Curse of the Were-Rabbit', 2005],
+    ['movie', 'Kung Fu Panda', 2008],
+    ['movie', 'Coraline', 2009, 'Stop-motion de miedo'],
+    ['movie', 'Fantastic Mr. Fox', 2009, 'Wes Anderson'],
+    ['movie', 'How to Train Your Dragon', 2010],
+    ['movie', 'Despicable Me', 2010],
+    ['movie', 'The LEGO Movie', 2014, 'Todo es increíble'],
+    ['movie', 'Paddington 2', 2017, 'Una de las mejor puntuadas de la historia'],
+    ['movie', 'Spider-Man: Into the Spider-Verse', 2018, 'Cambió la animación'],
+    ['movie', 'Klaus', 2019, 'El origen de Papá Noel'],
+    ['movie', 'The Mitchells vs. the Machines', 2021],
+    ['movie', 'Puss in Boots: The Last Wish', 2022],
+    ["movie", "Guillermo del Toro's Pinocchio", 2022, 'Oscar a mejor animada'],
+    ['movie', 'The Wild Robot', 2024, 'Un robot en la naturaleza'],
+    ['movie', 'Flow', 2024, 'Un gato y una inundación, sin diálogos'],
+    ['movie', 'KPop Demon Hunters', 2025, 'El fenómeno de Netflix']
+  ] },
+  { id: 'dibus', title: '📺 Series animadas de hoy', items: [
+    ['tv', 'SpongeBob SquarePants', 1999, 'Desde el fondo del mar'],
+    ['tv', 'Peppa Pig', 2004, 'Para los más chiquitos'],
+    ['tv', 'Avatar: The Last Airbender', 2005, 'Obra maestra'],
+    ['tv', 'Phineas and Ferb', 2007],
+    ['tv', 'Star Wars: The Clone Wars', 2008, 'Ahsoka y Anakin'],
+    ['tv', 'Adventure Time', 2010, '¡Hora de aventura!'],
+    ['tv', 'The Amazing World of Gumball', 2011],
+    ['tv', 'Gravity Falls', 2012, 'Misterios de verano'],
+    ['tv', 'PAW Patrol', 2013, 'Para los más chiquitos'],
+    ['tv', 'Steven Universe', 2013],
+    ['tv', 'Over the Garden Wall', 2014, 'Miniserie de otoño'],
+    ['tv', 'Miraculous: Tales of Ladybug & Cat Noir', 2015],
+    ['tv', 'Bluey', 2018, 'Encanta a chicos y grandes'],
+    ['tv', 'Hilda', 2018],
+    ['tv', 'Amphibia', 2019],
+    ['tv', 'The Owl House', 2020],
+    ['tv', 'Arcane', 2021, 'Para adolescentes y adultos']
+  ] },
+  { id: 'retro', title: '🕹 Dibujos de los 80 y 90', items: [
+    ['tv', 'The Smurfs', 1981, 'Los Pitufos'],
+    ['tv', 'He-Man and the Masters of the Universe', 1983],
+    ['tv', 'ThunderCats', 1985, 'Los Halcones Galácticos'],
+    ['tv', 'Teenage Mutant Ninja Turtles', 1987, 'Las Tortugas Ninja'],
+    ['tv', 'DuckTales', 1987, 'Patoaventuras'],
+    ['tv', "Chip 'n Dale: Rescue Rangers", 1989, 'Chip y Dale al rescate'],
+    ['tv', 'The Simpsons', 1989, 'La serie animada más larga'],
+    ['tv', 'Rugrats', 1991, 'Aventuras en pañales'],
+    ['tv', 'Doug', 1991],
+    ['tv', 'Batman: The Animated Series', 1992, 'El mejor Batman para muchos'],
+    ['tv', 'X-Men: The Animated Series', 1992],
+    ['tv', 'Animaniacs', 1993],
+    ['tv', 'Spider-Man: The Animated Series', 1994],
+    ['tv', 'Gargoyles', 1994],
+    ['tv', 'Pinky and the Brain', 1995, 'Conquistar el mundo'],
+    ['tv', "Dexter's Laboratory", 1996, 'El laboratorio de Dexter'],
+    ['tv', 'Hey Arnold!', 1996, '¡Oye Arnold!'],
+    ['tv', 'Johnny Bravo', 1997],
+    ['tv', 'The Powerpuff Girls', 1998, 'Las chicas superpoderosas'],
+    ['tv', 'Courage the Cowardly Dog', 1999, 'Coraje, el perro cobarde']
+  ] }
+];
+
 /* ================= 💡 Curiosidades: datos escritos a mano =================
    [tipo, título original, año, [datos]] */
 const TRIVIA = [
@@ -3608,23 +3858,25 @@ function showCuriosities(it, d, key) {
   wikiLink(it).then(paint).catch(() => {});
 }
 
-let cultTab = 'joyas', cultMine = false, sagaSel = 'starwars', sagaOrder = null;
+let cultTab = null, cultMine = false, sagaOrder = null;
+// Saga elegida en cada pestaña (las de chicos y anime tienen la suya)
+const sagaPick = { sagas: 'starwars', kids: 'pokemon' };
 function renderCult() {
   hidePreview();
   ++searchSeq;
   const seq = searchSeq;
   exploreLoaded = false;
   $('filters').classList.add('off');
-  const saga = SAGAS.find(s => s.id === sagaSel) || SAGAS[0];
-  const orders = Object.keys(saga.orders);
-  if (!orders.includes(sagaOrder)) sagaOrder = orders[0];
+  // Con perfil de chicos, la Cinemateca abre en su pestaña
+  if (!cultTab) cultTab = kidsMode() ? 'kids' : 'joyas';
   content.innerHTML = `<div class="cult${cultMine ? ' mine' : ''}">
     <div class="culthead">
       <h2>🎞 Cinemateca</h2>
-      <p>Películas, series, documentales y cortos que hicieron historia, y guías para ver las grandes sagas en el orden que prefieras.</p>
+      <p>Películas, series, documentales y cortos que hicieron historia, anime y dibujos para chicos, y guías para ver las grandes sagas en el orden que prefieras.</p>
       <div class="wrap">
         <button class="chip focusable${cultTab === 'joyas' ? ' on' : ''}" data-ctab="joyas">🏛 Joyas del cine</button>
         <button class="chip focusable${cultTab === 'sagas' ? ' on' : ''}" data-ctab="sagas">🧭 Guías de sagas</button>
+        <button class="chip focusable${cultTab === 'kids' ? ' on' : ''}" data-ctab="kids">🧸 Chicos y anime</button>
         <button class="chip focusable${cultTab === 'trivia' ? ' on' : ''}" data-ctab="trivia">💡 Curiosidades</button>
         <button class="chip focusable${cultMine ? ' on' : ''}" data-cmine>${cultMine ? '✓ ' : ''}Solo lo que está en mis plataformas</button>
       </div>
@@ -3634,7 +3886,7 @@ function renderCult() {
   if (!IS_TOUCH) setTimeout(() => { const c = content.querySelector('.culthead .chip.on'); if (c && !content.contains(document.activeElement)) c.focus({ preventScroll: true }); }, 30);
   content.querySelector('.culthead').addEventListener('click', e => {
     const t = e.target.closest('[data-ctab]');
-    if (t) { cultTab = t.dataset.ctab; renderCult(); return; }
+    if (t) { if (cultTab !== t.dataset.ctab) sagaOrder = null; cultTab = t.dataset.ctab; renderCult(); return; }
     if (e.target.closest('[data-cmine]')) { cultMine = !cultMine; renderCult(); }
   });
   const body = $('cultBody');
@@ -3654,41 +3906,65 @@ function renderCult() {
       $('trGrid').addEventListener('click', e => { const c = e.target.closest('.trcard'); if (c) { buzz(); openDetail(c.dataset.key, c); } });
     });
   } else if (cultTab === 'joyas') {
-    const skRow = '<div class="skrow"><div class="sk h"></div><div class="cards">' + '<div class="sk c"></div>'.repeat(9) + '</div></div>';
-    body.innerHTML = CANON.map(c => `<div id="canon-${c.id}">${skRow}</div>`).join('');
-    // Cada lista se completa sola, a medida que llegan los datos
-    CANON.forEach(async c => {
-      const list = await Promise.all(c.items.map(x => resolveCanon(x).then(it => it && { it, note: x[3] }).catch(() => null)));
-      if (seq !== searchSeq) return;
-      const box = $('canon-' + c.id);
-      const ok = list.filter(Boolean);
-      box.innerHTML = ok.length ? rowHTML(c.title, ok.map(x => canonCard(x.it, x.note)).join('')) : '';
-      fillBadges(box);
-    });
+    canonRows(CANON, body, seq);
+  } else if (cultTab === 'kids') {
+    body.innerHTML = `<p class="kidsintro">Anime, dibujos animados y películas para toda la familia, con guías para ver las sagas más largas (Pokémon, Dragon Ball, Naruto, One Piece y más) sin perderse.</p>
+      <div id="sagaBox"></div><h3 class="kidsub">📚 Listas para chicos y fans del anime</h3><div id="kidsRows"></div>`;
+    sagaGuide($('sagaBox'), SAGAS.filter(s => s.kids), 'kids', seq);
+    canonRows(KIDS, $('kidsRows'), seq);
   } else {
-    body.innerHTML = `<div class="sagas">${SAGAS.map(s => `<button class="sagab focusable${s.id === saga.id ? ' on' : ''}" data-saga="${s.id}"><span>${s.icon}</span>${esc(s.title)}</button>`).join('')}</div>
-      <div class="sagahead"><h3>${saga.icon} ${esc(saga.title)}</h3><p>${esc(saga.intro)}</p>
-        <div class="wrap">${orders.map(o => `<button class="chip focusable${o === sagaOrder ? ' on' : ''}" data-order="${esc(o)}">${esc(o)}</button>`).join('')}</div>
-        <p class="sagatip">${esc(saga.orders[sagaOrder][0])}</p><div class="sagaprog" id="sagaProg"></div></div>
-      <div class="results" id="sagaList">${'<div class="sk c"></div>'.repeat(8)}</div>`;
-    body.querySelector('.sagas').addEventListener('click', e => {
-      const b = e.target.closest('[data-saga]');
-      if (!b) return;
-      sagaSel = b.dataset.saga; sagaOrder = null; renderCult();
+    const box = document.createElement('div');
+    body.appendChild(box);
+    sagaGuide(box, SAGAS, 'sagas', seq);
+  }
+}
+// Filas de listas (Joyas del cine y Chicos y anime): cada una se completa sola, a medida que llegan los datos
+function canonRows(lists, body, seq) {
+  const skRow = '<div class="skrow"><div class="sk h"></div><div class="cards">' + '<div class="sk c"></div>'.repeat(9) + '</div></div>';
+  body.innerHTML = lists.map(c => `<div id="canon-${c.id}">${skRow}</div>`).join('');
+  lists.forEach(async c => {
+    const list = await Promise.all(c.items.map(x => resolveCanon(x).then(it => it && { it, note: x[3] }).catch(() => null)));
+    if (seq !== searchSeq) return;
+    const box = $('canon-' + c.id);
+    if (!box) return;
+    const ok = list.filter(Boolean);
+    box.innerHTML = ok.length ? rowHTML(c.title, ok.map(x => canonCard(x.it, x.note)).join('')) : '';
+    fillBadges(box);
+  });
+}
+// Guía de sagas: botones para elegir, órdenes posibles y la lista numerada
+function sagaGuide(box, pool, tab, seq) {
+  const saga = pool.find(s => s.id === sagaPick[tab]) || pool[0];
+  const orders = Object.keys(saga.orders);
+  if (!orders.includes(sagaOrder)) sagaOrder = orders[0];
+  const btns = list => `<div class="sagas">${list.map(s => `<button class="sagab focusable${s.id === saga.id ? ' on' : ''}" data-saga="${s.id}"><span>${s.icon}</span>${esc(s.title)}</button>`).join('')}</div>`;
+  // En la pestaña de sagas, las de chicos y anime van en su propio grupo
+  const big = pool.filter(s => !s.kids), kids = pool.filter(s => s.kids);
+  box.innerHTML = (tab === 'sagas' ? `<div class="sagagrp">🎬 Cine y series</div>${btns(big)}<div class="sagagrp">🧸 Chicos y anime</div>${btns(kids)}` : btns(pool)) + `
+    <div class="sagahead"><h3>${saga.icon} ${esc(saga.title)}</h3><p>${esc(saga.intro)}</p>
+      <div class="wrap">${orders.map(o => `<button class="chip focusable${o === sagaOrder ? ' on' : ''}" data-order="${esc(o)}">${esc(o)}</button>`).join('')}</div>
+      <p class="sagatip">${esc(saga.orders[sagaOrder][0])}</p><div class="sagaprog" id="sagaProg"></div></div>
+    <div class="results" id="sagaList">${'<div class="sk c"></div>'.repeat(8)}</div>`;
+  box.addEventListener('click', e => {
+    const b = e.target.closest('[data-saga]');
+    if (b) {
+      sagaPick[tab] = b.dataset.saga; sagaOrder = null; renderCult();
       // Baja sola hasta la guía elegida
       requestAnimationFrame(() => { const h = content.querySelector('.sagahead'); if (h) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
-    });
-    body.querySelector('.sagahead').addEventListener('click', e => { const b = e.target.closest('[data-order]'); if (b) { sagaOrder = b.dataset.order; renderCult(); } });
-    const steps = saga.orders[sagaOrder][1];
-    Promise.all(steps.map(x => resolveCanon(x).catch(() => null))).then(list => {
-      if (seq !== searchSeq || !$('sagaList')) return;
-      $('sagaList').innerHTML = list.map((it, i) => it ? canonCard(it, steps[i][3] || String(steps[i][2]), i + 1) : '').join('');
-      fillBadges($('sagaList'));
-      // Cuánto de la saga ya viste
-      const found = list.filter(Boolean), seen = found.filter(it => isSeen(keyOf(it))).length;
-      $('sagaProg').innerHTML = found.length ? `<div class="pbar"><i style="width:${Math.round(seen / found.length * 100)}%"></i></div><span>Viste ${seen} de ${found.length}${seen === found.length ? ' 🎉' : ''}</span>` : '';
-    });
-  }
+      return;
+    }
+    const o = e.target.closest('[data-order]');
+    if (o) { sagaOrder = o.dataset.order; renderCult(); }
+  });
+  const steps = saga.orders[sagaOrder][1];
+  Promise.all(steps.map(x => resolveCanon(x).catch(() => null))).then(list => {
+    if (seq !== searchSeq || !$('sagaList')) return;
+    $('sagaList').innerHTML = list.map((it, i) => it ? canonCard(it, steps[i][3] || String(steps[i][2]), i + 1) : '').join('');
+    fillBadges($('sagaList'));
+    // Cuánto de la saga ya viste (sin contar dos veces el mismo título)
+    const found = [...new Map(list.filter(Boolean).map(it => [keyOf(it), it])).values()], seen = found.filter(it => isSeen(keyOf(it))).length;
+    $('sagaProg').innerHTML = found.length ? `<div class="pbar"><i style="width:${Math.round(seen / found.length * 100)}%"></i></div><span>Viste ${seen} de ${found.length}${seen === found.length ? ' 🎉' : ''}</span>` : '';
+  });
 }
 
 /* ================= 🎉 Tu año en el cine ================= */

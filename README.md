@@ -30,9 +30,10 @@ Para que la web se vea en una dirección propia (por ejemplo `centro.nicolasbong
   "Ya la vi", 👍/👎, "voy por" de cada serie y aviso de episodios nuevos.
 - **🎞 Cinemateca** (también como mosaico en el menú): 17 listas y 350 títulos de joyas del cine (hitos de la historia, cine de culto, cine argentino esencial,
   series que marcaron época, documentales, cortos legendarios, cine japonés, dos de cine filosófico (existencia y sentido; realidad, mente e identidad), dos de psicología (la mente y sus heridas; thrillers psicológicos),
-  Oscars a mejor película, terror clásico, cine latinoamericano, ciencia ficción, musicales y cine bélico) y **27 guías de sagas** (Star Wars, Marvel, Harry Potter, la Tierra Media, James Bond,
+  Oscars a mejor película, terror clásico, cine latinoamericano, ciencia ficción, musicales y cine bélico) y **44 guías de sagas** (Star Wars, Marvel, Harry Potter, la Tierra Media, James Bond,
   Matrix, Misión Imposible, Jurassic Park, X-Men, Indiana Jones, Batman, Spider-Man y más) en orden de estreno,
   cronológico u otros órdenes recomendados.
+- **🧸 Chicos y anime** (pestaña de la Cinemateca, la primera si el perfil es de chicos): guías para ver sagas largas (Pokémon, Dragon Ball, Naruto, One Piece, Los Caballeros del Zodiaco, Digimon, Sailor Moon, Demon Slayer, Evangelion, Avatar, Shrek, Minions, Kung Fu Panda, Cómo entrenar a tu dragón, La era de hielo, Cars, Frozen y Toy Story) y 8 listas: anime esencial, películas de anime, Studio Ghibli, clásicos de Disney, Pixar, más animación, series animadas de hoy y dibujos de los 80 y 90.
 - **💡 Curiosidades**: en cada ficha, datos de rodaje y detrás de escena (escritos a mano para los clásicos, y automáticos de TMDB: si está basada en un libro o hechos reales, cuánto recaudó frente a su presupuesto, título original, coproducciones…) con enlace a Wikipedia; y una pestaña propia en la Cinemateca con más de 50 películas y sus anécdotas.
 - **🎉 Tu año en el cine** (Perfil): películas, series, horas, géneros, mes más cinéfilo y sagas, con una imagen para compartir.
 - **Modo cine**: los tráileres se abren a oscuras, con telón y el color del título alrededor del video.
