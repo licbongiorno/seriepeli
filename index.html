@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b0c10">
+<meta name="author" content="Lic. Nicolás Bongiorno">
+<meta name="description" content="Centro Multimedia de Lic. Nicolás Bongiorno: películas y series de Netflix, HBO Max y Disney+ en un solo lugar, con enlaces directos, guías de sagas y cine de culto.">
+<meta property="og:title" content="Centro Multimedia · Lic. Nicolás Bongiorno">
+<meta property="og:description" content="Películas y series en un solo lugar, con enlaces directos a cada plataforma.">
+<meta property="og:image" content="icono-512.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -997,6 +1002,26 @@
     .sagahead { padding: 8px 14px 0; }
   }
 
+  /* ===== Firma del autor ===== */
+  .sign {
+    position: relative; text-align: center; color: #6b7189; letter-spacing: .02em;
+    font-size: clamp(12px, .8vw, 15px); padding: 0 6vw calc(2.4vh + env(safe-area-inset-bottom));
+  }
+  .sign b { color: #c9cdda; font-weight: 700; }
+  #menu footer { padding-bottom: 1.6vh; }
+  #content::after, .detail .more::after {
+    content: "Centro Multimedia · creado por Lic. Nicolás Bongiorno";
+    display: block; text-align: center; color: #5d6378; font-size: 13px; letter-spacing: .02em;
+    padding: 4vh 4vw 1vh;
+  }
+  .about { display: flex; align-items: center; gap: 1.1em; margin-top: 2em; padding: 1.1em 1.2em; border-radius: 16px; background: var(--surface-2); }
+  .about img { width: 64px; height: 64px; border-radius: 16px; flex: none; }
+  .about div { display: flex; flex-direction: column; gap: .25em; }
+  .about b { font-size: 1.15em; }
+  .about strong { color: #f5b301; }
+  .about small { color: var(--muted); line-height: 1.45; }
+  @media (max-width: 640px) { .sign { padding-bottom: calc(14px + env(safe-area-inset-bottom)); } }
+
   .qr { display: none; margin: 1em 0 .4em; }
   .qr.on { display: block; }
   .qr svg { width: min(260px, 70vw); height: auto; background: #fff; border-radius: 14px; padding: 12px; display: block; }
@@ -1071,6 +1096,7 @@
     <span><kbd>Ctrl+Alt+M</kbd>volver a este menú</span>
     <span><kbd>Alt+F4</kbd>salir</span>
   </footer>
+  <div class="sign">Centro Multimedia · creado por <b>Lic. Nicolás Bongiorno</b></div>
 </section>
 
 <!-- ================= BUSCAR Y TENDENCIAS ================= -->
@@ -1181,6 +1207,7 @@ function svcList(conj = 'y') {
   return n.length > 1 ? n.slice(0, -1).join(', ') + ' ' + conj + ' ' + n[n.length - 1] : n[0] || '';
 }
 const REGION = 'AR';
+const AUTHOR = 'Lic. Nicolás Bongiorno';
 // Celular o tablet: pantalla táctil sin mouse
 const IS_TOUCH = matchMedia('(hover: none) and (pointer: coarse)').matches;
 document.documentElement.classList.toggle('touch', IS_TOUCH);
@@ -3377,7 +3404,7 @@ async function listText() {
     const where = ps[i].mine.filter(s => PREMIUM.includes(s)).map(s => SERVICES[s].name).join(', ');
     const y = (x.release_date || '').slice(0, 4);
     return `${i + 1}. ${x.title}${y ? ` (${y})` : ''}${where ? ` — ${where}` : ''}`;
-  })].join('\n');
+  }), `— Centro Multimedia de ${AUTHOR}`].join('\n');
 }
 
 async function renderStats(seq) {
@@ -3456,7 +3483,12 @@ function settingsExtrasHTML() {
       <button class="btn focusable" id="exportBtn">💾 Exportar copia</button>
       <button class="btn focusable" id="importBtn" style="margin-left:.6em">📂 Importar copia</button>
       <input type="file" id="importFile" accept=".json,application/json" style="display:none">
-      <div class="error" id="backupMsg"></div>`;
+      <div class="error" id="backupMsg"></div>
+      <div class="about">
+        <img src="icono.svg" alt="">
+        <div><b>Centro Multimedia</b><span>Creado y diseñado por <strong>${AUTHOR}</strong></span>
+        <small>© ${new Date().getFullYear()} ${AUTHOR}. Todos los derechos reservados. Datos de películas y series: TMDB, JustWatch y Wikidata.</small></div>
+      </div>`;
 }
 function bindSettingsExtras() {
   $('platChips').addEventListener('click', e => {
@@ -3471,7 +3503,7 @@ function bindSettingsExtras() {
     rebuildPlatformUI();
     $('platMsg').textContent = '✅ Guardado: ' + svcList();
   });
-  $('phoneShare').addEventListener('click', () => openWhatsApp('📺 Centro Multimedia para el celular:\n' + phoneLink()));
+  $('phoneShare').addEventListener('click', () => openWhatsApp(`📺 Centro Multimedia de ${AUTHOR}, para el celular:\n` + phoneLink()));
   $('phoneCopy').addEventListener('click', async () => { $('phoneMsg').textContent = (await copyText(phoneLink())) ? '✅ Enlace copiado.' : 'No se pudo copiar.'; });
   $('phoneQR').addEventListener('click', showQR);
   if ($('notifyOn')) $('notifyOn').addEventListener('click', async () => {
@@ -4085,7 +4117,8 @@ function shareText(it, p) {
     `🎬 ${it.title || it.name}${year ? ` (${year})` : ''}${it.vote_average ? ` — ★ ${it.vote_average.toFixed(1)}` : ''}`,
     mine.length ? `📺 Está en: ${mine.join(', ')}` : '',
     it.overview ? it.overview.slice(0, 220) + (it.overview.length > 220 ? '…' : '') : '',
-    `https://www.themoviedb.org/${it.media_type}/${it.id}`
+    `https://www.themoviedb.org/${it.media_type}/${it.id}`,
+    `— Enviado desde el Centro Multimedia de ${AUTHOR}`
   ];
   return lines.filter(Boolean).join('\n');
 }

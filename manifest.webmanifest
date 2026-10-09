@@ -1,7 +1,7 @@
 {
-  "name": "Centro Multimedia",
+  "name": "Centro Multimedia · Lic. Nicolás Bongiorno",
   "short_name": "Centro",
-  "description": "Buscá películas y series y abrilas directo en Netflix, HBO Max, Disney+ y más.",
+  "description": "Centro Multimedia creado por Lic. Nicolás Bongiorno: películas y series de tus plataformas en un solo lugar, con enlaces directos a cada título.",
   "lang": "es-AR",
   "start_url": "./index.html",
   "scope": "./",

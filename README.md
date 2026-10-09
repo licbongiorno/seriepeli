@@ -1,5 +1,7 @@
 # Centro Multimedia
 
+Creado y diseñado por **Lic. Nicolás Bongiorno**. © Lic. Nicolás Bongiorno. Todos los derechos reservados.
+
 Menú para ver Netflix, HBO Max, Disney+, YouTube y más, con buscador de películas y series.
 Online en: https://licbongiorno.github.io/seriepeli/
 
