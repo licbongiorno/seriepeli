@@ -19,6 +19,14 @@ Se maneja con teclado, mouse o control de Xbox (flechas para moverse, Enter para
 - Búsqueda por título, actor, director, género, tema o país; también **por voz** (🎤).
 - Banner con los 5 más vistos del día, rankings, estrenos, "¿Qué veo hoy?", perfiles con Mi lista,
   "Ya la vi", 👍/👎, "voy por" de cada serie y aviso de episodios nuevos.
+- **🌙 Esta noche para vos**: 3 sugerencias del día según tus 👍 (cambian a la medianoche).
+- **▶ Seguir viendo** y, en el menú, **A continuación**: las series en curso y tu lista.
+- **Tráiler dentro del centro** (en la versión online) y **vista previa** al dejar el mouse sobre un póster (PC).
+- La ficha de cada título toma el **color de su póster**.
+- **👨‍👩‍👧 Para ver juntos**: una lista de toda la familia, compartida entre perfiles.
+- **🧸 Perfil para chicos**: ese perfil solo muestra títulos para chicos.
+- **🔔 Avisos de episodios nuevos** de las series que seguís (⚙ → Activar avisos). Revisan al abrir el centro
+  y cada unas horas mientras está abierto.
 - **Sincronizar PC y celular**: ⚙ → 🔄 Activar sincronización, y mandá el enlace (WhatsApp o QR) al celular.
   Perfiles, listas, vistas y plataformas se comparten solos (se guardan en jsonblob.com, sin la clave de TMDB).
 - **Sin conexión**: una vez abierto desde internet, abre aunque no haya señal y muestra lo último guardado.

@@ -894,6 +894,66 @@
     .tcap { padding: 0 14px; }
   }
 
+  /* ===== Color del título: la ficha se tiñe con el color principal del póster ===== */
+  .detail { --acc: 32,36,58; transition: background-color .6s; }
+  .detail::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+    background: radial-gradient(120% 70% at 15% 0%, rgba(var(--acc), .55), transparent 65%), linear-gradient(0deg, rgba(var(--acc), .14), transparent 40%);
+    animation: fade .8s ease;
+  }
+  .detail .poster { box-shadow: 0 22px 60px rgba(var(--acc), .55), 0 10px 30px rgba(0,0,0,.6); }
+
+  /* ===== 🌙 Esta noche para vos ===== */
+  .tonight { padding: 2.6vh 4vw 0; }
+  .tonight h2 { font-size: clamp(18px, 1.35vw, 28px); font-weight: 650; margin-bottom: 1.6vh; }
+  .tngrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4vw; }
+  .tn {
+    position: relative; aspect-ratio: 16 / 8.5; border: none; padding: 0; cursor: pointer; overflow: hidden;
+    border-radius: 18px; background: var(--surface-2); color: #fff; text-align: left;
+    box-shadow: 0 16px 40px rgba(0,0,0,.5); transition: transform .25s cubic-bezier(.2,.8,.2,1);
+    animation: rise .6s cubic-bezier(.2,.8,.2,1) backwards;
+  }
+  .tn img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .5s, transform 6s ease-out; }
+  .tn img.ok { opacity: 1; }
+  .tn:hover img, .tn:focus img { transform: scale(1.06); }
+  .tn::after { content: ""; position: absolute; inset: 0; border-radius: inherit; border: 3px solid transparent; transition: border-color .2s;
+    background: linear-gradient(0deg, rgba(8,9,14,.95) 0%, rgba(8,9,14,.35) 50%, transparent 75%); }
+  .tn:hover, .tn:focus { transform: translateY(-4px); }
+  .tn:hover::after, .tn:focus::after { border-color: #fff; }
+  .tni { position: absolute; left: 1.2vw; right: 1.2vw; bottom: 1.6vh; z-index: 1; display: flex; flex-direction: column; gap: 3px; }
+  .tni small { color: #f5b301; font-weight: 700; font-size: clamp(11px, .75vw, 14px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tni b { font-size: clamp(17px, 1.35vw, 28px); line-height: 1.15; }
+  .tni em { font-style: normal; color: #c9cdda; font-size: clamp(12px, .8vw, 15px); }
+
+  /* ===== Vista previa al pasar el mouse (PC) ===== */
+  .pv {
+    position: fixed; z-index: 25; border-radius: 18px; overflow: hidden; cursor: pointer;
+    background: var(--surface); box-shadow: 0 30px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.06);
+    opacity: 0; transform: scale(.88); transform-origin: center top; pointer-events: none;
+    transition: opacity .22s ease, transform .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .pv.on { opacity: 1; transform: none; pointer-events: auto; }
+  .pvimg { aspect-ratio: 16 / 9; background: var(--surface-2); }
+  .pvimg img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity .3s; }
+  .pvimg img.ok { opacity: 1; }
+  .pvb { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .pvb b { font-size: 18px; line-height: 1.2; }
+  .pvb em { font-style: normal; color: var(--muted); font-size: 13px; }
+  .pvb p { color: #d6d9e4; font-size: 13.5px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .pvbtns { display: flex; gap: 8px; margin-top: 4px; }
+  .pvbtns .btn { font-size: 14px; padding: .45em .9em; border-width: 2px; }
+
+  @media (max-width: 900px) {
+    .tngrid { display: flex; overflow-x: auto; gap: 12px; scrollbar-width: none; scroll-snap-type: x mandatory; }
+    .tngrid::-webkit-scrollbar { display: none; }
+    .tn { flex: none; width: 78vw; max-width: 420px; scroll-snap-align: start; }
+  }
+  @media (max-width: 640px) {
+    .tonight { padding: 18px 14px 0; }
+    .tonight h2 { font-size: 18px; }
+    .tni { left: 14px; right: 14px; bottom: 12px; }
+  }
+
   .qr { display: none; margin: 1em 0 .4em; }
   .qr.on { display: block; }
   .qr svg { width: min(260px, 70vw); height: auto; background: #fff; border-radius: 14px; padding: 12px; display: block; }
@@ -1455,6 +1515,15 @@ const likeOf = k => (seenList.find(x => keyOf(x) === k) || {}).like || 0;
 const isFollowed = id => follows.some(x => x.id === id);
 const notSeen = list => list.filter(r => !isSeen(typeOf(r) + '/' + r.id));
 
+// Lista de la familia, compartida entre todos los perfiles
+let sharedList = loadJSON('cm-shared-list');
+const inShared = k => sharedList.some(x => keyOf(x) === k);
+function toggleShared(it) {
+  const k = keyOf(it);
+  sharedList = inShared(k) ? sharedList.filter(x => keyOf(x) !== k) : [slim(it), ...sharedList].slice(0, 200);
+  store('cm-shared-list', JSON.stringify(sharedList));
+  renderMyRows();
+}
 function saveLists() {
   store(pk('list'), JSON.stringify(myList.slice(0, 300)));
   store(pk('seen'), JSON.stringify(seenList.slice(0, 1000)));
@@ -1501,6 +1570,8 @@ function renderMyRows() {
     fillBadges(u);
   }
   renderUpNext();
+  const tg = $('togetherRow');
+  if (tg) { tg.innerHTML = sharedList.length ? rowHTML(`👨‍👩‍👧 Para ver juntos (${sharedList.length})`, sharedList.map(r => cardHTML(r)).join('')) : ''; fillBadges(tg); }
   const a = $('myListRow'), b = $('seenRow');
   if (a) a.innerHTML = myList.length ? rowHTML(`📌 Mi lista (${myList.length})`, myList.map(r => cardHTML(r)).join('')) : '';
   if (b) b.innerHTML = seenList.length ? rowHTML(`👁 Ya vistas (${seenList.length})`, seenList.slice(0, 60).map(r => cardHTML(r)).join('')) : '';
@@ -1798,7 +1869,7 @@ async function loadTrending() {
     ]);
 
     const row = (title, list, svc) => list.length ? rowHTML(title, list.map(r => cardHTML(r, svc)).join(''), svc) : '';
-    let html = heroHTML(trendAll) + '<div id="upNextRow"></div><div id="newEpsRow"></div><div id="forYouRows"></div><div id="myListRow"></div>';
+    let html = heroHTML(trendAll) + '<div id="tonightRow"></div><div id="upNextRow"></div><div id="newEpsRow"></div><div id="forYouRows"></div><div id="myListRow"></div><div id="togetherRow"></div>';
     html += row('🔥 Lo más visto hoy en tus plataformas', trendAll);
     html += row('🆕 Estrenos recientes', fresh);
     const order = PREMIUM;
@@ -1818,6 +1889,7 @@ async function loadTrending() {
     fillBadges(content);
     loadNewEpisodes(seq);
     loadForYou(seq);
+    loadTonight(seq, best);
   } catch (e) {
     if (seq !== searchSeq) return;
     if (e.message === 'clave') {
@@ -2207,13 +2279,78 @@ content.addEventListener('click', e => {
   if (hb) { heroClick(hb); return; }
   const arrow = e.target.closest('[data-scroll]');
   if (arrow) { const st = arrow.parentNode.querySelector('.strip'); st.scrollBy({ left: +arrow.dataset.scroll * st.clientWidth * .85, behavior: 'smooth' }); return; }
-  const card = e.target.closest('.card');
+  const card = e.target.closest('.card, .tn');
   if (card) { buzz(); openDetail(card.dataset.key); }
 });
 content.addEventListener('mouseover', e => {
   const card = e.target.closest('.card');
   if (card && document.activeElement !== card) card.focus({ preventScroll: true });
+  if (CAN_HOVER) schedulePreview(card);
 });
+
+/* ===== Vista previa al dejar el mouse sobre un póster (solo PC con mouse) ===== */
+const CAN_HOVER = matchMedia('(hover: hover) and (pointer: fine)').matches;
+let pvTimer = null, pvCard = null;
+function schedulePreview(card) {
+  if (card === pvCard) return;
+  clearTimeout(pvTimer);
+  pvCard = card;
+  if (card && !card.closest('.pick')) pvTimer = setTimeout(() => showPreview(card), 650);
+}
+function hidePreview() {
+  clearTimeout(pvTimer); pvCard = null;
+  const pv = $('pv');
+  if (pv) pv.classList.remove('on');
+}
+function showPreview(card) {
+  const it = items.get(card.dataset.key);
+  if (!it || !document.body.contains(card) || !card.matches(':hover') || overlay.classList.contains('on')) return;
+  let pv = $('pv');
+  if (!pv) {
+    pv = document.createElement('div');
+    pv.id = 'pv'; pv.className = 'pv';
+    pv.addEventListener('mouseleave', hidePreview);
+    pv.addEventListener('click', e => {
+      const b = e.target.closest('[data-pvgo]');
+      if (b && b.dataset.go) { go(b.dataset.go, b.dataset.label); return; }
+      const k = pv.dataset.key; hidePreview(); openDetail(k);
+    });
+    document.body.appendChild(pv);
+  }
+  const r = card.getBoundingClientRect();
+  const w = Math.max(340, r.width * 1.9);
+  const left = Math.min(Math.max(12, r.left + r.width / 2 - w / 2), innerWidth - w - 12);
+  // Nunca por encima de la zona de contenido (no tapa la barra de botones)
+  const minTop = content.getBoundingClientRect().top + 8;
+  const top = Math.max(minTop, Math.min(r.top - 20, innerHeight - 380));
+  const title = it.title || it.name, y = (it.release_date || it.first_air_date || '').slice(0, 4);
+  const img = it.backdrop_path ? `${IMG}w780${it.backdrop_path}` : it.poster_path ? `${IMG}w500${it.poster_path}` : '';
+  pv.dataset.key = card.dataset.key;
+  pv.style.cssText = `left:${left}px;top:${top}px;width:${w}px`;
+  pv.innerHTML = `<div class="pvimg">${img ? `<img src="${img}" alt="">` : ''}</div>
+    <div class="pvb"><b>${esc(title)}</b>
+    <em>${[it.media_type === 'tv' ? 'Serie' : 'Película', y, it.vote_average ? '★ ' + it.vote_average.toFixed(1) : ''].filter(Boolean).join(' · ')}</em>
+    <p>${esc(it.overview || '')}</p>
+    <div class="pvbtns"><span class="btn pvplay">${ic('play')} Ver</span><span class="btn">${ic('info')} Más info</span></div></div>`;
+  requestAnimationFrame(() => pv.classList.add('on'));
+  // "Ver en Netflix…" con el enlace directo al título
+  providers(it.media_type, it.id).then(p => {
+    const s = p.mine.find(x => PREMIUM.includes(x));
+    const btn = pv.dataset.key === card.dataset.key && pv.querySelector('.pvplay');
+    if (!s || !btn) return;
+    btn.dataset.pvgo = '1'; btn.dataset.label = SERVICES[s].name;
+    btn.dataset.go = SERVICES[s].open(encodeURIComponent(title));
+    btn.innerHTML = `${ic('play')} Ver en ${SERVICES[s].name}`;
+    btn.style.background = SERVICES[s].color; btn.style.color = '#fff';
+    directLinks(it, null).then(l => { if (l && l[s]) btn.dataset.go = l[s]; }).catch(() => {});
+  });
+}
+content.addEventListener('mouseleave', e => { if (!e.relatedTarget || !e.relatedTarget.closest('#pv')) hidePreview(); });
+// (el banner que se desliza solo no cuenta)
+content.addEventListener('scroll', e => { if (!(e.target.classList && e.target.classList.contains('hslides')) && $('pv') && $('pv').classList.contains('on')) hidePreview(); }, { passive: true, capture: true });
+document.addEventListener('keydown', hidePreview, true);
+document.addEventListener('mousedown', e => { if (!e.target.closest('#pv')) hidePreview(); }, true);
+content.addEventListener('mouseover', e => { if (!e.target.closest('.card')) hidePreview(); });
 
 $('backBtn').addEventListener('click', () => show('menu'));
 $('keyBtn').addEventListener('click', () => { $('filters').classList.add('off'); renderSetup(); });
@@ -2339,6 +2476,9 @@ $('filters').addEventListener('click', e => {
 function applyFilters() {
   if (content.querySelector('.picker')) return;
   const min = parseInt(filters.min, 10) * 10;
+  const age = kidsMode() ? 'kids' : filters.age;
+  const ageGroup = document.querySelector('.fgroup[data-f="age"]');
+  if (ageGroup) ageGroup.style.display = kidsMode() ? 'none' : '';
   content.querySelectorAll('.card').forEach(c => {
     const svcs = (c.dataset.svcs || '').split(' ');
     const r = parseInt(c.dataset.r, 10) || 0;
@@ -2346,7 +2486,7 @@ function applyFilters() {
     const ok = (filters.svc === 'all' || svcs.includes(filters.svc))
       && (filters.type === 'all' || c.dataset.t === filters.type)
       && (!min || r >= min)
-      && (filters.age === 'all' || (filters.age === 'kids') === isKids(c));
+      && (age === 'all' || (age === 'kids') === isKids(c));
     const disp = ok ? '' : 'none';
     if (c.style.display !== disp) c.style.display = disp;
     const w = parseInt(c.dataset.w, 10) || 0;
@@ -2355,7 +2495,7 @@ function applyFilters() {
   });
   // Con algún filtro puesto, el banner destacado se esconde (puede no cumplirlo)
   const hero = $('hero');
-  if (hero) hero.style.display = filters.svc === 'all' && filters.type === 'all' && !min && filters.age === 'all' ? '' : 'none';
+  if (hero) hero.style.display = filters.svc === 'all' && filters.type === 'all' && !min && age === 'all' ? '' : 'none';
   // Oculta las filas que quedaron sin títulos
   content.querySelectorAll('.row').forEach(row => {
     const cards = row.querySelectorAll('.card');
@@ -2376,12 +2516,17 @@ new MutationObserver(() => {
 
 // "Para chicos": familia, infantil o animación, sin terror, crimen, suspenso ni guerra (el anime japonés queda afuera)
 function isKids(c) {
-  const g = (c.dataset.g || '').split(' ').map(Number);
-  // En series, la animación sola no alcanza (Rick y Morty, Los Simpson): tiene que estar marcada como infantil o familiar
-  const kidsGenre = g.includes(10751) || g.includes(10762) || (g.includes(16) && c.dataset.t === 'movie' && c.dataset.l !== 'ja');
+  return kidsOk((c.dataset.g || '').split(' ').map(Number), c.dataset.t, c.dataset.l);
+}
+// En series, la animación sola no alcanza (Rick y Morty, Los Simpson): tiene que estar marcada como infantil o familiar
+function kidsOk(g, type, lang) {
+  const kidsGenre = g.includes(10751) || g.includes(10762) || (g.includes(16) && type === 'movie' && lang !== 'ja');
   const adult = [27, 80, 53, 10752, 10768].some(x => g.includes(x));
   return kidsGenre && !adult;
 }
+const isKidsItem = it => kidsOk(it.genre_ids || (it.genres || []).map(g => g.id), it.media_type || it._type, it.original_language);
+// Perfil para chicos: todo el centro muestra solo títulos para chicos
+const kidsMode = () => !!(currentProfile() && currentProfile().kids);
 
 /* ================= Categorías ================= */
 function renderCategories() {
@@ -2479,6 +2624,51 @@ async function loadNewEpisodes(seq) {
   out.sort((a, b) => b.rank - a.rank);
   box.innerHTML = out.length ? rowHTML(`🔔 Novedades de tus series (${out.length})`, out.map(o => cardHTML(o.item, null, o.caption)).join('')) : '';
   fillBadges(box);
+}
+
+/* ================= 🌙 Esta noche para vos: 3 títulos del día según tus gustos ================= */
+// Mezcla siempre igual durante el mismo día (cambia a la medianoche)
+function dayShuffle(list, salt) {
+  let h = 2166136261;
+  for (const ch of new Date().toDateString() + salt) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  const rnd = () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0) / 4294967296;
+  const a = [...list];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+async function loadTonight(seq, fallback) {
+  const box = $('tonightRow');
+  if (!box) return;
+  const today = new Date().toDateString();
+  let pick = loadJSON(pk('tonight'), null);
+  if (!pick || pick.day !== today || pick.platforms !== PREMIUM.join() || pick.kids !== kidsMode()) {
+    // Semillas: lo que te gustó (si no hay, lo que viste o tu lista)
+    const seeds = [...seenList.filter(x => x.like === 1), ...myList, ...seenList.filter(x => !x.like)].slice(0, 6);
+    let pool = [];
+    for (const s of seeds) {
+      const t = s.media_type || s._type;
+      const d = await api(`${t}/${s.id}/recommendations`).catch(() => null);
+      if (d) pool.push(...(d.results || []).slice(0, 12).map(r => ({ ...r, _type: r.media_type || t, _why: s.title || s.name })));
+    }
+    if (!pool.length) pool = (fallback || []).map(r => ({ ...r, _why: '' }));
+    const seenK = new Set();
+    pool = pool.filter(r => r.backdrop_path && /[a-záéíóúñü]/i.test(r.title || r.name || ''))
+      .filter(r => { const k = typeOf(r) + '/' + r.id; if (seenK.has(k)) return false; seenK.add(k); return true; });
+    if (kidsMode()) pool = pool.filter(isKidsItem);
+    pool = notSeen(await onlyMine(dayShuffle(pool, profileId).slice(0, 18)));
+    pick = { day: today, platforms: PREMIUM.join(), kids: kidsMode(), items: pool.slice(0, 3).map(r => ({ ...slim(r), why: r._why })) };
+    store(pk('tonight'), JSON.stringify(pick));
+  }
+  if (seq !== searchSeq || !$('tonightRow') || !pick.items.length) return;
+  box.innerHTML = `<section class="tonight"><h2>🌙 Esta noche para vos</h2><div class="tngrid">${pick.items.map((it, i) => {
+    const key = keyOf(it);
+    items.set(key, { ...it });
+    const y = (it.release_date || '').slice(0, 4);
+    return `<button class="tn focusable" data-key="${esc(key)}" style="animation-delay:${i * .08}s">
+      <img loading="lazy" src="${IMG}${IS_TOUCH ? 'w780' : 'w1280'}${esc(it.backdrop_path)}" alt="">
+      <span class="tni"><small>${it.why ? 'Porque te gustó ' + esc(it.why) : 'Muy bien puntuada en tus plataformas'}</small>
+      <b>${esc(it.title)}</b><em>${[it.media_type === 'tv' ? 'Serie' : 'Película', y, it.vote_average ? '★ ' + it.vote_average.toFixed(1) : ''].filter(Boolean).join(' · ')}</em></span></button>`;
+  }).join('')}</div></section>`;
 }
 
 /* ================= ✨ Para vos ================= */
@@ -2587,6 +2777,7 @@ function profileForm(p) {
       <h2>${p ? 'Editar perfil' : 'Nuevo perfil'}</h2>
       <label class="search"><input class="focusable" id="pname" type="text" maxlength="20" placeholder="Nombre" value="${p ? esc(p.name) : ''}" autocomplete="off" spellcheck="false"></label>
       <div class="wrap seasons" id="pemoji" style="margin:1em 0;font-size:26px">${EMOJIS.map(e => `<button class="chip focusable${e === pick ? ' on' : ''}" data-emoji="${e}">${e}</button>`).join('')}</div>
+      <div class="wrap" style="margin:0 0 1em"><button class="chip focusable${p && p.kids ? ' on' : ''}" id="pkids">🧸 Perfil para chicos <small style="font-weight:400">(muestra solo títulos para chicos)</small></button></div>
       <button class="btn primary focusable" id="psave" data-pid="${p ? p.id : ''}">Guardar</button>
       ${p && profiles.length > 1 ? `<button class="btn focusable" id="pdel" style="margin-left:.6em">🗑 Borrar perfil</button>` : ''}
       <div class="error" id="perr"></div>
@@ -2616,14 +2807,17 @@ async function renderProfiles(formFor) {
   $('shareList').addEventListener('click', async () => openWhatsApp(await listText()));
   $('copyList').addEventListener('click', async e => { const ok = await copyText(await listText()); e.target.textContent = ok ? '✓ Lista copiada' : 'No se pudo copiar'; });
   if ($('pform')) {
+    $('pkids').addEventListener('click', () => $('pkids').classList.toggle('on'));
     $('pemoji').addEventListener('click', e => { const c = e.target.closest('[data-emoji]'); if (!c) return; $('pemoji').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === c)); });
     $('psave').addEventListener('click', () => {
       const name = $('pname').value.trim();
       const emoji = ($('pemoji').querySelector('.chip.on') || {}).dataset.emoji || '🙂';
       if (!name) { $('perr').textContent = 'Escribí un nombre.'; return; }
       const id = $('psave').dataset.pid;
-      if (id) profiles = profiles.map(p => p.id === id ? { ...p, name, emoji } : p);
-      else { const nid = 'p' + Date.now().toString(36); profiles.push({ id: nid, name, emoji }); switchProfile(nid); }
+      const kids = $('pkids').classList.contains('on');
+      if (id) profiles = profiles.map(p => p.id === id ? { ...p, name, emoji, kids } : p);
+      else { const nid = 'p' + Date.now().toString(36); profiles.push({ id: nid, name, emoji, kids }); switchProfile(nid); }
+      exploreLoaded = false;
       store('cm-profiles', JSON.stringify(profiles));
       updateProfileButton();
       renderProfiles();
@@ -2717,6 +2911,13 @@ function settingsExtrasHTML() {
         ? '<button class="btn focusable" id="syncNow">🔄 Sincronizar ahora</button><button class="btn focusable" id="syncOff" style="margin-left:.6em">Desactivar en este equipo</button>'
         : '<button class="btn primary focusable" id="syncOn">🔄 Activar sincronización</button>'}
       <div class="error" id="syncMsg"></div>
+      <h2 style="margin-top:1.4em">🔔 Avisos de episodios nuevos</h2>
+      <p>Te avisa con una notificación cuando sale un capítulo de una serie que seguís (🔔 Seguir serie en su ficha). Revisa al abrir el centro y cada unas horas mientras está abierto.</p>
+      ${!('Notification' in window) ? '<p style="color:var(--muted)">Este navegador no permite notificaciones.</p>'
+        : store('cm-notify') === '1' && Notification.permission === 'granted'
+        ? '<button class="btn focusable" id="notifyOff">🔕 Desactivar avisos</button><button class="btn focusable" id="notifyTest" style="margin-left:.6em">Probar aviso</button>'
+        : '<button class="btn primary focusable" id="notifyOn">🔔 Activar avisos</button>'}
+      <div class="error" id="notifyMsg"></div>
       <h2 style="margin-top:1.4em">💾 Copia de seguridad</h2>
       <p>Guarda en un archivo los perfiles, listas, vistas, calificaciones y series seguidas. Si algún día se borra el centro, la importás y recuperás todo.</p>
       <button class="btn focusable" id="exportBtn">💾 Exportar copia</button>
@@ -2740,6 +2941,16 @@ function bindSettingsExtras() {
   $('phoneShare').addEventListener('click', () => openWhatsApp('📺 Centro Multimedia para el celular:\n' + phoneLink()));
   $('phoneCopy').addEventListener('click', async () => { $('phoneMsg').textContent = (await copyText(phoneLink())) ? '✅ Enlace copiado.' : 'No se pudo copiar.'; });
   $('phoneQR').addEventListener('click', showQR);
+  if ($('notifyOn')) $('notifyOn').addEventListener('click', async () => {
+    const perm = await Notification.requestPermission().catch(() => 'denied');
+    if (perm !== 'granted') { $('notifyMsg').textContent = '❌ No diste permiso. Se puede habilitar desde la configuración del navegador (sitio → Notificaciones).'; return; }
+    store('cm-notify', '1');
+    renderSetup();
+    $('notifyMsg').textContent = '✅ Listo: te vamos a avisar de los episodios nuevos.';
+    checkEpisodes(true);
+  });
+  if ($('notifyOff')) $('notifyOff').addEventListener('click', () => { store('cm-notify', null); renderSetup(); });
+  if ($('notifyTest')) $('notifyTest').addEventListener('click', () => notify('🔔 Así se ven los avisos', 'Cuando salga un episodio nuevo de tus series, te llega uno como este.', 'test'));
   if ($('syncOn')) $('syncOn').addEventListener('click', async () => {
     $('syncMsg').textContent = 'Activando…';
     try { await syncEnable(); renderSetup(); $('syncMsg').textContent = '✅ Listo. Ahora mandá el enlace al celular (WhatsApp o QR).'; }
@@ -2760,6 +2971,7 @@ function backupData() {
     data.data[p.id] = {};
     for (const k of ['list', 'seen', 'follow', 'progress', 'searches']) data.data[p.id][k] = loadJSON(`cm-${p.id}-${k}`, k === 'progress' ? {} : []);
   }
+  data.shared = sharedList;
   return data;
 }
 // Carga una copia (archivo o sincronización). keepProfile: se queda en el perfil actual si sigue existiendo
@@ -2773,6 +2985,7 @@ function applyBackup(data, keepProfile) {
     store('cm-profiles', JSON.stringify(profiles));
     for (const p of profiles) for (const [k, v] of Object.entries((data.data || {})[p.id] || {})) store(`cm-${p.id}-${k}`, JSON.stringify(v));
     if (Array.isArray(data.platforms) && data.platforms.length) { PREMIUM = data.platforms.filter(s => SERVICES[s]); store('cm-platforms', JSON.stringify(PREMIUM)); rebuildPlatformUI(); }
+    if (Array.isArray(data.shared)) { sharedList = data.shared; store('cm-shared-list', JSON.stringify(sharedList)); }
   } finally { syncQuiet = quiet; }
   switchProfile(keepProfile && profiles.some(p => p.id === profileId) ? profileId : profiles[0].id);
 }
@@ -2908,6 +3121,38 @@ function afterSyncPull() {
 window.addEventListener('online', () => syncRun());
 document.addEventListener('visibilitychange', () => { if (!document.hidden) syncRun(); });
 setInterval(() => { if (!document.hidden) syncRun(); }, 5 * 60e3);
+
+/* ================= 🔔 Avisos de episodios nuevos ================= */
+async function notify(title, body, tag) {
+  try {
+    const reg = 'serviceWorker' in navigator && await navigator.serviceWorker.getRegistration();
+    const opts = { body, tag, icon: 'icono-192.png', badge: 'icono-192.png', data: { url: location.pathname } };
+    if (reg) await reg.showNotification(title, opts); else new Notification(title, opts);
+  } catch (e) {}
+}
+// Busca episodios que salieron en los últimos 3 días en las series que seguís (todos los perfiles)
+async function checkEpisodes(force) {
+  if (!('Notification' in window) || Notification.permission !== 'granted' || store('cm-notify') !== '1' || !apiKey) return;
+  const last = Number(store('cm-notify-last')) || 0;
+  if (!force && Date.now() - last < 3 * HOUR) return;
+  store('cm-notify-last', String(Date.now()));
+  const done = loadJSON('cm-notified');
+  const ids = new Map();
+  for (const p of profiles) for (const f of loadJSON(`cm-${p.id}-follow`)) ids.set(f.id, f.name);
+  for (const [id, name] of ids) {
+    const d = await limited(() => api(`tv/${id}`, {}, true, 3 * HOUR)).catch(() => null);
+    const e = d && d.last_episode_to_air;
+    if (!e || !e.air_date) continue;
+    const age = (Date.now() - new Date(e.air_date + 'T12:00')) / DAY;
+    const tag = `${id}:${e.season_number}x${e.episode_number}`;
+    if (age < -0.5 || age > 3 || done.includes(tag)) continue;
+    done.push(tag);
+    notify(`🆕 ${d.name || name}`, `Salió T${e.season_number} E${e.episode_number}${e.name ? ' · ' + e.name : ''}`, tag);
+  }
+  store('cm-notified', JSON.stringify(done.slice(-200)));
+}
+setTimeout(() => checkEpisodes(), 6000);
+setInterval(() => checkEpisodes(), HOUR);
 
 /* ================= 🔳 Código QR para abrirlo en el celular ================= */
 function loadScript(src) {
@@ -3093,7 +3338,8 @@ async function suggest() {
       return d.results.map(r => ({ ...r, _type: type }));
     }));
     if (seq !== searchSeq) return;
-    const pool = notSeen(interleave(...(lists.length > 1 ? lists : [lists[0], []])));
+    let pool = notSeen(interleave(...(lists.length > 1 ? lists : [lists[0], []])));
+    if (kidsMode()) pool = pool.filter(isKidsItem);
     for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
     if (!pool.length) { res.innerHTML = '<div class="msg">No encontré nada con esas opciones. Prueba con "Sin límite" o "Todas".</div>'; return; }
     const [top, ...rest] = pool;
@@ -3171,6 +3417,7 @@ function actionButtons(it, p, trailerKey) {
   const like = likeOf(k);
   b.push(`<button class="btn focusable${like === 1 ? ' on' : ''}" data-like="1" title="Me gustó">👍</button>`);
   b.push(`<button class="btn focusable${like === -1 ? ' on' : ''}" data-like="-1" title="No me gustó">👎</button>`);
+  b.push(`<button class="btn focusable${inShared(k) ? ' on' : ''}" data-together title="Lista de toda la familia">${inShared(k) ? ic('check') + ' Para ver juntos' : '👨‍👩‍👧 Para ver juntos'}</button>`);
   if (it.media_type === 'tv') b.push(`<button class="btn focusable${isFollowed(it.id) ? ' on' : ''}" data-follow>${ic('bell')}${isFollowed(it.id) ? ' Siguiendo' : ' Seguir serie'}</button>`);
   b.push(IS_TOUCH && navigator.share
     ? `<button class="btn focusable" data-share title="Compartir">${ic('share')} Compartir</button>`
@@ -3331,6 +3578,45 @@ async function loadSaga(col, currentKey) {
   } catch (e) { box.innerHTML = ''; }
 }
 
+/* Color principal del póster (para teñir la ficha, como en Apple TV). Devuelve "r,g,b" o null. */
+const accentMem = new Map();
+function accentOf(path) {
+  if (!path) return Promise.resolve(null);
+  if (accentMem.has(path)) return accentMem.get(path);
+  const saved = cacheGet('c:acc:' + path);
+  if (saved) { const p = Promise.resolve(saved.d); accentMem.set(path, p); return p; }
+  const p = new Promise(ok => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas'); c.width = 24; c.height = 36;
+        const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0, 24, 36);
+        const d = x.getImageData(0, 0, 24, 36).data;
+        let r = 0, g = 0, b = 0, n = 0, ar = 0, ag = 0, ab = 0;
+        for (let i = 0; i < d.length; i += 4) {
+          const R = d[i], G = d[i + 1], B = d[i + 2], mx = Math.max(R, G, B), mn = Math.min(R, G, B);
+          ar += R; ag += G; ab += B;
+          // Se prefieren los colores vivos (ni grises, ni casi negros, ni casi blancos)
+          if (mx > 60 && mx < 245 && (mx - mn) / mx > .35) { r += R; g += G; b += B; n++; }
+        }
+        const k = d.length / 4;
+        let rgb = n > k * .06 ? [r / n, g / n, b / n] : [ar / k, ag / k, ab / k];
+        // Más oscuro y saturado, para que el texto blanco se lea bien encima
+        const m = Math.max(...rgb) || 1, f = Math.min(1, 150 / m);
+        rgb = rgb.map(v => Math.round(v * f));
+        const out = rgb.join(',');
+        cacheSet('c:acc:' + path, out, 30 * 24 * HOUR);
+        ok(out);
+      } catch (e) { ok(null); } // la imagen no permite leer sus colores
+    };
+    img.onerror = () => ok(null);
+    img.src = `${IMG}w92${path}`;
+  });
+  accentMem.set(path, p);
+  return p;
+}
+
 const backdropHTML = path => path ? `<div class="dback" style="background-image:url('${IMG}${IS_TOUCH ? 'w780' : 'w1280'}${esc(path)}')"></div>` : '';
 
 async function openDetail(key) {
@@ -3359,6 +3645,8 @@ async function openDetail(key) {
     </div>
     <div class="more" id="dmore"></div>`;
   $('detail').scrollTop = 0;
+  $('detail').style.removeProperty('--acc');
+  accentOf(it.poster_path).then(rgb => { if (rgb && detailKey === key) $('detail').style.setProperty('--acc', rgb); });
   overlay.classList.add('on');
 
   const extra = type === 'movie' ? 'videos,credits,recommendations,similar,release_dates,external_ids' : 'videos,aggregate_credits,recommendations,similar,content_ratings,external_ids';
@@ -3456,7 +3744,7 @@ async function openDetail(key) {
     .map(r => ({ ...r, _type: r.media_type || type }))
     .filter(r => /[a-záéíóúñü]/i.test(r.title || r.name || '')) // sin títulos en otros alfabetos
     .filter(r => { const k = typeOf(r) + '/' + r.id; if (k === key || seenKeys.has(k)) return false; seenKeys.add(k); return true; });
-  const recs = notSeen(await onlyMine(pool)).slice(0, 20);
+  const recs = notSeen(await onlyMine(kidsMode() ? pool.filter(isKidsItem) : pool)).slice(0, 20);
   if (!overlay.classList.contains('on') || detailKey !== key) return;
   $('drecs').innerHTML = recs.length
     ? `<h4>Si te gustó esto…</h4><div class="strip">${recs.map(r => cardHTML(r)).join('')}</div>`
@@ -3549,6 +3837,7 @@ overlay.addEventListener('click', e => {
   else if (b && b.hasAttribute('data-list') && it) { toggleList(it); refreshActions(it, b); toast(inList(keyOf(it)) ? '📌 Agregada a Mi lista' : 'Quitada de Mi lista'); }
   else if (b && b.hasAttribute('data-seen') && it) { toggleSeen(it); refreshActions(it, b); toast(isSeen(keyOf(it)) ? '✓ Marcada como vista' : 'Ya no figura como vista'); }
   else if (b && b.dataset.like && it) { setLike(it, +b.dataset.like); refreshActions(it, b); toast(likeOf(keyOf(it)) === 1 ? '👍 Te gustó: vas a ver más parecidas' : likeOf(keyOf(it)) === -1 ? '👎 Anotado: menos de estas' : 'Calificación quitada'); }
+  else if (b && b.hasAttribute('data-together') && it) { toggleShared(it); refreshActions(it, b); toast(inShared(keyOf(it)) ? '👨‍👩‍👧 Agregada a "Para ver juntos"' : 'Quitada de "Para ver juntos"'); }
   else if (b && b.hasAttribute('data-follow') && it) { toggleFollow(it, detailCtx && detailCtx.d); refreshActions(it, b); toast(isFollowed(it.id) ? '🔔 Te avisamos de los nuevos episodios' : 'Dejaste de seguir la serie'); }
   else if (b && b.hasAttribute('data-share') && it) {
     const text = shareText(it, detailCtx && detailCtx.p);
@@ -3581,7 +3870,7 @@ overlay.addEventListener('click', e => {
 });
 // Redibuja los botones de la ficha conservando el foco en el mismo botón
 async function refreshActions(it, btn) {
-  const which = btn.hasAttribute('data-list') ? '[data-list]' : btn.hasAttribute('data-seen') ? '[data-seen]'
+  const which = btn.hasAttribute('data-list') ? '[data-list]' : btn.hasAttribute('data-seen') ? '[data-seen]' : btn.hasAttribute('data-together') ? '[data-together]'
     : btn.dataset.like ? `[data-like="${btn.dataset.like}"]` : '[data-follow]';
   const p = detailCtx ? detailCtx.p : await providers(it.media_type, it.id);
   $('actions').innerHTML = actionButtons(it, p, detailCtx ? detailCtx.trailerKey : null);

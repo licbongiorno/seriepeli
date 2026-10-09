@@ -1,5 +1,5 @@
 // Centro Multimedia: guarda la página en el equipo para que abra sin internet.
-const VERSION = 'centro-v6';
+const VERSION = 'centro-v7';
 const APP = ['./', 'index.html', 'manifest.webmanifest', 'icono.svg', 'icono-192.png', 'icono-512.png', 'apple-touch-icon.png', 'centro.ico', 'qrcode.js'];
 const IMAGES = 'centro-img';
 
@@ -36,4 +36,13 @@ self.addEventListener('fetch', e => {
       return r;
     }));
   }
+});
+
+// Al tocar un aviso de episodio nuevo: abre el centro (o lo trae al frente si ya estaba abierto)
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+    const open = list.find(c => c.url.includes(self.registration.scope));
+    return open ? open.focus() : self.clients.openWindow((e.notification.data && e.notification.data.url) || './');
+  }));
 });
